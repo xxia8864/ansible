@@ -1,10 +1,10 @@
 ```yaml
 ---
 name: Check dot1x status and count the result
--hosts: network_devices
- gather_facts: no
- tasks:
-  name: Run the command to check dot1x status
+ - hosts: network_devices
+   gather_facts: no
+   tasks:
+   name: Run the command to check dot1x status
 ios_command:
 -commands:
   show dot1x all summary | ex UN
