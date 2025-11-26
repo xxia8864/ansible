@@ -1,3 +1,4 @@
+---
 - name: run cli command
   hosts: all
   gather_facts: false
@@ -9,6 +10,6 @@
         commands："{{ cli_cmd }}"
       register: cli_output
 
-   - name: show result
-     debug:
-     var: cli_output.stdout
+    - name: show result
+      debug:
+        var: cli_output.stdout
