@@ -7,7 +7,7 @@
   tasks:
     - name: run defined command from Extra variables
       ios_command:
-        commands: "{{ cli_cmd }}"
+        commands: "{{ cli_cmd.split('\r\r\n') }}"
       register: cli_output
 
     - name: show result
