@@ -5,9 +5,12 @@
   connection: network_cli
 
   tasks:
+    - name: test input
+      debug:
+        var: "{{ cli_cmd }}"
     - name: run defined command from Extra variables
       ios_command:
-        commands: "{{ cli_cmd.split('\r\r\n') }}"
+        commands: "{{ cli_cmd }}"
       register: cli_output
 
     - name: show result
