@@ -4,4 +4,10 @@
   connection: network_cli
 
   tasks:
-   - name: run command
+   - name: run defined command from Extra variables
+     ios_command:"{{ cli_cmd }}"
+     register: cli_output
+
+  - name: show result
+    debug:
+     var: cli_output.stdout
