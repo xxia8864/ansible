@@ -6,8 +6,8 @@
 
   tasks:
     - name: run defined command from Extra variables
-      ios_command:
-        commands："{{ cli_cmd }}"
+      cisco.ios.ios_command:
+        commands: "{{ cli_cmd }}"
       register: cli_output
 
     - name: show result
