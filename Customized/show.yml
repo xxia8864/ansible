@@ -10,17 +10,17 @@
         - ios_command:
            commands: "{{ cli_cmd }}"
           register: cli_output
-          when: device_os == 'ios'
+          when: ansible_network_os == 'ios'
 
         - nxos_command:
             commands: "{{ cli_cmd }}"
           register: cli_output
-          when: device_os == 'nxos'
+          when: ansible_network_os == 'nxos'
 
         - eos_command:
             commands: "{{ cli_cmd }}"
           register: cli_output
-          when: device_os == 'eos'
+          when: ansible_network_os == 'eos'
     - name: show result
       debug:
         var: cli_output.stdout
