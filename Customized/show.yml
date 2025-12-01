@@ -1,0 +1,26 @@
+---
+- name: run cli command (Multiple vendor supports)
+  hosts: all
+  gather_facts: false
+  connection: network_cli
+
+  tasks:
+    - name: run defined command from Extra variables (using 'ansible_network_os' field in inventory to determine device's OS)
+      block:
+        - ios_command:
+           commands: "{{ cli_cmd }}"
+          register: cli_output
+          when: device_os == 'ios'
+
+        - nxos_command:
+            commands: "{{ cli_cmd }}"
+          register: cli_output
+          when: device_os == 'nxos'
+
+        - eos_command:
+            commands: "{{ cli_cmd }}"
+          register: cli_output
+          when: device_os == 'eos'
+    - name: show result
+      debug:
+        var: cli_output.stdout
