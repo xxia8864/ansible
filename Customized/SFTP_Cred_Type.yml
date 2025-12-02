@@ -1,0 +1,31 @@
+(input cconfiguration)
+
+fields:
+  - id: sftp_username
+    type: string
+    label: SFTP Username
+  - id: sftp_password
+    type: string
+    label: SFTP Password
+    secret: true
+  - id: sftp_host
+    type: string
+    label: SFTP Server IP/Hostname
+  - id: sftp_port
+    type: string
+    label: SFTP Port
+    default: '22'
+required:
+  - sftp_username
+  - sftp_password
+  - sftp_host
+
+(Injector configuration)
+{
+  "extra_vars": {
+    "sftp_username": "{{ sftp_username }}",
+    "sftp_password": "{{ sftp_password }}",
+    "sftp_host": "{{ sftp_host }}",
+    "sftp_port": "{{ sftp_port }}"
+  }
+}
