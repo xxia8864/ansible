@@ -5,7 +5,7 @@
   connection: network_cli
 
   tasks:
-    - name: run defined command from Extra variables (using 'ansible_network_os' field in inventory to determine device's OS)
+    - name: run defined command from Extra variables #using 'ansible_network_os' field in inventory to determine device's OS
       block:
         - ios_command:
            commands: "{{ cli_cmd }}" (using the 'EXTRA AVARIABLES' filed in template for the command to run)
@@ -24,3 +24,10 @@
     - name: show result
       debug:
         var: cli_output.stdout
+    - name: create output file locally
+      copy:
+        content: |
+          output: {{ cli_output.stdout }}
+          job_time: {{ ansible_date_time.iso8601 }}
+      dest: "/tmp/{{ inventory_hostname }}_idle_ports.txt"
+      delegate_to: localhost           
