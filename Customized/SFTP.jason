@@ -1,0 +1,36 @@
+{
+  "fields": [
+    {
+      "id": "sftp_username",
+      "label": "SFTP Username",
+      "type": "string"
+    },
+    {
+      "id": "sftp_password",
+      "label": "SFTP Password",
+      "type": "string",
+      "secret": true
+    },
+    {
+      "id": "sftp_host",
+      "label": "SFTP Server IP/Hostname",
+      "type": "string"
+    },
+    {
+      "id": "sftp_port",
+      "label": "SFTP Port",
+      "type": "string",
+      "default": "22"
+    }
+  ],
+  "required": ["sftp_username", "sftp_password", "sftp_host"]
+}
+
+{
+  "extra_vars": {
+    "sftp_username": "{{ sftp_username }}",
+    "sftp_password": "{{ sftp_password }}",
+    "sftp_host": "{{ sftp_host }}",
+    "sftp_port": "{{ sftp_port }}"
+  }
+}
