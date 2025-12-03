@@ -28,8 +28,8 @@
 
     - name: show result
       debug:
-        msg: "{{ cli_output.stdout_lines }}"
-
+        var: cli_output.stdout
+        
     - name: create output file locally
       copy:
         content: |
