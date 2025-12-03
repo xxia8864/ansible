@@ -33,11 +33,10 @@
     - name: create output file locally
       copy:
         content: |
- #         Host: {{ inventory_hostname }}
-  #        OS: {{ ansible_network_os | default('unknown') }}
- #         Command: "{{ cli_cmd }}"
-          Output:
-          {{ cli_output.stdout }}
+          Host: {{ inventory_hostname }}
+          OS: {{ ansible_network_os | default('unknown') }}
+          Command: "{{ cli_cmd }}"
+          Output: {{ cli_output.stdout }}
           Job time: {{ ansible_date_time.iso8601 }}
         dest: "/tmp/output_{{ timestamp }}.txt"
       delegate_to: localhost
