@@ -5,39 +5,56 @@
   connection: network_cli
 
   tasks:
-    - name: run defined command from Extra variables #using 'ansible_network_os' field in inventory to determine device's OS
+    - name: #generate time stamp
+      set_fact:
+        timestamp: "{{ lookup('pipe','date +%Y%m%d-%H%M%S') }}"
+      run_once: true
+      delegate_to: localhost
+
+    - name: run defined command from Extra variables
       block:
         - ios_command:
-           commands: "{{ cli_cmd }}" #using the 'EXTRA AVARIABLES' filed in template for the command to run
+            commands: "{{ cli_cmd }}"
           register: cli_output
           when: ansible_network_os == 'ios'
-
         - nxos_command:
             commands: "{{ cli_cmd }}"
           register: cli_output
           when: ansible_network_os == 'nxos'
-
         - eos_command:
             commands: "{{ cli_cmd }}"
           register: cli_output
           when: ansible_network_os == 'eos'
+
     - name: show result
       debug:
-        var: cli_output.stdout
+        msg: "{{ cli_output.stdout_lines }}"
+
     - name: create output file locally
       copy:
         content: |
-          output: {{ cli_output.stdout }}
-          job_time: {{ ansible_date_time.iso8601 }}
-      dest: "/tmp/output_{{ lookup('pipe','date +%Y%m%d-%H%M%S')}}.txt"
-      delegate_to: localhost           
-    - name: upload to SFTP 
+          Host: {{ inventory_hostname }}
+          OS: {{ ansible_network_os | default('unknown') }}
+          Command: "{{ cli_cmd }}"
+          Output:
+          {{ cli_output.stdout | join('\n') | indent(4) }}
+          Job time: {{ ansible_date_time.iso8601 }}
+        dest: "/tmp/output_{{ timestamp }}.txt"
+      delegate_to: localhost
+
+    - name: upload to SFTP
       net_tools.sftp.sftp:
         mode: put
-        src: "/tmp/output_{{ lookup('pipe','date +%Y%m%d-%H%M%S')}}.txt"
-        dest: "/upload/from_ansible/output_{{ lookup('pipe','date +%Y%m%d-%H%M%S')}}.txt"
+        src: "/tmp/output_{{ timestamp }}.txt"
+        dest: "/upload/from_ansible/output_{{ timestamp }}.txt"
         host: "{{ sftp_host }}"
         port: "{{ sftp_port | default(22) | int }}"
         username: "{{ sftp_username }}"
         password: "{{ sftp_password }}"
+      delegate_to: localhost
+
+    - name: #delete tmp file
+      file:
+        path: "/tmp/output_{{ timestamp }}.txt"
+        state: absent
       delegate_to: localhost
