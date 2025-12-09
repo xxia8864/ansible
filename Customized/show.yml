@@ -28,7 +28,7 @@
 
     - name: show result
       debug:
-        msg: "{{ cli_output.stdout_lines }}"
+        msg: "{{ cli_output }}"
         
     - name: create output file locally
       copy:
@@ -36,7 +36,7 @@
           Host: {{ inventory_hostname }}
           OS: {{ ansible_network_os | default('unknown') }}
           Command: "{{ cli_cmd }}"
-          Output: {{ cli_output.stdout_lines }}
+          Output: {{ cli_output }}
           Job time: {{ ansible_date_time.iso8601 }}
         dest: "/tmp/output_{{ timestamp }}.txt"
       delegate_to: localhost
