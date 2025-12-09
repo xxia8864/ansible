@@ -26,9 +26,9 @@
           register: cli_output
           when: ansible_network_os == 'eos'
 
-    - name: show result
-      debug:
-        msg: "{{ cli_output.stdout_lines }}"
+   # - name: show result
+   #   debug:
+   #     msg: "{{ cli_output.stdout_lines }}"
         
     - name: create output file locally
       copy:
