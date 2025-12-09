@@ -37,7 +37,7 @@
           OS: {{ ansible_network_os | default('unknown') }}
           Command: "{{ cli_cmd }}"
           Output: {{ cli_output }}
-          Job time: {{ ansible_date_time.iso8601 }}
+          Job time: {{ timestamp.iso8601 }}
         dest: "/tmp/output_{{ timestamp }}.txt"
       delegate_to: localhost
 
