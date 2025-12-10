@@ -16,7 +16,10 @@
         command: "{{ item }}"
       loop: "{{ cli_cmd }}"
       register: cli_outputs
-
+      
+    - name: reformat result
+      set_fact:
+        real_output: "{{ cli_output | default('') | split('\n') | join('\n') }}"
     - name: show result
       debug:
         msg: "{{ cli_outputs }}"
@@ -24,11 +27,15 @@
     - name: create output file locally
       copy:
         content: |
+          =================================================
           Host: {{ inventory_hostname }}
           OS: {{ ansible_network_os | default('unknown') }}
-          Command: "{{ cli_cmd }}"      
+          time:  {{ timestamp }}
+          Command: "{{ cli_cmd }}" 
+          =================================================
           Output:
-          {{ cli_outputs }}
+          =================================================
+          {{ cli_outputs | default('error'}}}
           Job time: {{ timestamp }}
         dest: "/tmp/output_{{ timestamp }}.txt"
       delegate_to: localhost
