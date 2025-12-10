@@ -19,7 +19,7 @@
 
     - name: show result
       debug:
-        msg: "{{ ccli_outputs.stdout }}"
+        msg: "{{ cli_outputs.stdout }}"
         
     - name: create output file locally
       copy:
