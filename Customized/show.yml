@@ -1,7 +1,7 @@
 ---
 - name: run cli command (Multiple vendor supports)
   hosts: all
-  gather_facts: yes
+  gather_facts: no
   connection: network_cli
 
   tasks:
@@ -16,6 +16,10 @@
         command: "{{ item }}"
       loop: "{{ cli_cmd }}"
       register: cli_outputs
+    - name: Poll hostname using command module
+      cli_command:
+        command: hostname
+      register: hostname_output
       
     - name: show result
       debug:
@@ -33,7 +37,6 @@
 
           =================================================
           IP: {{ host }}
-          Hostname: {{ansible_hostname}}
           OS: {{ ansible_network_os | default('unknown') }}
           {% for result in cli_outputs.results %}
           ----------------------------------------
