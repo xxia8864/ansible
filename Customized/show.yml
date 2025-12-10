@@ -20,17 +20,6 @@
     - name: show result
       debug:
         msg: "{{ cli_outputs }}"
-
-    - name: collect output from all hosts
-      set_fact:
-        host_output: |
-          ========================================
-          Host: {{ inventory_hostname }}
-          ========================================
-          {% for result in cli_outputs.results %}
-          {{ result.item }}
-          {{ result.stdout}}
-          {% endfor %}
         
     - name: create output file locally
       copy:
@@ -38,9 +27,9 @@
           =================================================
           Network Command Output Report
           Generated: {{ timestamp }}
-          Total Hosts: {{ host_output | length }}
+          Total Hosts: {{ ansible_play_hosts | length }}
           =================================================
-          {% for host in host_output %}
+          {% for host in ansible_play_hosts %}
           IP: {{ host }}
           OS: {{ ansible_network_os | default('unknown') }}
           {% for result in cli_outputs.results %}
