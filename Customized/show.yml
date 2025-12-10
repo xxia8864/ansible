@@ -20,15 +20,15 @@
         - nxos_command:
             commands: "{{ cli_cmd }}"
           register: cli_output
-          when: ansible_network_os == 'nxos'
+          when: ansible_network_os == 'nxos' and cli_output is not defined
         - eos_command:
             commands: "{{ cli_cmd }}"
           register: cli_output
-          when: ansible_network_os == 'eos'
+          when: ansible_network_os == 'eos' and cli_output is not defined
 
     - name: show result
       debug:
-        msg: "{{ cli_output }}"
+        msg: "{{ cli_output.stdout_lines[0] | default('error') }}"
         
     - name: create output file locally
       copy:
