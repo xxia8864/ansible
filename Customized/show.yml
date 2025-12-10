@@ -1,7 +1,7 @@
 ---
 - name: run cli command (Multiple vendor supports)
   hosts: all
-  gather_facts: yes
+  gather_facts: no
   connection: network_cli
 
   tasks:
@@ -33,19 +33,20 @@
 
           =================================================
           IP: {{ host }}
-          Hostname: {{ hostvars[host].ansible_net_hostname }}
+          Hostname: {{ hostvars[host].ansible_network_hostname }}
           OS: {{ ansible_network_os }}
-          {% for result in cli_outputs.results %}
+          {% for hostvars[host] in cli_outputs.results %}
           ----------------------------------------
           Command {{ loop.index }}: {{ result.item }}
           ----------------------------------------
-          {{ result.stdout}}      
+          {{ hostvars[host].stdout}}      
           {% endfor %}
           {% endfor %}
           ========================================
         dest: "/tmp/ansible_show_output_{{ timestamp }}.txt"
       delegate_to: localhost
-      
+      run_once: true
+
 #    - name: upload to SFTP
 #      shell: |
 #        sshpass -p "{{ sftp_password }}" sftp -o StrictHostKeyChecking=no -P {{ sftp_port | default(22) }} {{ sftp_username }}@{{ sftp_host }} <<EOF
