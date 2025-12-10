@@ -14,7 +14,7 @@
     - name: run defined command from Extra variables
       cli_command:
         command: "{{ item }}"
-      loop: "{{ [cli_cmd] }}"
+      loop: "{{ cli_cmd }}"
       register: cli_output
 
     - name: show result
