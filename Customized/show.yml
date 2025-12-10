@@ -13,7 +13,7 @@
 
     - name: run defined command from Extra variables
       cli_command:
-        commands: "{{ item }}"
+        command: "{{ item }}"
       loop: "{{ [cli_cmd] }}"
       register: cli_output
 
