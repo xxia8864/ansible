@@ -16,10 +16,15 @@
         command: "{{ item }}"
       loop: "{{ cli_cmd }}"
       register: cli_outputs
-    - name: Poll hostname using command module
-      cli_command:
-        command: hostname
-      register: hostname_output
+      
+    - name: package host info with outputs
+      set_fact:
+        host_report:
+          ip: "{{ inventory_hostname }}"
+          hostname: "{{ hostname  }}" 
+          os: "{{ ansible_network_os  }}"
+        register: cli_outputs
+      delegate_to: localhost
       
     - name: show result
       debug:
