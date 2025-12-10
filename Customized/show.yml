@@ -44,7 +44,7 @@
         scp -P {{ sftp_port | default(22) }} 
         -o StrictHostKeyChecking=no 
         /tmp/output_{{ timestamp }}.txt 
-        {{ sftp_username }}@{{ sftp_host }}:/Ansible/output_{{ timestamp }}.txt
+        {{ sftp_username }}@{{ sftp_host }}:/ansible/output_{{ timestamp }}.txt
       delegate_to: localhost
 #      no_log: true
 
