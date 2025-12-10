@@ -1,7 +1,7 @@
 ---
 - name: run cli command (Multiple vendor supports)
   hosts: all
-  gather_facts: yes
+  gather_facts: no
   connection: network_cli
 
   tasks:
@@ -26,6 +26,7 @@
         host_output: |
           ========================================
           Host: {{ inventory_hostname }}
+          Hostname: {{hostvars[inventory_hostname].ansible_hostname }}
           ========================================
           {% for result in cli_outputs.results %}
           {{ result.item }}
