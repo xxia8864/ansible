@@ -22,7 +22,7 @@
         msg: "{{ cli_outputs }}"
 
     - name: copy result
-      copy::
+      copy:
         content: |
           "{{ cli_outputs }}"
         dest: "/tmp/debug{{ timestamp }}.txt"
