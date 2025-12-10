@@ -12,13 +12,14 @@
       delegate_to: localhost
 
     - name: run defined command from Extra variables
-      commands: "{{ cli_cmd }}"
-      register: cli_output
-    
+      ansible。builtin:cli_command:
+        commands: "{{ cli_cmd }}"
+      register: c。i_output
+
     - name: show result
       debug:
         msg: "{{ cli_output.stdout_lines[0] | default('error') }}"
-        
+
     - name: create output file locally
       copy:
         content: |
