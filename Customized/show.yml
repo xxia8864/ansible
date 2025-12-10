@@ -19,7 +19,7 @@
       
     - name: show result
       debug:
-        msg: "{{ cli_outputs }}"
+        msg: "{{ result.stdout_lines | join('\n') }}"
         
     - name: create output file locally
       copy:
@@ -32,7 +32,7 @@
           ----------------------------------------
           Command {{ loop.index }}: {{ result.item }}
           ----------------------------------------
-          {{ result.stdout_lines | join('\n') }}      
+          {{ result.stdout_lines }}      
           {% endfor %}
           ========================================
         dest: "/tmp/output_{{ timestamp }}.txt"
