@@ -27,13 +27,13 @@
           =================================================
           Host: {{ inventory_hostname }}
           OS: {{ ansible_network_os | default('unknown') }}
-          time:  {{ timestamp }}
+          time: {{ timestamp }}
           Command: "{{ cli_cmd }}" 
           =================================================
           Output:
           =================================================
           {{ cli_outputs | default('error')}}
-          Job time: {{ timestamp }
+          Job time: {{ timestamp }}
         dest: "/tmp/output_{{ timestamp }}.txt"
       delegate_to: localhost
       
