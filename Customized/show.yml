@@ -33,7 +33,7 @@
 
           =================================================
           IP: {{ host }}
-          Hostname: {{ hostvars[host].inventory_hostname }}
+          Hostname: {{ hostvars[host].ansible_net_hostname }}
           OS: {{ ansible_network_os }}
           {% for result in cli_outputs.results %}
           ----------------------------------------
