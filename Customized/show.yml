@@ -47,8 +47,8 @@
       delegate_to: localhost
       no_log: true
 
-    - name: delete tmp file
-      file:
-        path: "/tmp/output_{{ timestamp }}.txt"
-        state: absent
-      delegate_to: localhost
+#    - name: delete tmp file
+#      file:
+#        path: "/tmp/output_{{ timestamp }}.txt"
+#        state: absent
+#      delegate_to: localhost
