@@ -20,7 +20,12 @@
     - name: show result
       debug:
         msg: "{{ cli_outputs }}"
-        
+
+    - name: copy result
+      copy::
+        content: |
+          "{{ cli_outputs }}"
+        dest: "/tmp/debug{{ timestamp }}.txt"
     - name: create output file locally
       copy:
         content: |
@@ -35,7 +40,7 @@
           IP: {{ host }}
           Hostname: {{ hostvars[host].ansible_network_hostname }}
           OS: {{ hostvars[host].ansible_network_os }}
-          {% for result in .cli_outputs['10.204.93.74'].results %} 
+          {% for result in .cli_outputs[10.204.93.74].results %} 
           ----------------------------------------
           Command {{ loop.index }}: {{ result.item }}
           ----------------------------------------
