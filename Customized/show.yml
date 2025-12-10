@@ -32,7 +32,7 @@
           ----------------------------------------
           Command {{ loop.index }}: {{ result.item }}
           ----------------------------------------
-          {{ result.stdout_lines | join('\n')}}      
+          {{ result.stdout}}      
           {% endfor %}
           ========================================
         dest: "/tmp/output_{{ timestamp }}.txt"
@@ -45,10 +45,10 @@
         bye
         EOF
       delegate_to: localhost
-#      no_log: true
+      no_log: true
 
-#    - name: #delete tmp file
-#      file:
-#        path: "/tmp/output_{{ timestamp }}.txt"
-#        state: absent
-#      delegate_to: localhost
+    - name: delete tmp file
+      file:
+        path: "/tmp/output_{{ timestamp }}.txt"
+        state: absent
+      delegate_to: localhost
