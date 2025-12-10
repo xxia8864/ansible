@@ -15,11 +15,7 @@
       cli_command:
         command: "{{ item }}"
       loop: "{{ cli_cmd }}"
-      register: cli_outputs_register
-
-    - name: save outputs as fact
-      set_fact:
-        cli_outputs: "{{ cli_outputs }}"
+      register: cli_outputs
             
     - name: show result
       debug:
@@ -39,7 +35,7 @@
           IP: {{ host }}
           Hostname: {{ hostvars[host].ansible_network_hostname }}
           OS: {{ hostvars[host].ansible_network_os }}
-          {% for result in hostvars[host].cli_outputs.results %} 
+          {% for result in .cli_outputs['10.204.93.74'].results %} 
           ----------------------------------------
           Command {{ loop.index }}: {{ result.item }}
           ----------------------------------------
