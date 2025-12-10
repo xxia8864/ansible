@@ -1,7 +1,7 @@
 ---
 - name: run cli command (Multiple vendor supports)
   hosts: all
-  gather_facts: no
+  gather_facts: yes
   connection: network_cli
 
   tasks:
@@ -30,7 +30,10 @@
           Total Hosts: {{ ansible_play_hosts | length }}
           =================================================
           {% for host in ansible_play_hosts %}
+
+          =================================================
           IP: {{ host }}
+          Hostname: {{ansible_hostname}}
           OS: {{ ansible_network_os | default('unknown') }}
           {% for result in cli_outputs.results %}
           ----------------------------------------
