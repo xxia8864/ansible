@@ -19,7 +19,7 @@
       
     - name: reformat result
       set_fact:
-        real_output: "{{ cli_output | default('') | split('\n') | join('\n') }}"
+        real_output: "{{ cli_output.stdout }}"
     - name: show result
       debug:
         msg: "{{ cli_outputs }}"
@@ -35,7 +35,7 @@
           =================================================
           Output:
           =================================================
-          {{ cli_outputs | default('error'}}}
+          {{ cli_output.stdout | default('error'}}}
           Job time: {{ timestamp }}
         dest: "/tmp/output_{{ timestamp }}.txt"
       delegate_to: localhost
