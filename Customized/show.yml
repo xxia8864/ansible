@@ -38,18 +38,18 @@
           Generated: {{ timestamp }}
           Total Hosts: {{ ansible_play_hosts | length }}
           =================================================
-          {% for host in cli_outputs %}
+
 
           =================================================
-          IP: {{ host }}
-          Hostname: {{ hostvars[host].ansible_network_hostname }}
-          OS: {{ hostvars[host].ansible_network_os }}
-          {% for result in cli_outputs['10.204.93.74'].results %} 
+          IP: {{ inventory_hostname }}
+          Hostname: {{ hostvars[inventory_hostname].ansible_network_hostname }}
+          OS: {{ hostvars[inventory_hostname].ansible_network_os }}
+          {% for result in cli_outputs.results %} 
           ----------------------------------------
           Command {{ loop.index }}: {{ result.item }}
           ----------------------------------------
           {{ hostvars[host].stdout}}      
-          {% endfor %}
+
           {% endfor %}
           ========================================
         dest: "/tmp/ansible_show_output_{{ timestamp }}.txt"
