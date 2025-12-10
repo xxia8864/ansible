@@ -46,7 +46,7 @@
         /tmp/output_{{ timestamp }}.txt 
         {{ sftp_username }}@{{ sftp_host }}:/upload/from_ansible/output_{{ timestamp }}.txt
       delegate_to: localhost
-      no_log: true
+#      no_log: true
 
 #    - name: #delete tmp file
 #      file:
