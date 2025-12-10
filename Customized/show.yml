@@ -39,7 +39,7 @@
       
     - name: dump full cli_output
       copy:
-        content: "{{ cli_output | to_nice_json }}"
+        content: "{{ cli_outputs | to_nice_json }}"
         dest: "/tmp/debug_output.json"
       delegate_to: localhost
 #    - name: upload to SFTP
