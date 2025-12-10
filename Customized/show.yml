@@ -43,7 +43,7 @@
           =================================================
           {% for host in ansible_play_hosts %}
           IP: {{ host }}
-          Host: {{ inventory_hostname }}
+          Host: {{ Hostname }}
           OS: {{ ansible_network_os | default('unknown') }}
           {% for result in cli_outputs.results %}
           ----------------------------------------
