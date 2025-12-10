@@ -32,17 +32,12 @@
           ----------------------------------------
           Command {{ loop.index }}: {{ result.item }}
           ----------------------------------------
-          {{ result.stdout_lines }}      
+          {{ result.stdout_lines | join('\n') }}      
           {% endfor %}
           ========================================
         dest: "/tmp/output_{{ timestamp }}.txt"
       delegate_to: localhost
       
-    - name: dump full cli_output
-      copy:
-        content: "{{ cli_outputs | to_nice_json }}"
-        dest: "/tmp/debug_output.json"
-      delegate_to: localhost
 #    - name: upload to SFTP
 #      net_tools.sftp.sftp:
 #        mode: put
