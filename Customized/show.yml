@@ -48,7 +48,7 @@
           ----------------------------------------
           Command {{ loop.index }}: {{ result.item }}
           ----------------------------------------
-          {{ hostvars[inventory_hostname].stdout}}      
+          {{ result.stdout}}      
 
           {% endfor %}
           ========================================
