@@ -39,11 +39,11 @@
           =================================================
           Network Command Output Report
           Generated: {{ timestamp }}
-          Total Hosts: {{ ansible_play_hosts | length }}
+          Total Hosts: {{ host_output | length }}
           =================================================
-          {% for host in ansible_play_hosts %}
+          {% for host in host_output %}
           IP: {{ host }}
-          Host: {{ Hostname }}
+#          Host: {{ Hostname }}
           OS: {{ ansible_network_os | default('unknown') }}
           {% for result in cli_outputs.results %}
           ----------------------------------------
