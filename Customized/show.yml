@@ -15,11 +15,7 @@
       cli_command:
         command: "{{ item }}"
       loop: "{{ cli_cmd }}"
-      register: cli_outputs_register
-
-    - name: save as fact
-      set_fact:
-        cli_outputs: "{{ cli_outputs_register }}"
+      register: cli_outputs
         
     - name: show result
       debug:
@@ -52,7 +48,7 @@
 
           {% endfor %}
           ========================================
-        dest: "/tmp/ansible_show_output_{{ timestamp }}.txt"
+        dest: "/tmp/ansible_show_output_{{ timestamp }}_{{ inventory_hostname }}.txt"
       delegate_to: localhost
       run_once: true
 
