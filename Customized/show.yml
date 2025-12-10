@@ -26,7 +26,7 @@
         host_output: |
           ========================================
           Host: {{ inventory_hostname }}
-          Hostname: {{ hostvars[host].inventory_hostname_short }}
+          Hostname: {{ ansible_hostname }}
           ========================================
           {% for result in cli_outputs.results %}
           {{ result.item }}
