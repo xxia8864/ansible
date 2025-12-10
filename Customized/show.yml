@@ -35,13 +35,13 @@
           Total Hosts: {{ ansible_play_hosts | length }}
           =================================================
           
-          {% for items in cli_outputs %} 
+          {% for item in cli_outputs %} 
 
           =================================================
           IP: {{ inventory_hostname }}
           Hostname: {{ hostvars[inventory_hostname].ansible_network_hostname }}
           OS: {{ hostvars[inventory_hostname].ansible_network_os }}
-          {% for result in cli_outputs.results %} 
+          {% for result in item.results %} 
           ----------------------------------------
           Command {{ loop.index }}: {{ result.item }}
           ----------------------------------------
