@@ -16,7 +16,6 @@
         command: "{{ item }}"
       loop: "{{ cli_cmd }}"
       register: cli_outputs
-      delegate_to: localhost
       
     - name: package host info with outputs
       set_fact:
@@ -25,7 +24,6 @@
           hostname: "{{ ansible_network_hostname }}" 
           os: "{{ ansible_network_os  }}"
         register: cli_outputs
-      delegate_to: localhost
       
     - name: show result
       debug:
