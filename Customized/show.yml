@@ -41,8 +41,7 @@
     - name: upload to SFTP
       shell: |
         sshpass -p "{{ sftp_password }}" sftp -o StrictHostKeyChecking=no -P {{ sftp_port | default(22) }} {{ sftp_username }}@{{ sftp_host }} <<EOF
-        cd ansible
-        put /tmp/output_{{ timestamp }}.txt
+        put /tmp/output_{{ timestamp }}.txt /ansible/
         bye
         EOF
       delegate_to: localhost
