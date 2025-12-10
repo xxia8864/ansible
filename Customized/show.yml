@@ -1,7 +1,7 @@
 ---
 - name: run cli command (Multiple vendor supports)
   hosts: all
-  gather_facts: false
+  gather_facts: yes
   connection: network_cli
 
   tasks:
@@ -30,7 +30,8 @@
           ========================================
           {% for result in cli_outputs.results %}
           {{ result.item }}
-          {{ result.stdout_lines | join('\n') }}  
+          {{ result.stdout}}
+#          {{ result.stdout_lines | join('\n') }}  
           {% endfor %}
         
     - name: create output file locally
