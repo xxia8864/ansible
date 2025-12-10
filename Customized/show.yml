@@ -32,8 +32,8 @@
           =================================================
           Output:
           =================================================
-          {{ cli_outputs | default('error'}}}
-          Job time: {{ timestamp }}
+          {{ cli_outputs | default('error')}}
+          Job time: {{ timestamp }
         dest: "/tmp/output_{{ timestamp }}.txt"
       delegate_to: localhost
       
