@@ -35,7 +35,7 @@
           {{ result.stdout}}      
           {% endfor %}
           ========================================
-        dest: "/tmp/output_{{ timestamp }}.txt"
+        dest: "/tmp/output_{{ timestamp }}_{{ inventory_hostname }}.txt"
       delegate_to: localhost
       
     - name: upload to SFTP
