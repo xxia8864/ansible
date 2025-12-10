@@ -16,15 +16,7 @@
         command: "{{ item }}"
       loop: "{{ cli_cmd }}"
       register: cli_outputs
-      
-    - name: package host info with outputs
-      set_fact:
-        host_report:
-          ip: "{{ inventory_hostname }}"
-          hostname: "{{ ansible_network_hostname }}" 
-          os: "{{ ansible_network_os  }}"
-        register: cli_outputs
-      
+            
     - name: show result
       debug:
         msg: "{{ cli_outputs }}"
@@ -41,7 +33,8 @@
 
           =================================================
           IP: {{ host }}
-          OS: {{ ansible_network_os | default('unknown') }}
+          Hostname: {{ansible_net_hostname }}
+          OS: {{ ansible_net_iostype }}
           {% for result in cli_outputs.results %}
           ----------------------------------------
           Command {{ loop.index }}: {{ result.item }}
