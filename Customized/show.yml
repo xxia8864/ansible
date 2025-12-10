@@ -17,12 +17,9 @@
       loop: "{{ cli_cmd }}"
       register: cli_outputs
       
-    - name: reformat result
-      set_fact:
-        real_output: "{{ cli_output.stdout }}"
     - name: show result
       debug:
-        msg: "{{ cli_outputs }}"
+        msg: "{{ cli_outputs.stdout }}"
         
     - name: create output file locally
       copy:
@@ -35,7 +32,7 @@
           =================================================
           Output:
           =================================================
-          {{ cli_output.stdout | default('error'}}}
+          {{ cli_outputs.stdout | default('error'}}}
           Job time: {{ timestamp }}
         dest: "/tmp/output_{{ timestamp }}.txt"
       delegate_to: localhost
