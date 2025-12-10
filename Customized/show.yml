@@ -15,7 +15,7 @@
       cli_command:
         command: "{{ item }}"
       loop: "{{ cli_cmd }}"
-      register: cli_output
+      register: cli_outputs
 
     - name: show result
       debug:
