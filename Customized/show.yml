@@ -15,8 +15,12 @@
       cli_command:
         command: "{{ item }}"
       loop: "{{ cli_cmd }}"
-      register: cli_outputs
-            
+      register: cli_outputs_register
+
+    - name: save as fact
+      set_fact:
+        cli_outputs: {{cli_outputs_register}}
+        
     - name: show result
       debug:
         msg: "{{ cli_outputs }}"
