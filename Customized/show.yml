@@ -12,17 +12,9 @@
       delegate_to: localhost
 
     - name: run defined command from Extra variables
-      block:
-        - ios_command:
-            commands: "{{ cli_cmd }}"
-          when: ansible_network_os == 'ios'
-        - nxos_command:
-            commands: "{{ cli_cmd }}"
-          when: ansible_network_os == 'nxos' and cli_output is not defined
-        - eos_command:
-            commands: "{{ cli_cmd }}"
-          when: ansible_network_os == 'eos' and cli_output is not defined
+      commands: "{{ cli_cmd }}"
       register: cli_output
+    
     - name: show result
       debug:
         msg: "{{ cli_output.stdout_lines[0] | default('error') }}"
