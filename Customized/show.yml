@@ -31,7 +31,6 @@
           {% for result in cli_outputs.results %}
           {{ result.item }}
           {{ result.stdout}}
-#          {{ result.stdout_lines | join('\n') }}  
           {% endfor %}
         
     - name: create output file locally
