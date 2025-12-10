@@ -19,7 +19,7 @@
       
     - name: show result
       debug:
-        msg: "{{ result.stdout_lines | join('\n') }}"
+        msg: "{{ cli_outputs }}"
         
     - name: create output file locally
       copy:
