@@ -38,15 +38,15 @@
         dest: "/tmp/output_{{ timestamp }}_{{ inventory_hostname }}.txt"
       delegate_to: localhost
       
-    - name: upload to SFTP
-      shell: |
-        sshpass -p "{{ sftp_password }}" sftp -o StrictHostKeyChecking=no -P {{ sftp_port | default(22) }} {{ sftp_username }}@{{ sftp_host }} <<EOF
-        cd ansible
-        put /tmp/output_{{ timestamp }}.txt 
-        bye
-        EOF
-      delegate_to: localhost
-      no_log: true
+#    - name: upload to SFTP
+#      shell: |
+#        sshpass -p "{{ sftp_password }}" sftp -o StrictHostKeyChecking=no -P {{ sftp_port | default(22) }} {{ sftp_username }}@{{ sftp_host }} <<EOF
+#        cd ansible
+#        put /tmp/output_{{ timestamp }}.txt 
+#        bye
+#        EOF
+#      delegate_to: localhost
+#      no_log: true
 
 #    - name: delete tmp file
 #      file:
