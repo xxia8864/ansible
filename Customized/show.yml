@@ -34,7 +34,7 @@
           =================================================
           IP: {{ host }}
           Hostname: {{ inventory_hostname }}
-          OS: {{ ansible_net_iostype }}
+          OS: {{ ansible_network_os }}
           {% for result in cli_outputs.results %}
           ----------------------------------------
           Command {{ loop.index }}: {{ result.item }}
