@@ -43,7 +43,6 @@
           =================================================
           {% for host in host_output %}
           IP: {{ host }}
-#          Host: {{ Hostname }}
           OS: {{ ansible_network_os | default('unknown') }}
           {% for result in cli_outputs.results %}
           ----------------------------------------
