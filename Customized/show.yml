@@ -14,7 +14,7 @@
     - name: run defined command from Extra variables
       ansible.builtin.cli_command:
         commands: "{{ cli_cmd }}"
-      register: c。i_output
+      register: cli_output
 
     - name: show result
       debug:
