@@ -41,7 +41,7 @@
           Total Hosts: {{ ansible_play_hosts | length }}
           =================================================
           {% for host in ansible_play_hosts %}
-          Host: {{ host }}
+          Host: {{ description }}
           OS: {{ ansible_network_os | default('unknown') }}
           {% for result in cli_outputs.results %}
           ----------------------------------------
