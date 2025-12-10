@@ -30,7 +30,7 @@
           Output:
           {{ cli_outputs.results | map(attribute='stdout') | join('\n\n--- Next Command ---\n\n') }}
           Job time: {{ timestamp }}
-      dest: "/tmp/output_{{ timestamp }}.txt"
+        dest: "/tmp/output_{{ timestamp }}.txt"
       delegate_to: localhost
 
 #    - name: upload to SFTP
