@@ -19,7 +19,7 @@
       
     - name: show result
       debug:
-        msg: "{{ cli_outputs.response }}"
+        msg: "{{ cli_outputs }}"
         
     - name: create output file locally
       copy:
@@ -32,11 +32,16 @@
           =================================================
           Output:
           =================================================
-          {{ cli_outputs.response | default('error'}}}
+          {{ cli_outputs | default('error'}}}
           Job time: {{ timestamp }}
         dest: "/tmp/output_{{ timestamp }}.txt"
       delegate_to: localhost
-
+      
+    - name: dump full cli_output
+      copy:
+        content: "{{ cli_output | to_nice_json }}"
+        dest: "/tmp/debug_output.json"
+      delegate_to: localhost
 #    - name: upload to SFTP
 #      net_tools.sftp.sftp:
 #        mode: put
