@@ -28,11 +28,11 @@
           Host: {{ inventory_hostname }}
           OS: {{ ansible_network_os | default('unknown') }}
           time: {{ timestamp }}
-          Command: {{ cli_outputs.results[0].item }}
+          Command: {{ cli_outputs.results.item }}
           =================================================
           Output:
           =================================================
-          {{ cli_outputs.results[0].stdout_lines | join('\n') }}
+          {{ cli_outputs.results.stdout_lines }}
           Job time: {{ timestamp }}
         dest: "/tmp/output_{{ timestamp }}.txt"
       delegate_to: localhost
