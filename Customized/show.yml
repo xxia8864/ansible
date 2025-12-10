@@ -36,7 +36,7 @@
           Host: {{ inventory_hostname }}
           OS: {{ ansible_network_os | default('unknown') }}
           Command: "{{ cli_cmd }}"
-          Output: {{ cli_output }}
+          Output: {{ cli_output.stdout_lines[0] | default('error') }}
           Job time: {{ timestamp }}
         dest: "/tmp/output_{{ timestamp }}.txt"
       delegate_to: localhost
