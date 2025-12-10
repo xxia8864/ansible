@@ -49,7 +49,7 @@
           {{ result.stdout}}      
           {% endfor %}
           ========================================
-        dest: "/tmp/output_{{ timestamp }}_{{ inventory_hostname }}.txt"
+        dest: "/tmp/ansible_show_output_{{ timestamp }}.txt"
       delegate_to: localhost
       
 #    - name: upload to SFTP
