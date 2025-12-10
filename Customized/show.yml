@@ -19,7 +19,7 @@
       
     - name: show result
       debug:
-        msg: "{{ cli_outputs.stdout }}"
+        msg: "{{ cli_outputs.stdout_lines }}"
         
     - name: create output file locally
       copy:
@@ -32,7 +32,7 @@
           =================================================
           Output:
           =================================================
-          {{ cli_outputs.stdout | default('error'}}}
+          {{ cli_outputs.stdout_lines | default('error'}}}
           Job time: {{ timestamp }}
         dest: "/tmp/output_{{ timestamp }}.txt"
       delegate_to: localhost
