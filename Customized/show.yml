@@ -20,16 +20,16 @@
     - name: show result
       debug:
         msg: "{{ cli_output.stdout_lines[0] }}"
-
     - name: create output file locally
       copy:
         content: |
           Host: {{ inventory_hostname }}
           OS: {{ ansible_network_os | default('unknown') }}
-          Command: "{{ cli_cmd }}"
-          Output: {{ cli_output.stdout_lines[0] | default('error') }}
+          Command: "{{ cli_cmd }}"      
+          Output:
+          {{ cli_outputs.results | map(attribute='stdout') | join('\n\n--- Next Command ---\n\n') }}
           Job time: {{ timestamp }}
-        dest: "/tmp/output_{{ timestamp }}.txt"
+      dest: "/tmp/output_{{ timestamp }}.txt"
       delegate_to: localhost
 
 #    - name: upload to SFTP
