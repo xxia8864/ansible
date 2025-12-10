@@ -32,7 +32,7 @@
           ----------------------------------------
           Command {{ loop.index }}: {{ result.item }}
           ----------------------------------------
-          {{ result.stdout_lines | join('\n') }}      
+          {{ result.stdout_lines }}      
           {% endfor %}
           ========================================
         dest: "/tmp/output_{{ timestamp }}.txt"
