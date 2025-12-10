@@ -19,7 +19,7 @@
 
     - name: save as fact
       set_fact:
-        cli_outputs: {{cli_outputs_register}}
+        cli_outputs: {{ cli_outputs_register }}
         
     - name: show result
       debug:
