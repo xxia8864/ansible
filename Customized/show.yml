@@ -12,7 +12,7 @@
       delegate_to: localhost
 
     - name: run defined command from Extra variables
-      ansible。builtin:cli_command:
+      ansible.builtin.cli_command:
         commands: "{{ cli_cmd }}"
       register: c。i_output
 
