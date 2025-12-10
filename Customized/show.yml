@@ -20,6 +20,7 @@
     - name: show result
       debug:
         msg: "{{ cli_output.stdout_lines[0] }}"
+        
     - name: create output file locally
       copy:
         content: |
