@@ -26,7 +26,7 @@
         host_output: |
           ========================================
           Host: {{ inventory_hostname }}
-          Hostname: {{hostvars[inventory_hostname].host_report.hostname }}
+          Hostname: {{hostname }}
           ========================================
           {% for result in cli_outputs.results %}
           {{ result.item }}
