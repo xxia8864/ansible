@@ -45,7 +45,7 @@
         bye
         EOF
       delegate_to: localhost
-      no_log: true
+#      no_log: true
 
 #    - name: delete tmp file
 #      file:
