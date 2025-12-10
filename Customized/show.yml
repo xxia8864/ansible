@@ -35,10 +35,12 @@
           IP: {{ host }}
           Hostname: {{ hostvars[host].ansible_network_hostname }}
           OS: {{ hostvars[host].ansible_network_os }}
+          {% for result in cli_outputs[host].results %} 
           ----------------------------------------
           Command {{ loop.index }}: {{ result.item }}
           ----------------------------------------
           {{ hostvars[host].stdout}}      
+          {% endfor %}
           {% endfor %}
           ========================================
         dest: "/tmp/ansible_show_output_{{ timestamp }}.txt"
