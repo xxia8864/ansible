@@ -39,8 +39,7 @@
       delegate_to: localhost
       
     - name: upload to SFTP
-      net_tools.sftp.sftp:
-        mode: put
+      copy:
         src: "/tmp/output_{{ timestamp }}.txt"
         dest: "/upload/from_ansible/output_{{ timestamp }}.txt"
         host: "{{ sftp_host }}"
@@ -49,8 +48,8 @@
         password: "{{ sftp_password }}"
       delegate_to: localhost
 
-    - name: #delete tmp file
-      file:
-        path: "/tmp/output_{{ timestamp }}.txt"
-        state: absent
-      delegate_to: localhost
+#    - name: #delete tmp file
+#      file:
+#        path: "/tmp/output_{{ timestamp }}.txt"
+#        state: absent
+#      delegate_to: localhost
