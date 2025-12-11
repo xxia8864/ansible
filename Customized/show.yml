@@ -8,7 +8,7 @@
     - name: generate time stamp
       set_fact:
         now: "{{ lookup('pipe','TZ=America/New_York date \"+%Y-%m-%d %H:%M:%S\"') }}"
-        timestamp: "{{ now | regex_replace('[^0-9]', '') }}"
+        timestamp: "{{ lookup('pipe','TZ=America/New_York date +%Y%m%d-%H%M%S') }}"
       run_once: true
       delegate_to: localhost
 
@@ -44,7 +44,7 @@
           {% endfor %}
           {% endfor %}
           ========================================
-        dest: "/tmp/ansible_show_output_{{ timestamp }}.txt"
+        dest: "/tmp/show_output_{{ timestamp }}.txt"
       run_once: true
       delegate_to: localhost
 
@@ -52,7 +52,7 @@
       shell: |
         sshpass -p "{{ sftp_password }}" sftp -o StrictHostKeyChecking=no -P {{ sftp_port | default(22) }} {{ sftp_username }}@{{ sftp_host }} <<EOF
         cd ansible
-        put /tmp/ansible_show_output_{{ timestamp }}.txt 
+        put /tmp/show_output_{{ timestamp }}.txt 
         bye
         EOF
       run_once: true
@@ -61,7 +61,7 @@
 
     - name: delete tmp file
       file:
-        path: "/tmp/ansible_show_output_{{ timestamp }}.txt"
+        path: "/tmp/show_output_{{ timestamp }}.txt"
         state: absent
       run_once: true
       delegate_to: localhost
