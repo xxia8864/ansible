@@ -1,12 +1,28 @@
-#network_backup_dir: /home/ciscobackups/
-#network_backup_file: '{{ network_backup_dir }}/{{ ansible_net_hostname }} {{ mydate }}.cfg'
-
-
-- name: Backup configurations
+---
+- name: run cli command (Multiple vendor supports)
   hosts: all
-  gather_facts: yes
+  gather_facts: no
   connection: network_cli
+
   tasks:
-    - set_fact: mydate="{{lookup('pipe','date +%Y-%m-%d')}}"
-    - include_role:
-        name: network-backup
+    - name: generate time stamp
+      set_fact:
+        timestamp: "{{ lookup('pipe','TZ=America/New_York date +%Y%m%d-%H%M%S') }}"
+      run_once: true
+      delegate_to: localhost
+      
+    - name: run defined command from Extra variables
+      cli_command:
+        command: "show running-configure"
+      register: cli_outputs
+      
+    - name: show result
+      debug:
+        msg: "{{ cli_outputs }}"
+      
+    - name: create output file locally
+      copy:
+        cli_outputs.results.stdout
+        dest: "/tmp/{{ ansible_network_hostname }}_{{ timestamp }}.txt"
+      run_once: true
+      delegate_to: localhost
