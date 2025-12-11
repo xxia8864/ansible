@@ -45,8 +45,8 @@
           {% endfor %}
           ========================================
         dest: "/tmp/ansible_show_output_{{ timestamp }}.txt"
-      delegate_to: localhost
       run_once: true
+      delegate_to: localhost
 
     - name: upload to SFTP
       shell: |
@@ -55,6 +55,7 @@
         put /tmp/ansible_show_output_{{ timestamp }}.txt 
         bye
         EOF
+      run_once: true
       delegate_to: localhost
       no_log: true
 
@@ -62,4 +63,5 @@
       file:
         path: "/tmp/ansible_show_output_{{ timestamp }}.txt"
         state: absent
+      run_once: true
       delegate_to: localhost
