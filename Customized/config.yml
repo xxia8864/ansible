@@ -1,0 +1,14 @@
+---
+- name: run cli command (Multiple vendor supports)
+  hosts: all
+  gather_facts: no
+  connection: network_cli
+
+  tasks:
+
+    - name: run defined command from Extra variables
+      cli_config:
+        config: "{{ item }}"
+      loop: "{{ config_cmds }}"
+      register: config_output
+      
