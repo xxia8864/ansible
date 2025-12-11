@@ -21,11 +21,6 @@
       debug:
         msg: "{{ cli_outputs }}"
 
-    - name: copy result
-      copy:
-        content: |
-          "{{ cli_outputs }}"
-        dest: "/tmp/debug{{ timestamp }}.txt"
     - name: create output file locally
       copy:
         content: |
@@ -35,17 +30,17 @@
           Total Hosts: {{ ansible_play_hosts | length }}
           =================================================
           
-          {% for item in cli_outputs %} 
+          {% for host in ansible_play_hosts %} 
 
           =================================================
-          IP: {{ inventory_hostname }}
-          Hostname: {{ hostvars[inventory_hostname].ansible_network_hostname }}
-          OS: {{ hostvars[inventory_hostname].ansible_network_os }}
-          {% for result in item.results %} 
+          IP: {{ host }}
+          Hostname: {{ hostvars[host].ansible_network_hostname }}
+          OS: {{ hostvars[host].ansible_network_os }}
+          {% for result in cli_outputs.results %} 
           ----------------------------------------
           Command {{ loop.index }}: {{ result.item }}
           ----------------------------------------
-          {{ result.stdout}}      
+          {{ hostvars[host][result].stdout}}      
           {% endfor %}
           {% endfor %}
           ========================================
