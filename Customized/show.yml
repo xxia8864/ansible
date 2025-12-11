@@ -35,7 +35,7 @@
 
           =================================================
           IP: {{ host }}
-          Hostname: {{ hostvars[host].ansible_network_hostname | default(host) }}
+          Hostname: {{ hostvars[host].ansible_network_hostname | default("hostname undefined") }}
           {% for result in hostvars[host].cli_outputs.results %} 
           ----------------------------------------
           Command {{ loop.index }}: {{ result.item }}
@@ -50,7 +50,7 @@
 
     - name: add SFTP server to inventory
       add_host:
-        name: sftp_target  # ← 固定名字
+        name: sftp_target  
         ansible_host: "{{ sftp_host }}"
         ansible_user: "{{ sftp_username }}"
         ansible_ssh_pass: "{{ sftp_password }}"
@@ -62,15 +62,18 @@
       copy:
         src: "/tmp/show_output_{{ timestamp }}.txt"
         dest: "ansible/show_output_{{ timestamp }}.txt"
+        mode: "0444"
       delegate_to: sftp_target 
+# No native SFTP in Ansible. Use shell fallback below if needed.
 #      shell: |
 #        sshpass -p "{{ sftp_password }}" sftp -o StrictHostKeyChecking=no -P {{ sftp_port | default(22) }} {{ sftp_username }}@{{ sftp_host }} <<EOF
 #        cd ansible
 #        put /tmp/show_output_{{ timestamp }}.txt 
 #        bye
 #        EOF
+#      delegate_to: localhost
+
       run_once: true
-      # delegate_to: localhost
       no_log: no
 
     - name: delete tmp file
