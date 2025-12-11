@@ -35,7 +35,7 @@
 
           =================================================
           IP: {{ host }}
-          Hostname: {{ hostvars[host].ansible_network_hostname ｜ default （host） }}
+          Hostname: {{ hostvars[host].ansible_network_hostname ｜ default（host） }}
           {% for result in hostvars[host].cli_outputs.results %} 
           ----------------------------------------
           Command {{ loop.index }}: {{ result.item }}
