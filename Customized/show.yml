@@ -7,7 +7,7 @@
   tasks:
     - name: generate time stamp
       set_fact:
-        now: "{{ lookup('pipe','date +%Y-%m-%d %H:%M:%S') }}": 
+        now: "{{ lookup('pipe','date +%Y-%m-%d %H:%M:%S') }}"
         timestamp: "{{ now | regex_replace('[^0-9]', '') }}"
       run_once: true
       delegate_to: localhost
