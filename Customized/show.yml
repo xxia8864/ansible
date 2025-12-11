@@ -51,8 +51,8 @@
     - name: upload to SFTP
       copy:
         src: "/tmp/show_output_{{ timestamp }}.txt"
-        dst: "ansible/show_output_{{ timestamp }}.txt"
-      delegate_to: {{ sftp_host }}  
+        dest: "ansible/show_output_{{ timestamp }}.txt"
+      delegate_to: "{{ sftp_host }} " 
 #      shell: |
 #        sshpass -p "{{ sftp_password }}" sftp -o StrictHostKeyChecking=no -P {{ sftp_port | default(22) }} {{ sftp_username }}@{{ sftp_host }} <<EOF
 #        cd ansible
