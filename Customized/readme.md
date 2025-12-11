@@ -21,6 +21,7 @@ ansible_network_hostname: sample_hostname
 ### SFTP setup
 
 Please create a customized **credential type** using the template named "SFTP_Cred_type.yml" 
+The SFTP variables will be sent through SFTP credential. 
 
 ## show.yml
 
