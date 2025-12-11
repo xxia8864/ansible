@@ -60,7 +60,7 @@
 #        bye
 #        EOF
       run_once: true
-      delegate_to: localhost
+      # delegate_to: localhost
       no_log: no
 
     - name: delete tmp file
