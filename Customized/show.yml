@@ -44,22 +44,22 @@
           {% endfor %}
           {% endfor %}
           ========================================
-        dest: "/tmp/ansible_show_output_{{ timestamp }}_{{ inventory_hostname }}.txt"
+        dest: "/tmp/ansible_show_output_{{ timestamp }}.txt"
       delegate_to: localhost
       run_once: true
 
-#    - name: upload to SFTP
-#      shell: |
-#        sshpass -p "{{ sftp_password }}" sftp -o StrictHostKeyChecking=no -P {{ sftp_port | default(22) }} {{ sftp_username }}@{{ sftp_host }} <<EOF
-#        cd ansible
-#        put /tmp/output_{{ timestamp }}.txt 
-#        bye
-#        EOF
-#      delegate_to: localhost
-#      no_log: true
+    - name: upload to SFTP
+      shell: |
+        sshpass -p "{{ sftp_password }}" sftp -o StrictHostKeyChecking=no -P {{ sftp_port | default(22) }} {{ sftp_username }}@{{ sftp_host }} <<EOF
+        cd ansible
+        put /tmp/ansible_show_output_{{ timestamp }}.txt 
+        bye
+        EOF
+      delegate_to: localhost
+      no_log: true
 
-#    - name: delete tmp file
-#      file:
-#        path: "/tmp/output_{{ timestamp }}.txt"
-#        state: absent
-#      delegate_to: localhost
+    - name: delete tmp file
+      file:
+        path: "/tmp/ansible_show_output_{{ timestamp }}.txt"
+        state: absent
+      delegate_to: localhost
