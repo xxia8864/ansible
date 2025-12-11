@@ -7,7 +7,8 @@
   tasks:
     - name: generate time stamp
       set_fact:
-        timestamp: "{{ lookup('pipe','date +%Y-%m-%d %H:%M:%S') }}"
+        now: "{{ lookup('pipe','date +%Y-%m-%d %H:%M:%S') }}": 
+        timestamp: "{{ now | regex_replace('[^0-9]', '') }}"
       run_once: true
       delegate_to: localhost
 
@@ -26,7 +27,7 @@
         content: |
           =================================================
           Network Command Output Report
-          Generated: {{ timestamp | regex_replace('[^0-9]', '') }}
+          Generated: {{ now }}
           Total Hosts: {{ ansible_play_hosts | length }}
           =================================================
           
