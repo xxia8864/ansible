@@ -1,0 +1,12 @@
+#network_backup_dir: /home/ciscobackups/
+#network_backup_file: '{{ network_backup_dir }}/{{ ansible_net_hostname }} {{ mydate }}.cfg'
+
+
+- name: Backup configurations
+  hosts: all
+  gather_facts: yes
+  connection: network_cli
+  tasks:
+    - set_fact: mydate="{{lookup('pipe','date +%Y-%m-%d')}}"
+    - include_role:
+        name: network-backup
