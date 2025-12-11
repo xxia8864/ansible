@@ -4,7 +4,7 @@
 
 ### Inventories:
 
-Add network OS information to inventory,below are the sample.
+Add network OS information to inventory, below are the sample.
 
 ```yaml
 ---
@@ -18,15 +18,31 @@ Add hostname info under host, below are the sampe
 ---
 ansible_network_hostname: sample_hostname
 ```
+### SFTP setup
 
+Please create a customized **credential type** using the template named "SFTP_Cred_type.yml" 
 
 ## show.yml
-Please create a customized credential type using the template name "SFTP_Cred_type.yml" 
 
 The command that ansbile run are in Extra Variables, below are the sample
 
 ```yaml
+---
 cli_cmd:
   - show int description | inc down
   - show inventory
+```
+## config.yml
+
+The configuration that ansbile run are in Extra Variables, below are the sample
+
+```yaml
+---
+config_cmds:
+  - |
+     interface Gi1/1/1
+     ndescription test1
+  - |
+     interface Gi1/1/2
+     ndescription test2
 ```
