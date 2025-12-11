@@ -36,11 +36,11 @@
           IP: {{ host }}
           Hostname: {{ hostvars[host].ansible_network_hostname }}
           OS: {{ hostvars[host].ansible_network_os }}
-          {% for result in cli_outputs.results %} 
+          {% for result in hostvars[host].cli_outputs.results %} 
           ----------------------------------------
           Command {{ loop.index }}: {{ result.item }}
           ----------------------------------------
-          {{ hostvars[host][result].stdout}}      
+          {{ result.stdout }}      
           {% endfor %}
           {% endfor %}
           ========================================
