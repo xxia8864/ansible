@@ -13,16 +13,18 @@
       
     - name: run defined command from Extra variables
       cli_command:
-        command: "show running-configure"
-      register: cli_outputs
+        backup_options:
+          filename: "{{ ansible_network_hostname }}_{{ timestamp }}.txt"
+          dir_path: "/tmp/ansbile/backup/"
+      register: backup_outputs
       
     - name: show result
       debug:
         msg: "{{ cli_outputs }}"
       
-    - name: create output file locally
-      copy:
-        cli_outputs.results.stdout
-        dest: "/tmp/{{ ansible_network_hostname }}_{{ timestamp }}.txt"
-      run_once: true
-      delegate_to: localhost
+#    - name: create output file locally
+#      copy:
+#        cli_outputs.results.stdout
+#        dest: "/tmp/{{ ansible_network_hostname }}_{{ timestamp }}.txt"
+#      run_once: true
+#      delegate_to: localhost
