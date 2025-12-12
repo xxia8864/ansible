@@ -15,7 +15,7 @@
       cli_config:
         backup: "yes"
         backup_options:
-          filename: "{{ ansible_network_hostname | default(ansible_host) }}_{{ timestamp }}.txt""
+          filename: "{{ ansible_network_hostname | default(inventory_hostname) }}_{{ timestamp }}.txt"
           dir_path: "/tmp"
       register: backup_outputs
       
