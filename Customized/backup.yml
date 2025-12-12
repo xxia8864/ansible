@@ -38,4 +38,12 @@
         src: "/tmp/{{ ansible_network_hostname | default(inventory_hostname) }}_{{ timestamp }}.txt"
         dest: "ansible/backup/{{ ansible_network_hostname | default(inventory_hostname) }}_{{ timestamp }}.txt"
         mode: "0444"
-      delegate_to: sftp_target 
+      delegate_to: sftp_target
+      no_log: no
+
+    - name: delete tmp file
+      file:
+        path: "/tmp/{{ ansible_network_hostname | default(inventory_hostname) }}_{{ timestamp }}.txt"
+        state: absent
+      run_once: true
+      delegate_to: localhost
