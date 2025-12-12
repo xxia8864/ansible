@@ -13,10 +13,10 @@
       
     - name: run backup
       cli_config:
-      backup: "yes"
-      backup_options:
-        filename: "{{ ansible_network_hostname }}_{{ timestamp }}.txt"
-        dir_path: "/tmp"
+        backup: "yes"
+        backup_options:
+          filename: "{{ ansible_network_hostname }}_{{ timestamp }}.txt"
+          dir_path: "/tmp"
       register: backup_outputs
       
     - name: show result
