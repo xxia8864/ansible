@@ -15,7 +15,7 @@
       cli_command:
         backup_options:
           filename: "{{ ansible_network_hostname }}_{{ timestamp }}.txt"
-          dir_path: "/tmp/ansbile/backup/"
+          dir_path: "/tmp/backup/"
       register: backup_outputs
       
     - name: show result
