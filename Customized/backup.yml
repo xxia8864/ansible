@@ -35,8 +35,9 @@
 
     - name: Create backup folder
       hosts: sftp_target
-      task:
-        - ansible.builtin.file:
+      tasks:
+        - name: ensure backup directory exists
+          ansible.builtin.file:
             path: "ansible/backup/{{ timestamp }}"
             state: directory
             mode: '0755'
