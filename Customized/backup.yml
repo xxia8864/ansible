@@ -36,6 +36,6 @@
     - name: upload to SFTP
       copy:
         src: "/tmp/{{ ansible_network_hostname | default(inventory_hostname) }}_{{ timestamp }}.txt"
-        dest: "/ansible/backup/{{ ansible_network_hostname | default(inventory_hostname) }}_{{ timestamp }}.txt"
+        dest: "ansible/backup/{{ ansible_network_hostname | default(inventory_hostname) }}_{{ timestamp }}.txt"
         mode: "0444"
       delegate_to: sftp_target 
