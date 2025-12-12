@@ -1,5 +1,4 @@
 ---
-# This playbook does not support Nexus. Use config_nxos.yml instead.
 - name: run cli command (Multiple vendor supports)
   hosts: all
   gather_facts: no
