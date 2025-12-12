@@ -1,4 +1,5 @@
 ---
+# This playbook won't apply to Nexus device, please use config_nxos.yml instead 
 - name: run cli command (Multiple vendor supports)
   hosts: all
   gather_facts: no
