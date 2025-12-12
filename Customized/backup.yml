@@ -12,9 +12,11 @@
       delegate_to: localhost
       
     - name: run backup
-      cli_backup:
-#        filename: "{{ ansible_network_hostname }}_{{ timestamp }}.txt"
-        dir_path: "/tmp/{{ ansible_network_hostname }}_{{ timestamp }}.txt"
+      cli_config:
+      backup: "yes"
+      backup_options:
+        filename: "{{ ansible_network_hostname }}_{{ timestamp }}.txt"
+        dir_path: "/tmp"
       register: backup_outputs
       
     - name: show result
