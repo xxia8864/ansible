@@ -40,6 +40,8 @@
             path: "ansible/backup/{{ timestamp }}"
             state: directory
             mode: '0755'
+      run_once: true
+      delegate_to: localhost
 
     - name: upload to SFTP
       copy:
