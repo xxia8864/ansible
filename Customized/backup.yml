@@ -13,6 +13,7 @@
       
     - name: run defined command from Extra variables
       cli_config:
+      backup: yes
         backup_options:
           filename: "{{ ansible_network_hostname }}_{{ timestamp }}.txt"
           dir_path: "/tmp/backup/"
@@ -20,7 +21,7 @@
       
     - name: show result
       debug:
-        msg: "{{ cli_outputs }}"
+        msg: "{{ backup_outputs }}"
       
 #    - name: create output file locally
 #      copy:
