@@ -45,5 +45,4 @@
       file:
         path: "/tmp/{{ ansible_network_hostname | default(inventory_hostname) }}_{{ timestamp }}.txt"
         state: absent
-      run_once: true
       delegate_to: localhost
