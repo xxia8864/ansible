@@ -12,11 +12,9 @@
       delegate_to: localhost
       
     - name: run defined command from Extra variables
-      cli_config:
-      backup: yes
-        backup_options:
-          filename: "{{ ansible_network_hostname }}_{{ timestamp }}.txt"
-          dir_path: "/tmp/backup/"
+      ansible.netcommon.cli_backup:
+        filename: {{ ansible_network_hostname }}_{{ timestamp }}.txt
+        dir_path: /tmp/backup/
       register: backup_outputs
       
     - name: show result
