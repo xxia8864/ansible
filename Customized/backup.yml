@@ -13,7 +13,7 @@
       
     - name: run defined command from Extra variables
       ansible.netcommon.cli_backup:
-        filename: {{ ansible_network_hostname }}_{{ timestamp }}.txt
+        filename: "{{ ansible_network_hostname }}_{{ timestamp }}.txt"
         dir_path: /tmp/backup/
       register: backup_outputs
       
