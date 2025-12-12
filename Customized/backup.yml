@@ -11,7 +11,7 @@
       run_once: true
       delegate_to: localhost
       
-    - name: run defined command from Extra variables
+    - name: run backup
       ansible.netcommon.cli_backup:
         filename: "{{ ansible_network_hostname }}_{{ timestamp }}.txt"
         dir_path: /tmp/backup/
