@@ -12,7 +12,7 @@
       loop: "{{ config_cmds }}"
       register: config_output
 
-    - name: save configure
-      cli_command:
-        command: "copy running-config startup-config"
-      register: cmd_output
+#    - name: save configure
+#      cli_command:
+#        command: "copy running-config startup-config"
+#      register: cmd_output
