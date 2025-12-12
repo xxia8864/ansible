@@ -22,10 +22,20 @@
     - name: show result
       debug:
         msg: "{{ backup_outputs }}"
-      
-#    - name: create output file locally
-#      copy:
-#        cli_outputs.results.stdout
-#        dest: "/tmp/{{ ansible_network_hostname }}_{{ timestamp }}.txt"
-#      run_once: true
-#      delegate_to: localhost
+
+    - name: add SFTP server to inventory
+      add_host:
+        name: sftp_target  
+        ansible_host: "{{ sftp_host }}"
+        ansible_user: "{{ sftp_username }}"
+        ansible_ssh_pass: "{{ sftp_password }}"
+        ansible_connection: ssh
+      run_once: true
+      delegate_to: localhost
+
+    - name: upload to SFTP
+      copy:
+        src: "/tmp/{{ ansible_network_hostname }}_{{ timestamp }}.txt"
+        dest: "{{ ansible_network_hostname }}_{{ timestamp }}.txt"
+        mode: "0444"
+      delegate_to: sftp_target 
