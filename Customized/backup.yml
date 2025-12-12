@@ -12,9 +12,9 @@
       delegate_to: localhost
       
     - name: run backup
-      ansible.netcommon.cli_backup:
-        filename: "{{ ansible_network_hostname }}_{{ timestamp }}.txt"
-        dir_path: /tmp/backup/
+      cli_backup:
+#        filename: "{{ ansible_network_hostname }}_{{ timestamp }}.txt"
+        dir_path: "/tmp/{{ ansible_network_hostname }}_{{ timestamp }}.txt"
       register: backup_outputs
       
     - name: show result
