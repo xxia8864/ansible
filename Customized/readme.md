@@ -36,14 +36,14 @@ cli_cmd:
 ## config.yml
 
 The configuration that ansbile run are in Extra Variables, below are the sample
-
+*!!!Please make sure there is a space before "description"
 ```yaml
 ---
 config_cmds:
   - |
      interface Gi1/1/1
-     ndescription test1
+      description test1
   - |
      interface Gi1/1/2
-     ndescription test2
+      description test2
 ```
