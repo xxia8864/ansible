@@ -6,7 +6,7 @@
 
   tasks:
     - name: run defined command from Extra variables
-      cisco.nxos.nxos_config:
+      cli_config:
         lines: "{{ lines_line }}"
         parents: "{{ parents_line }}"
       register: config_output
