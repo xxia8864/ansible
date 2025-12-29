@@ -11,13 +11,13 @@
       run_once: true
       delegate_to: localhost
       
-    - name: run 
+    - name: run backup
       cli_config:
-        : "yes"
-        _options:
+        backup: "yes"
+        backup_options:
           filename: "{{ ansible_network_hostname | default(inventory_hostname) }}.txt"
           dir_path: "/tmp"
-      register: _outputs
+      register: backup_outputs
       
     - name: show result
       debug:
@@ -33,7 +33,7 @@
       run_once: true
       delegate_to: localhost
 
-    - name: Create  folder
+    - name: Create backup folder
       ansible.builtin.file:
         path: "{{ sftp_path }}/{{ timestamp }}"
         state: directory
