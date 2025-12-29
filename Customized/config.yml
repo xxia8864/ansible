@@ -5,7 +5,56 @@
   connection: network_cli
 
   tasks:
+    - name: generate time stamp
+      set_fact:
+        timestamp: "{{ lookup('pipe','TZ=America/New_York date +%Y%m%d') }}"
+      run_once: true
+      delegate_to: localhost
+      
+    - name: run backup
+      cli_config:
+        backup: "yes"
+        backup_options:
+          filename: "{{ ansible_network_hostname | default(inventory_hostname) }}.txt"
+          dir_path: "/tmp"
+      register: backup_outputs
 
+    - name: show result
+      debug:
+        msg: "{{ backup_outputs }}"
+
+    - name: add SFTP server to inventory
+      add_host:
+        name: sftp_target  
+        ansible_host: "{{ sftp_host }}"
+        ansible_user: "{{ sftp_username }}"
+        ansible_ssh_pass: "{{ sftp_password }}"
+        ansible_connection: ssh
+      run_once: true
+      delegate_to: localhost
+
+    - name: Create backup folder
+      ansible.builtin.file:
+        path: "{{ sftp_path }}/{{ timestamp }}"
+        state: directory
+        mode: '0755'
+      run_once: true
+      delegate_to: sftp_target
+
+    - name: upload to SFTP
+      copy:
+        src: "/tmp/{{ ansible_network_hostname | default(inventory_hostname) }}.txt"
+        dest: "{{ sftp_path }}/{{ timestamp }}/{{ ansible_network_hostname | default(inventory_hostname) }}.txt"
+        mode: "0444"
+      delegate_to: sftp_target
+      no_log: no
+
+    - name: delete tmp file
+      file:
+        path: "/tmp/{{ ansible_network_hostname | default(inventory_hostname) }}.txt"
+        state: absent
+      delegate_to: localhost
+      
     - name: run defined command from Extra variables
       cli_config:
         config: "{{ item }}"
