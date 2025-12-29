@@ -23,6 +23,13 @@ ansible_network_hostname: sample_hostname
 Please create a customized **credential type** using the template named "SFTP_Cred_type.yml" 
 The SFTP variables will be sent through SFTP credential. 
 
+The SFTP path is in Extra Variable, below is the sample:
+
+```yaml
+sftp_path: ansible/backup
+```
+
+
 ## show.yml
 
 The command that ansbile run are in Extra Variables, below are the sample
