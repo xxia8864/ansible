@@ -57,7 +57,7 @@
     - name: upload to SFTP
       copy:
         src: "/tmp/show_output_{{ timestamp }}.txt"
-        dest: "ansible/show_output_{{ timestamp }}.txt"
+        dest: "{{ sftp_path }}/show_output_{{ timestamp }}.txt"
         mode: "0444"
       delegate_to: sftp_target 
 # No native SFTP in Ansible. Use shell fallback below if needed.
