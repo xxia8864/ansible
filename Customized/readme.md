@@ -4,7 +4,7 @@
 
 ### Inventories:
 
-Add network OS information to inventory, below are the sample.
+Add network OS information to the inventory. Below is a sample:
 
 ```yaml
 ---
@@ -12,7 +12,7 @@ ansible_network_os: nxos
 ansible_connection: network_cli
 ```
 
-Add hostname info under host, below are the sampe
+Add hostname information under the host definition. Below is a sample:
 
 ```yaml
 ---
@@ -20,10 +20,10 @@ ansible_network_hostname: sample_hostname
 ```
 ### SFTP setup
 
-Please create a customized **credential type** using the template named "SFTP_Cred_type.yml" 
-The SFTP variables will be sent through SFTP credential. 
+Create a customized Credential Type using the template file SFTP_Cred_type.yml.
+SFTP-related variables will be passed through the SFTP credential.
 
-The SFTP path is in Extra Variable, below is the sample:
+The SFTP path should be provided via Extra Variables. Below is a sample:
 
 ```yaml
 sftp_path: ansible/backup
@@ -32,7 +32,7 @@ sftp_path: ansible/backup
 
 ## show.yml
 
-The command that ansbile run are in Extra Variables, below are the sample
+The commands executed by Ansible are provided via Extra Variables. Below is a sample:
 
 ```yaml
 ---
@@ -42,8 +42,9 @@ cli_cmd:
 ```
 ## config.yml
 
-The configuration that ansbile run are in Extra Variables, below are the sample  
-**!!!Please make sure there is a space before "description"**
+The configuration commands executed by Ansible are provided via Extra Variables. Below is a sample.
+
+**!!!⚠️Please make sure there is a space before "description"**
 ```yaml
 ---
 config_cmds:
