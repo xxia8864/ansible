@@ -54,7 +54,7 @@
 
     - name: delete tmp file
       file:
-        path: "/tmp/{{ ansible_network_hostname | default(inventory_hostname) }}.txt"
+        path: "/tmp/{{ ansible_network_hostname | default(inventory_hostname) }}_{{ timestamp }}.txt"
         state: absent
       delegate_to: localhost
       
@@ -62,6 +62,7 @@
       cli_config:
         config: "{{ item }}"
       loop: "{{ config_cmds }}"
+      when: config_cmds is defined
       register: config_output
 
     - name: save config
