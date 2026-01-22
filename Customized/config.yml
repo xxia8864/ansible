@@ -15,7 +15,7 @@
       cli_config:
         backup: "yes"
         backup_options:
-          filename: "{{ ansible_network_hostname | default(inventory_hostname) }}.txt"
+          filename: "{{ ansible_network_hostname | default(inventory_hostname) }}_{{ timestamp }}.txt"
           dir_path: "/tmp"
       register: backup_outputs
 
@@ -46,8 +46,8 @@
 
     - name: upload to SFTP
       copy:
-        src: "/tmp/{{ ansible_network_hostname | default(inventory_hostname) }}.txt"
-        dest: "{{ sftp_path }}/{{ timestamp }}/{{ ansible_network_hostname | default(inventory_hostname) }}.txt"
+        src: "/tmp/{{ ansible_network_hostname | default(inventory_hostname) }}_{{ timestamp }}.txt"
+        dest: "{{ sftp_path }}/{{ timestamp }}/{{ ansible_network_hostname | default(inventory_hostname) }}_{{ timestamp }}.txt"
         mode: "0444"
       delegate_to: sftp_target
       no_log: no
