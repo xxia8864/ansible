@@ -69,8 +69,8 @@
         command: >-
           {{
             {
-              'cisco.ios': 'write memory',
-              'cisco.nxos': 'copy running-config startup-config'
+              'ios': 'write memory',
+              'nxos': 'copy running-config startup-config'
             }[ansible_network_os]
           }}
         timeout: 120
