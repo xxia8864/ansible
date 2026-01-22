@@ -65,7 +65,7 @@
       register: config_output
 
     - name: save config
-      ansible.netcommon.cli_command:
+      cli_command:
         command: >-
           {{
             {
