@@ -52,11 +52,11 @@
       delegate_to: sftp_target
       no_log: no
 
-#    - name: delete tmp file
-#      file:
-#        path: "/tmp/{{ ansible_network_hostname | default(inventory_hostname) }}_{{ timestamp }}.txt"
-#        state: absent
-#      delegate_to: localhost
+    - name: delete tmp file
+      file:
+        path: "/tmp/{{ ansible_network_hostname | default(inventory_hostname) }}_{{ timestamp }}.txt"
+        state: absent
+      delegate_to: localhost
       
     - name: run defined command from Extra variables
       cli_config:
