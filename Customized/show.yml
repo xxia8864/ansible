@@ -51,6 +51,9 @@
         ansible_user: "{{ sftp_username }}"
         ansible_ssh_pass: "{{ sftp_password }}"
         ansible_connection: ssh
+        ansible_ssh_common_args: >
+          -o StrictHostKeyChecking=no
+          -o UserKnownHostsFile=/dev/null
       run_once: true
       delegate_to: localhost
 
