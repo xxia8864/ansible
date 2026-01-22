@@ -64,7 +64,13 @@
       loop: "{{ config_cmds }}"
       register: config_output
 
-    - name: save configure
-      cli_command:
-        command: "copy running-config startup-config"
-      register: cmd_output
+    - name: save config
+      ansible.netcommon.cli_command:
+        command: >-
+          {{
+            {
+              'cisco.ios': 'write memory',
+              'cisco.nxos': 'copy running-config startup-config'
+            }[ansible_network_os]
+          }}
+        timeout: 120
