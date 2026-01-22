@@ -74,4 +74,3 @@
               'nxos': 'copy running-config startup-config'
             }[ansible_network_os]
           }}
-        timeout: 120
