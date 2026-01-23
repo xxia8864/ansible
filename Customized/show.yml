@@ -55,6 +55,7 @@
           -o StrictHostKeyChecking=no
           -o UserKnownHostsFile=/dev/null
       run_once: true
+      no_log: true
       delegate_to: localhost
 
     - name: upload to SFTP
@@ -71,7 +72,6 @@
 #        bye
 #        EOF
 #      delegate_to: localhost
-
       run_once: true
       no_log: true
 
