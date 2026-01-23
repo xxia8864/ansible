@@ -34,6 +34,7 @@
           -o StrictHostKeyChecking=no
           -o UserKnownHostsFile=/dev/null        
       run_once: true
+      no_log: true
       delegate_to: localhost
 
     - name: Create backup folder
@@ -42,6 +43,7 @@
         state: directory
         mode: '0755'
       run_once: true
+      no_log: true
       delegate_to: sftp_target
 
     - name: upload to SFTP
@@ -50,10 +52,12 @@
         dest: "{{ sftp_path }}/{{ timestamp }}/{{ ansible_network_hostname | default(inventory_hostname) }}.txt"
         mode: "0444"
       delegate_to: sftp_target
-      no_log: no
+      no_log: true
+      run_once: true
 
     - name: delete tmp file
       file:
         path: "/tmp/{{ ansible_network_hostname | default(inventory_hostname) }}.txt"
         state: absent
       delegate_to: localhost
+      run_once: true
