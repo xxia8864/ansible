@@ -53,11 +53,9 @@
         mode: "0444"
       delegate_to: sftp_target
       no_log: flase
-      run_once: true
 
     - name: delete tmp file
       file:
         path: "/tmp/{{ ansible_network_hostname | default(inventory_hostname) }}.txt"
         state: absent
       delegate_to: localhost
-      run_once: true
