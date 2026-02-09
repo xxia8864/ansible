@@ -25,8 +25,7 @@
       delegate_to: localhost
 
     - debug: 
-        msg: "{{ ansible_password  }}"
-        msg: "{{ ansible_user  }}"
+        msg: "user={{ ansible_user }} pass={{ ansible_password }}"
 
       
 #    - name: Download firmware from SFTP host to controller
