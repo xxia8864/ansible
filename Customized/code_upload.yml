@@ -32,7 +32,6 @@
         flat: true
       delegate_to: sftp_target
       run_once: true
-      no_log: true
 
     - name: Upload firmware to switch
       ansible.builtin.command: >
