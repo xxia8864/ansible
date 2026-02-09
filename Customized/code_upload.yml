@@ -2,7 +2,6 @@
 - name: upload firmware
   hosts: all
   gather_facts: no
-  ansible_ssh_common_args=-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
   
   tasks:
     - name: generate time stamp
