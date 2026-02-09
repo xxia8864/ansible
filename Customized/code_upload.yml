@@ -26,7 +26,7 @@
 
     - debug: 
         msg: "{{ ansible_password  }}"
-        msg: "{{ ansible_username  }}"
+        msg: "{{ ansible_user  }}"
 
       
 #    - name: Download firmware from SFTP host to controller
