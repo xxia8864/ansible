@@ -38,9 +38,9 @@
 
     - name: Upload firmware to switch
       ansible.builtin.command: >
+        sshpass -p '{{ ansible_password }}'
         scp -o StrictHostKeyChecking=no
             -o UserKnownHostsFile=/dev/null
-            -p '{{ ansible_password }}'
             /tmp/{{ firmware }}
             {{ ansible_user }}@{{ inventory_hostname }}:
       delegate_to: localhost
