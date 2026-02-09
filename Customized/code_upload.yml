@@ -35,10 +35,12 @@
       no_log: true
 
     - name: Upload firmware to switch
-      ansible.netcommon.net_put:
-        src: "/tmp/{{ firmware }}"
-        dest: "{{ firmware }}"
-        protocol: scp
+      ansible.builtin.command: >
+        scp -o StrictHostKeyChecking=no
+            -o UserKnownHostsFile=/dev/null
+            /tmp/{{ firmware }}
+            {{ ansible_user }}@{{ inventory_hostname }}:
+      delegate_to: localhost
 
     - name: delete tmp file
       file:
