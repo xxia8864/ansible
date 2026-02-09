@@ -22,7 +22,7 @@
           -o StrictHostKeyChecking=no
           -o UserKnownHostsFile=/dev/null
       run_once: true
-      no_log: true
+      no_log: false
       delegate_to: localhost
       
     - name: Download firmware from SFTP host to controller
