@@ -2,7 +2,6 @@
 - name: upload firmware
   hosts: all
   gather_facts: no
-  connection: network_cli
   
   tasks:
     - name: generate time stamp
@@ -22,28 +21,33 @@
           -o StrictHostKeyChecking=no
           -o UserKnownHostsFile=/dev/null
       run_once: true
-      no_log: false
+      no_log: true
       delegate_to: localhost
+
+    - debug: 
+        msg: "{{ ansible_password  }}"
+        msg: "{{ ansible_username  }}"
+
       
-    - name: Download firmware from SFTP host to controller
-      ansible.builtin.fetch:
-        src: "{{ sftp_path }}/{{ firmware }}"
-        dest: "/tmp/{{ firmware }}"
-        flat: true
-      delegate_to: sftp_target
-      run_once: true
+#    - name: Download firmware from SFTP host to controller
+#      ansible.builtin.fetch:
+#        src: "{{ sftp_path }}/{{ firmware }}"
+#        dest: "/tmp/{{ firmware }}"
+#        flat: true
+#      delegate_to: sftp_target
+#      run_once: true
 
-    - name: Upload firmware to switch
-      ansible.builtin.command: >
-        scp -o StrictHostKeyChecking=no
-            -o UserKnownHostsFile=/dev/null
-            /tmp/{{ firmware }}
-            {{ ansible_user }}@{{ inventory_hostname }}:
-      delegate_to: localhost
+#    - name: Upload firmware to switch
+#      ansible.builtin.command: >
+#        scp -o StrictHostKeyChecking=no
+#            -o UserKnownHostsFile=/dev/null
+#            -p '{{ ansible_password }}'
+#            /tmp/{{ firmware }}
+#            {{ ansible_user }}@{{ inventory_hostname }}:
 
-    - name: delete tmp file
-      file:
-        path: "/tmp/{{ firmware }}"
-        state: absent
-      run_once: true
-      delegate_to: localhost
+#    - name: delete tmp file
+#      file:
+#        path: "/tmp/{{ firmware }}"
+#        state: absent
+#      run_once: true
+#      delegate_to: localhost
