@@ -1,0 +1,12 @@
+---
+- name: run cli command (Multiple vendor supports)
+  hosts: all
+  gather_facts: no
+  connection: network_cli
+
+  tasks:
+    - name: generate time stamp
+      set_fact:
+        timestamp: "{{ lookup('pipe','TZ=America/New_York date +%Y%m%d') }}"
+      run_once: true
+      delegate_to: localhost
