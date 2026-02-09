@@ -2,6 +2,7 @@
 - name: upload firmware
   hosts: all
   gather_facts: no
+  connection: network_cli
   
   tasks:
     - name: generate time stamp
