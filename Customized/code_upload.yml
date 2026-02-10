@@ -42,7 +42,7 @@
         scp -o StrictHostKeyChecking=no
             -o UserKnownHostsFile=/dev/null
             /tmp/{{ firmware }}
-            {{ ansible_user }}@{{ inventory_hostname }}:
+            {{ ansible_user }}@{{ inventory_hostname }}:{{ firmware }}
 
     - name: delete tmp file
       file:
