@@ -43,7 +43,6 @@
             -o UserKnownHostsFile=/dev/null
             /tmp/{{ firmware }}
             {{ ansible_user }}@{{ inventory_hostname }}:
-      delegate_to: localhost
 
     - name: delete tmp file
       file:
