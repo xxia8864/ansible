@@ -8,6 +8,7 @@
     - name: generate time stamp
       set_fact:
         timestamp: "{{ lookup('pipe','TZ=America/New_York date +%Y%m%d') }}"
+        timestamp_sec: "{{ lookup('pipe','TZ=America/New_York date +%Y%m%d%H:%M:%S') }}"
       run_once: true
       delegate_to: localhost
       
@@ -15,7 +16,7 @@
       cli_config:
         backup: "yes"
         backup_options:
-          filename: "{{ ansible_network_hostname | default(inventory_hostname) }}_{{ timestamp }}.txt"
+          filename: "{{ ansible_network_hostname | default(inventory_hostname) }}_{{ timestamp_sec }}.txt"
           dir_path: "/tmp"
       register: backup_outputs
 
@@ -47,15 +48,15 @@
 
     - name: upload to SFTP
       copy:
-        src: "/tmp/{{ ansible_network_hostname | default(inventory_hostname) }}_{{ timestamp }}.txt"
-        dest: "{{ sftp_path }}/{{ timestamp }}/{{ ansible_network_hostname | default(inventory_hostname) }}_{{ timestamp }}.txt"
+        src: "/tmp/{{ ansible_network_hostname | default(inventory_hostname) }}_{{ timestamp_sec }}.txt"
+        dest: "{{ sftp_path }}/{{ timestamp }}/{{ ansible_network_hostname | default(inventory_hostname) }}_{{ timestamp_sec }}.txt"
         mode: "0444"
       delegate_to: sftp_target
       no_log: flase
 
     - name: delete tmp file
       file:
-        path: "/tmp/{{ ansible_network_hostname | default(inventory_hostname) }}_{{ timestamp }}.txt"
+        path: "/tmp/{{ ansible_network_hostname | default(inventory_hostname) }}_{{ timestamp_sec }}.txt"
         state: absent
       delegate_to: localhost
       
