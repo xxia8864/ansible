@@ -36,9 +36,8 @@
       run_once: true
 
     - name: Upload firmware to switch
-      copy:
+      ansible.netcommon.net_put:
         src: "/tmp/{{ firmware }}"
-        dest: "bootflash/{{ firmware }}"
         
 #    - name: delete tmp file
 #      file:
