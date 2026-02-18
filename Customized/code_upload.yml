@@ -25,9 +25,6 @@
       run_once: true
       no_log: true
       delegate_to: localhost
-
-    - debug: 
-        msg: "user={{ ansible_user }} pass={{ ansible_password }}"
       
 #    - name: Download firmware from SFTP host to controller
 #      ansible.builtin.fetch:
