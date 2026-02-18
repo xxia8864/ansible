@@ -7,8 +7,8 @@
   tasks:
     - name: generate time stamp
       set_fact:
-        timestamp: "{{ lookup('pipe','TZ=America/New_York date +%Y%m%d') }}"
-        timestamp_sec: "{{ lookup('pipe','TZ=America/New_York date +%Y%m%d-%H%M%S') }}"
+        timestamp_day: "{{ lookup('pipe','TZ=America/New_York date +%Y%m%d') }}"
+        timestamp_sec: "{{ lookup('pipe','TZ=America/New_York date +%H%M%S') }}"
       run_once: true
       delegate_to: localhost
 
@@ -23,7 +23,7 @@
         content: |
           =================================================
           Network Command Output Report
-          Generated: {{ timestamp_sec }}
+          Generated: {{ timestamp_day }} - {{ timestamp_sec }}
           Total Hosts: {{ ansible_play_hosts | length }}
           =================================================
           
@@ -57,6 +57,14 @@
       run_once: true
       no_log: true
       delegate_to: localhost
+
+    - name: Create backup folder
+      ansible.builtin.file:
+        path: "{{ sftp_path }}/{{ timestamp_day }}"
+        state: directory
+        mode: '0755'
+      run_once: true
+      delegate_to: sftp_target
 
     - name: upload to SFTP
       copy:
