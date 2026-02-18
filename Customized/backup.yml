@@ -7,7 +7,8 @@
   tasks:
     - name: generate time stamp
       set_fact:
-        timestamp: "{{ lookup('pipe','TZ=America/New_York date +%Y%m%d') }}"
+        timestamp_day: "{{ lookup('pipe','TZ=America/New_York date +%Y%m%d') }}"
+        timestamp_sec: "{{ lookup('pipe','TZ=America/New_York date +%H%M%S') }}"
       run_once: true
       delegate_to: localhost
       
@@ -39,23 +40,22 @@
 
     - name: Create backup folder
       ansible.builtin.file:
-        path: "{{ sftp_path }}/{{ timestamp }}"
+        path: "{{ sftp_path }}/{{ timestamp_day }}"
         state: directory
         mode: '0755'
       run_once: true
-      no_log: false
       delegate_to: sftp_target
 
     - name: upload to SFTP
       copy:
-        src: "/tmp/{{ ansible_network_hostname | default(inventory_hostname) }}.txt"
-        dest: "{{ sftp_path }}/{{ timestamp }}/{{ ansible_network_hostname | default(inventory_hostname) }}.txt"
+        src: "/tmp/{{ ansible_network_hostname | default(inventory_hostname) }}_{{ timestamp_sec }}.txt"
+        dest: "{{ sftp_path }}/{{ timestamp_day }}/{{ ansible_network_hostname | default(inventory_hostname) }}_{{ timestamp_sec }}.txt"
         mode: "0444"
       delegate_to: sftp_target
       no_log: flase
 
-    - name: delete tmp file
-      file:
-        path: "/tmp/{{ ansible_network_hostname | default(inventory_hostname) }}.txt"
-        state: absent
-      delegate_to: localhost
+#    - name: delete tmp file
+#      file:
+#        path: "/tmp/{{ ansible_network_hostname | default(inventory_hostname) }}_{{ timestamp_sec }}.txt"
+#        state: absent
+#      delegate_to: localhost
