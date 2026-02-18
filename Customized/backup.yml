@@ -16,8 +16,8 @@
       cli_config:
         backup: "yes"
         backup_options:
-          filename: "{{ ansible_network_hostname | default(inventory_hostname) }}.txt"
-          dir_path: "/tmp"
+          filename: "{{ ansible_network_hostname | default(inventory_hostname) }}_{{ timestamp_sec }}.txt"
+          dir_path: "/tmp/tmpfiles"
       register: backup_outputs
       
     - name: show result
@@ -48,7 +48,7 @@
 
     - name: upload to SFTP
       copy:
-        src: "/tmp/{{ ansible_network_hostname | default(inventory_hostname) }}_{{ timestamp_sec }}.txt"
+        src: "/tmp/tmpfiles/{{ ansible_network_hostname | default(inventory_hostname) }}_{{ timestamp_sec }}.txt"
         dest: "{{ sftp_path }}/{{ timestamp_day }}/{{ ansible_network_hostname | default(inventory_hostname) }}_{{ timestamp_sec }}.txt"
         mode: "0444"
       delegate_to: sftp_target
@@ -56,6 +56,6 @@
 
 #    - name: delete tmp file
 #      file:
-#        path: "/tmp/{{ ansible_network_hostname | default(inventory_hostname) }}_{{ timestamp_sec }}.txt"
+#        path: "/tmp/tmpfiles/{{ ansible_network_hostname | default(inventory_hostname) }}_{{ timestamp_sec }}.txt"
 #        state: absent
 #      delegate_to: localhost
