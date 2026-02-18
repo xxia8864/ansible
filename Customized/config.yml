@@ -8,7 +8,7 @@
     - name: generate time stamp
       set_fact:
         timestamp: "{{ lookup('pipe','TZ=America/New_York date +%Y%m%d') }}"
-        timestamp_sec: "{{ lookup('pipe','TZ=America/New_York date +%Y%m%d%H:%M:%S') }}"
+        timestamp_sec: "{{ lookup('pipe','TZ=America/New_York date +%Y%m%d%-H%M%S') }}"
       run_once: true
       delegate_to: localhost
       
