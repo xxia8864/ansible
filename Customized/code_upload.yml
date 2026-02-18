@@ -6,6 +6,10 @@
     - ansible.netcommon
     
   tasks:
+    - name: Ensure scp library is installed on the control node
+      ansible.builtin.pip:
+        name: scp
+      delegate_to: localhost
     - name: generate time stamp
       set_fact:
         timestamp: "{{ lookup('pipe','TZ=America/New_York date +%Y%m%d') }}"
