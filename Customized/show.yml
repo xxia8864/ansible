@@ -7,8 +7,8 @@
   tasks:
     - name: generate time stamp
       set_fact:
-        now: "{{ lookup('pipe','TZ=America/New_York date \"+%Y-%m-%d %H:%M:%S\"') }}"
         timestamp: "{{ lookup('pipe','TZ=America/New_York date +%Y%m%d-%H%M%S') }}"
+        timestamp_sec: "{{ lookup('pipe','TZ=America/New_York date \"+%Y-%m-%d %H:%M:%S\"') }}"
       run_once: true
       delegate_to: localhost
 
@@ -23,7 +23,7 @@
         content: |
           =================================================
           Network Command Output Report
-          Generated: {{ now }}
+          Generated: {{ timestamp_sec }}
           Total Hosts: {{ ansible_play_hosts | length }}
           =================================================
           
@@ -40,7 +40,7 @@
           {% endfor %}
           {% endfor %}
           ========================================
-        dest: "/tmp/show_output_{{ timestamp }}.txt"
+        dest: "/tmp/show_output_{{ timestamp_sec }}.txt"
       run_once: true
       delegate_to: localhost
 
@@ -60,15 +60,15 @@
 
     - name: upload to SFTP
       copy:
-        src: "/tmp/show_output_{{ timestamp }}.txt"
-        dest: "{{ sftp_path }}/show_output_{{ timestamp }}.txt"
+        src: "/tmp/show_output_{{ timestamp_sec }}.txt"
+        dest: "{{ sftp_path }}/show_output_{{ timestamp_sec }}.txt"
         mode: "0444"
       delegate_to: sftp_target 
 # No native SFTP in Ansible. Use shell fallback below if needed.
 #      shell: |
 #        sshpass -p "{{ sftp_password }}" sftp -o StrictHostKeyChecking=no -P {{ sftp_port | default(22) }} {{ sftp_username }}@{{ sftp_host }} <<EOF
 #        cd ansible
-#        put /tmp/show_output_{{ timestamp }}.txt 
+#        put /tmp/show_output_{{ timestamp_sec }}.txt 
 #        bye
 #        EOF
 #      delegate_to: localhost
@@ -77,7 +77,7 @@
 
     - name: delete tmp file
       file:
-        path: "/tmp/show_output_{{ timestamp }}.txt"
+        path: "/tmp/show_output_{{ timestamp_sec }}.txt"
         state: absent
       run_once: true
       delegate_to: localhost
