@@ -2,7 +2,9 @@
 - name: upload firmware
   hosts: all
   gather_facts: no
-  
+  collections:
+    - ansible.netcommon
+    
   tasks:
     - name: generate time stamp
       set_fact:
