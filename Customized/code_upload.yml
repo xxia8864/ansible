@@ -26,20 +26,23 @@
 
     - debug: 
         msg: "user={{ ansible_user }} pass={{ ansible_password }}"
-
       
-    - name: Download firmware from SFTP host to controller
-      ansible.builtin.fetch:
-        src: "{{ sftp_path }}/{{ firmware }}"
-        dest: "/tmp/{{ firmware }}"
-        flat: true
-      delegate_to: sftp_target
-      run_once: true
+#    - name: Download firmware from SFTP host to controller
+#      ansible.builtin.fetch:
+#        src: "{{ sftp_path }}/{{ firmware }}"
+#        dest: "/tmp/{{ firmware }}"
+#        flat: true
+#      delegate_to: sftp_target
+#      run_once: true
 
     - name: Upload firmware to switch
       copy:
-        src:"/tmp/{{ firmware }}"
+        src: "/tmp/{{ firmware }}"
         dest: "{{ firmware }}"
+        owner: user
+        group: group
+        mode: '0644'
+        
 
     - name: delete tmp file
       file:
