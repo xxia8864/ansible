@@ -39,9 +39,6 @@
       copy:
         src: "/tmp/{{ firmware }}"
         dest: "{{ firmware }}"
-        owner: user
-        group: group
-        mode: '0644'
         
 
     - name: delete tmp file
