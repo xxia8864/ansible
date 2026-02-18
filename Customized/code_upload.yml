@@ -10,12 +10,6 @@
       ansible.builtin.pip:
         name: scp
       delegate_to: localhost
-      
-    - name: generate time stamp
-      set_fact:
-        timestamp: "{{ lookup('pipe','TZ=America/New_York date +%Y%m%d') }}"
-      run_once: true
-      delegate_to: localhost
 
     - name: add SFTP server to inventory
       add_host:
@@ -31,22 +25,22 @@
       no_log: true
       delegate_to: localhost
       
-#    - name: Download firmware from SFTP host to controller
-#      ansible.builtin.fetch:
-#        src: "{{ sftp_path }}/{{ firmware }}"
-#        dest: "/tmp/{{ firmware }}"
-#        flat: true
-#      delegate_to: sftp_target
-#      run_once: true
+    - name: Download firmware from SFTP host to controller
+      ansible.builtin.fetch:
+        src: "{{ sftp_path }}/{{ firmware }}"
+        dest: "/tmp/{{ firmware }}"
+        flat: true
+      delegate_to: sftp_target
+      run_once: true
 
     - name: Upload firmware to switch
       net_put:
         src: "/tmp/{{ firmware }}"
         dest: "{{ firmware }}"
         
-#    - name: delete tmp file
-#      file:
-#        path: "/tmp/{{ firmware }}"
-#        state: absent
-#      run_once: true
-#      delegate_to: localhost
+    - name: delete tmp file
+      file:
+        path: "/tmp/{{ firmware }}"
+        state: absent
+      run_once: true
+      delegate_to: localhost
