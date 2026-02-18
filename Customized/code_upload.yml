@@ -41,6 +41,7 @@
     - name: Upload firmware to switch
       net_put:
         src: "/tmp/{{ firmware }}"
+        dest: "{{ firmware }}"
         
 #    - name: delete tmp file
 #      file:
