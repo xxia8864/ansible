@@ -38,7 +38,7 @@
     - name: Upload firmware to switch
       copy:
         src: "/tmp/{{ firmware }}"
-        dest: "/bootflash/{{ firmware }}"
+        dest: "bootflash/{{ firmware }}"
         
 #    - name: delete tmp file
 #      file:
