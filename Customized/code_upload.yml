@@ -39,7 +39,6 @@
       copy:
         src: "/tmp/{{ firmware }}"
         dest: "/bootflash/{{ firmware }}"
-        protocol: scp
         
 #    - name: delete tmp file
 #      file:
