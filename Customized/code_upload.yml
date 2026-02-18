@@ -37,12 +37,9 @@
       run_once: true
 
     - name: Upload firmware to switch
-      ansible.builtin.command: >
-        sshpass -p '{{ ansible_password }}'
-        scp -o StrictHostKeyChecking=no
-            -o UserKnownHostsFile=/dev/null
-            /tmp/{{ firmware }}
-            {{ ansible_user }}@{{ inventory_hostname }}:{{ firmware }}
+      copy:
+        src:"/tmp/{{ firmware }}"
+        dest: "{{ firmware }}"
 
     - name: delete tmp file
       file:
