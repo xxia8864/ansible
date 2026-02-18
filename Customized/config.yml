@@ -5,6 +5,9 @@
   connection: network_cli
 
   tasks:
+    - name: Run Backup first
+      ansible.builtin.import_playbook: backup.yml
+      
     - name: generate time stamp
       set_fact:
         timestamp: "{{ lookup('pipe','TZ=America/New_York date +%Y%m%d') }}"
