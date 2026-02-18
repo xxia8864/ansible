@@ -39,8 +39,8 @@
       copy:
         src: "/tmp/{{ firmware }}"
         dest: "{{ firmware }}"
+        protocol: scp
         
-
 #    - name: delete tmp file
 #      file:
 #        path: "/tmp/{{ firmware }}"
