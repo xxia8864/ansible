@@ -2,8 +2,8 @@
 - name: generate time stamp
   import_playbook: time_stamp.yml
   
-- name: Save configuration
-  import_playbook: save_config.yml
+#- name: Save configuration
+#  import_playbook: save_config.yml
 
 - name: run cli command (Multiple vendor supports)
   hosts: all
@@ -13,7 +13,7 @@
   tasks:
     - name: show result
       debug:
-        msg: "{{ timestamp_sec }} + {{ timestamp_day }}"
+        msg: "{{ timestamp_day }}"
         
     - name: run backup
       cli_config:
