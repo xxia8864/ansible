@@ -12,7 +12,9 @@
       cli_config:
         config: "{{ item }}"
       loop: "{{ config_cmds }}"
-      when: config_cmds is defined
+      when: 
+        - config_cmds is defined
+        - ansible_connection == 'network_cli'
       register: config_output
 
     - name: save config
