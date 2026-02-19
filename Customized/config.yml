@@ -6,10 +6,8 @@
 
   tasks:
     - name: Run Backup first
-      ansible.builtin.import_playbook: backup.yml
-      
-
-      
+      import_playbook: backup.yml
+        
     - name: run defined command from Extra variables
       cli_config:
         config: "{{ item }}"
