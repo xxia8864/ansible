@@ -1,11 +1,12 @@
-- name: save config
+- name: Save configuration
   hosts: all
   gather_facts: no
-  cli_command:
-    command: >-
-      {{
-        {
-          'ios': 'write memory',
-          'nxos': 'copy running-config startup-config'
-        }[ansible_network_os]
-      }}
+  connection: network_cli
+  vars:
+    save_commands:
+      ios: "write memory"
+      nxos: "copy running-config startup-config"
+  tasks:
+    - name: Save config
+      cli_command:
+        command: "{{ save_commands[ansible_network_os] }}"
