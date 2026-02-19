@@ -4,8 +4,8 @@
   gather_facts: no
   connection: network_cli
   
-  - name: Run Backup first
-    import_playbook: backup.yml
+- name: Run Backup first
+  import_playbook: backup.yml
 
   tasks:  
     - name: run defined command from Extra variables
