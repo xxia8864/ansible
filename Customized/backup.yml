@@ -17,6 +17,8 @@
         backup_options:
           filename: "{{ ansible_network_hostname | default(inventory_hostname) }}_{{ ansible_stats.data.timestamp_sec }}.txt"
           dir_path: "/tmp/tmpfiles"
+        when: 
+          - ansible_connection == 'network_cli'
       register: backup_outputs
       
     - name: show result
