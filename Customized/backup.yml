@@ -15,7 +15,7 @@
       cli_config:
         backup: "yes"
         backup_options:
-          filename: "{{ ansible_network_hostname | default(inventory_hostname) }}_{{ timestamp_sec }}.txt"
+          filename: "{{ ansible_network_hostname | default(inventory_hostname) }}_{{ ansible_stats.data.timestamp_sec }}.txt"
           dir_path: "/tmp/tmpfiles"
       register: backup_outputs
       
@@ -39,7 +39,7 @@
 
     - name: Create backup folder
       ansible.builtin.file:
-        path: "{{ sftp_path }}/{{ timestamp_day }}"
+        path: "{{ sftp_path }}/{{ ansible_stats.data.timestamp_day }}"
         state: directory
         mode: '755'
       run_once: true
@@ -47,14 +47,14 @@
 
     - name: upload to SFTP
       copy:
-        src: "/tmp/tmpfiles/{{ ansible_network_hostname | default(inventory_hostname) }}_{{ timestamp_sec }}.txt"
-        dest: "{{ sftp_path }}/{{ timestamp_day }}/{{ ansible_network_hostname | default(inventory_hostname) }}_{{ timestamp_sec }}.txt"
+        src: "/tmp/tmpfiles/{{ ansible_network_hostname | default(inventory_hostname) }}_{{ ansible_stats.data.timestamp_sec }}.txt"
+        dest: "{{ sftp_path }}/{{ ansible_stats.data.timestamp_day }}/{{ ansible_network_hostname | default(inventory_hostname) }}_{{ ansible_stats.data.timestamp_sec }}.txt"
         mode: "0444"
       delegate_to: sftp_target
       no_log: flase
 
     - name: delete tmp file
       file:
-        path: "/tmp/tmpfiles/{{ ansible_network_hostname | default(inventory_hostname) }}_{{ timestamp_sec }}.txt"
+        path: "/tmp/tmpfiles/{{ ansible_network_hostname | default(inventory_hostname) }}_{{ ansible_stats.data.timestamp_sec }}.txt"
         state: absent
       delegate_to: localhost
