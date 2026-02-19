@@ -1,17 +1,13 @@
 ---
+- name: generate time stamp
+  import_playbook: time_stamp.yml
+
 - name: run cli command (Multiple vendor supports)
   hosts: all
   gather_facts: no
   connection: network_cli
 
   tasks:
-    - name: generate time stamp
-      set_fact:
-        timestamp_day: "{{ lookup('pipe','TZ=America/New_York date +%Y%m%d') }}"
-        timestamp_sec: "{{ lookup('pipe','TZ=America/New_York date +%H%M%S') }}"
-      run_once: true
-      delegate_to: localhost
-      
     - name: run backup
       cli_config:
         backup: "yes"
