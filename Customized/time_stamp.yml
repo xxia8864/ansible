@@ -1,7 +1,16 @@
 ---
-- name: generate time stamp
-  set_fact:
-    timestamp_day: "{{ lookup('pipe','TZ=America/New_York date +%Y%m%d') }}"
-    timestamp_sec: "{{ lookup('pipe','TZ=America/New_York date +%H%M%S') }}"
-  run_once: true
-  delegate_to: localhost
+- name: Generate timestamp once
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Generate time stamp
+      set_fact:
+        timestamp_day: "{{ lookup('pipe','TZ=America/New_York date +%Y%m%d') }}"
+        timestamp_sec: "{{ lookup('pipe','TZ=America/New_York date +%H%M%S') }}"
+    
+    - name: Share across all plays
+      set_stats:
+        data:
+          timestamp_day: "{{ timestamp_day }}"
+          timestamp_sec: "{{ timestamp_sec }}"
+        per_host: no
