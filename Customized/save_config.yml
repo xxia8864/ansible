@@ -1,0 +1,11 @@
+- name: save config
+  hosts: all
+  gather_facts: no
+  cli_command:
+    command: >-
+      {{
+        {
+          'ios': 'write memory',
+          'nxos': 'copy running-config startup-config'
+        }[ansible_network_os]
+      }}
