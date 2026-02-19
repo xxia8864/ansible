@@ -1,5 +1,4 @@
 ---
-  
 - name: Run Backup first
   import_playbook: backup.yml
 
@@ -7,7 +6,6 @@
   hosts: all
   gather_facts: no
   connection: network_cli
-
 
   tasks:  
     - name: run defined command from Extra variables
