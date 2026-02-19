@@ -1,6 +1,9 @@
 ---
 - name: generate time stamp
   import_playbook: time_stamp.yml
+  
+- name: Save configuration
+  import_playbook: save_config.yml
 
 - name: run cli command (Multiple vendor supports)
   hosts: all
