@@ -9,9 +9,9 @@
   hosts: all
   gather_facts: no
   connection: network_cli
-  vars:
-    timestamp_day: "{{ hostvars['GLOBAL_VARS']['timestamp_day'] }}"
-    timestamp_sec: "{{ hostvars['GLOBAL_VARS']['timestamp_sec'] }}"
+  #vars:
+  #  timestamp_day: "{{ hostvars['GLOBAL_VARS']['timestamp_day'] }}"
+  #  timestamp_sec: "{{ hostvars['GLOBAL_VARS']['timestamp_sec'] }}"
 
   tasks:
     - name: run backup
