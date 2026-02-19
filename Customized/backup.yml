@@ -33,7 +33,8 @@
         ansible_connection: ssh
         ansible_ssh_common_args: >
           -o StrictHostKeyChecking=no
-          -o UserKnownHostsFile=/dev/null        
+          -o UserKnownHostsFile=/dev/null
+          groups:sftp_servers
       run_once: true
       no_log: true
       delegate_to: localhost
