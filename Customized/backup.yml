@@ -5,18 +5,13 @@
 #- name: Save configuration
 #  import_playbook: save_config.yml
 
-- name: run cli command (Multiple vendor supports)
+- name: run backup and upload to SFTP
   hosts: all
   gather_facts: no
   connection: network_cli
-  vars:
-    timestamp_day: "{{ hostvars['GLOBAL_VARS']['timestamp_day'] }}"
-    timestamp_sec: "{{ hostvars['GLOBAL_VARS']['timestamp_sec'] }}"
-    
-  tasks:
-    - name: show result
-      debug:
-        msg: "{{ timestamp_day }}"
+  #vars:
+  #  timestamp_day: "{{ hostvars['GLOBAL_VARS']['timestamp_day'] }}"
+  #  timestamp_sec: "{{ hostvars['GLOBAL_VARS']['timestamp_sec'] }}"
         
     - name: run backup
       cli_config:
