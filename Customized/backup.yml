@@ -11,6 +11,10 @@
   connection: network_cli
 
   tasks:
+    - name: show result
+      debug:
+        msg: "{{ timestamp_sec }} + {{ timestamp_day }}"
+        
     - name: run backup
       cli_config:
         backup: "yes"
