@@ -15,12 +15,12 @@
         filename: "{{ ansible_network_hostname | default(inventory_hostname) }}_{{ timestamp_sec }}.txt"
 
     - name: add SFTP server to inventory
-      import_task: tasks/t_SFTP.yml
+      import_tasks: tasks/t_SFTP.yml
       delegate_to: localhost
       run_once: true
 
     - name: Create backup folder
-      import_task: tasks/t_create_folder.yml
+      import_tasks: tasks/t_create_folder.yml
       run_once: true
       delegate_to: sftp_target
       
@@ -34,11 +34,11 @@
       register: backup_outputs
             
     - name: upload backup file to SFTP server
-      import_task: tasks/t_upload.yml
+      import_tasks: tasks/t_upload.yml
       delegate_to: sftp_target    
       
   post_tasks:
     - name: delete tmp file
-      import_task: tasks/t_delete_file.yml
+      import_tasks: tasks/t_delete_file.yml
       delegate_to: localhost
       run_once: true
