@@ -10,8 +10,8 @@
       args:
         apply:
           delegate_to: localhost
+          delegate_facts: true
       run_once: true
-      delegate_facts: true
       
 #    - name: set file name
 #      set_fact:
