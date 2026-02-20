@@ -3,7 +3,6 @@
   vars:
    patch_commands:
      ios: "verify /md5 {{ filename }}"
-     nxos: "show file {{ filename }} md5sum"
+     nxos: "install all nxos bootflash:{{  firmware_filename  }} non-interruptive"
   cli_command:
    command: "{{ patch_commands[ansible_network_os] }}"
-  register: md5_output
