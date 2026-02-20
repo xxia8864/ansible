@@ -1,3 +1,4 @@
+---
 - name: Create backup folder
   ansible.builtin.file:
     path: "{{ sftp_path }}/{{ timestamp_day }}"
