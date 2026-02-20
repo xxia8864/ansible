@@ -1,0 +1,4 @@
+- name: delete tmp file
+  file:
+    path: "/tmp/tmpfiles/{{ filename }}"
+    state: absent
