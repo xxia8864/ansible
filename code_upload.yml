@@ -5,29 +5,21 @@
   collections:
     - ansible.netcommon
     
-  tasks:
+  pre_tasks:
     - name: Ensure scp library is installed on the control node
       ansible.builtin.pip:
         name: scp
       delegate_to: localhost
 
     - name: add SFTP server to inventory
-      add_host:
-        name: sftp_target  
-        ansible_host: "{{ sftp_host }}"
-        ansible_user: "{{ sftp_username }}"
-        ansible_ssh_pass: "{{ sftp_password }}"
-        ansible_connection: ssh
-        ansible_ssh_common_args: >
-          -o StrictHostKeyChecking=no
-          -o UserKnownHostsFile=/dev/null
-      run_once: true
-      no_log: true
+      import_tasks: tasks/t_SFTP.yml
       delegate_to: localhost
-      
+      run_once: true
+
+  tasks:      
     - name: Download firmware from SFTP host to controller
       ansible.builtin.fetch:
-        src: "{{ sftp_path }}/{{ firmware }}"
+        src: "{{ sftp_path }}/{{ filename }}"
         dest: "/tmp/{{ firmware }}"
         flat: true
       delegate_to: sftp_target
@@ -35,12 +27,11 @@
 
     - name: Upload firmware to switch
       net_put:
-        src: "/tmp/{{ firmware }}"
+        src: "/tmp/{{ filename }}"
         dest: "{{ firmware }}"
         
-    - name: delete tmp file
-      file:
-        path: "/tmp/{{ firmware }}"
-        state: absent
+  post_tasks:        
+    - name: delete firmware from temp file space
+      import_tasks: tasks/t_delete_file.yml
       run_once: true
       delegate_to: localhost
