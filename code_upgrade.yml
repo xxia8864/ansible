@@ -26,6 +26,7 @@
 #      import_tasks: tasks/t_upgrade_confirm.yml
 
     - name: Upgrade primary devices
+      when: patch_tag == "primary"
       debug:
         msg:{  {ansible_network_hostname  }} + {{  patch_tag  }}      
         
@@ -34,6 +35,7 @@
 #      import_tasks: tasks/t_upgrade_confirm.yml
       
     - name: Upgrade secondary devices
+      when: patch_tag == "primary"
       debug:
         msg:{  {ansible_network_hostname  }} + {{  patch_tag  }}
         
