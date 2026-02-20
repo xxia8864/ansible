@@ -14,8 +14,9 @@
       
     - name: set file name
       set_fact:
-        filename: "{{ ansible_network_hostname | default(inventory_hostname) }}_{{ timestamp_sec }}.txt"
-        
+        filename: "{{ ansible_network_hostname | default(inventory_hostname) }}_{{ timestamp_sec }}.txt
+      run_once: true  
+  
     - name: show result
       debug:
         msg: "{{ filename }}"
