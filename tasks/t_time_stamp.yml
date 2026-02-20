@@ -4,4 +4,4 @@
     timestamp_sec: "{{ lookup('pipe','TZ=America/New_York date +%H%M%S') }}"
     timestamp: "{{ timestamp_day }}-{{ timestamp_sec }}“
   run_once: true
-  delegate_to: localhost
+  delegate_to: {{ delegate_host }}
