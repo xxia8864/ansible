@@ -44,3 +44,7 @@
     - name: delete tmp file
       import_tasks: tasks/t_delete_file.yml
       delegate_to: localhost
+
+    - name: Skip sftp_target
+      meta: end_host
+      when: inventory_hostname == 'sftp_target'
