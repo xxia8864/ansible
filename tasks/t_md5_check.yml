@@ -1,0 +1,10 @@
+---
+- name: Compare with official MD5
+  assert:
+    that:
+      - md5 | lower in md5_output.stdout | lower
+    fail_msg: |
+      MD5 mismatch on {{ ansible_network_hostname | default(inventory_hostname) }}!
+      Expected: {{ md5 }}
+      Output: {{ md5_output.stdout }}
+    success_msg: "MD5 verified on {{ ansible_network_hostname | default(inventory_hostname) }}"
