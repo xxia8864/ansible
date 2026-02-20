@@ -1,4 +1,7 @@
 ---
+- name: save config first
+  import_playbook: save_config.yml
+  
 - name: run backup and upload to SFTP
   hosts: all
   gather_facts: no
