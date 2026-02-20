@@ -1,64 +1,57 @@
 ---
-#- name: Save configuration
-#  import_playbook: save_config.yml
-
 - name: run backup and upload to SFTP
   hosts: all
   gather_facts: no
   connection: network_cli
-
+  
   pre_tasks:
     - name: Generate timestamp once
       include_tasks: tasks/t_time_stamp.yml
       run_once: true
       delegate_to: localhost
-         
-    - name: run backup
-      cli_config:
-        backup: "yes"
-        backup_options:
-          filename: "{{ ansible_network_hostname | default(inventory_hostname) }}_{{ timestamp_sec }}.txt"
-          dir_path: "/tmp/tmpfiles"
-        when: 
-          - ansible_connection == 'network_cli'
-      register: backup_outputs
       
+    - name: set file name
+      set_fact:
+        filename: "{{ ansible_network_hostname | default(inventory_hostname) }}_{{ timestamp_sec }}.txt"
+        
     - name: show result
       debug:
-        msg: "{{ backup_outputs }}"
-
+        msg: "{{ filename }}"
+      
     - name: add SFTP server to inventory
-      add_host:
-        name: sftp_target  
-        ansible_host: "{{ sftp_host }}"
-        ansible_user: "{{ sftp_username }}"
-        ansible_ssh_pass: "{{ sftp_password }}"
-        ansible_connection: ssh
-        ansible_ssh_common_args: >
-          -o StrictHostKeyChecking=no
-          -o UserKnownHostsFile=/dev/null
+      include_tasks: tasks/t_SFTP.yml
       run_once: true
       no_log: true
       delegate_to: localhost
-
+      
+  task:
+    - name: run backup
+      cli_config:
+        backup: yes
+        backup_options:
+          filename: "{{ filename }}"
+          dir_path: /tmp/tmpfiles
+#        when:
+#          - ansible_connection == 'network_cli'
+      register: backup_outputs
+      
     - name: Create backup folder
       ansible.builtin.file:
         path: "{{ sftp_path }}/{{ timestamp_day }}"
         state: directory
-        mode: '755'
+        mode: "755"
       run_once: true
       delegate_to: sftp_target
-
+      
     - name: upload to SFTP
       copy:
-        src: "/tmp/tmpfiles/{{ ansible_network_hostname | default(inventory_hostname) }}_{{ timestamp_sec }}.txt"
-        dest: "{{ sftp_path }}/{{ timestamp_day }}/{{ ansible_network_hostname | default(inventory_hostname) }}_{{ timestamp_sec }}.txt"
+        src: "/tmp/tmpfiles/{{ filename }}"
+        dest: "{{ sftp_path }}/{{ timestamp_day }}/{{ filename }}"
         mode: "0444"
       delegate_to: sftp_target
       no_log: flase
-
     - name: delete tmp file
       file:
-        path: "/tmp/tmpfiles/{{ ansible_network_hostname | default(inventory_hostname) }}_{{ timestamp_sec }}.txt"
+        path: "/tmp/tmpfiles/{{ timestamp_day }}"
         state: absent
       delegate_to: localhost
