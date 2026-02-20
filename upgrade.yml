@@ -20,22 +20,22 @@
       when: patch_tag == "standalone"
       import_tasks: tasks/t_upgrade.yml
       
-    - name: confirm standalone upgrade is complete
-      when: patch_tag == "standalone"
-      import_tasks: tasks/t_upgrade_confirm.yml
+#    - name: confirm standalone upgrade is complete
+#      when: patch_tag == "standalone"
+#      import_tasks: tasks/t_upgrade_confirm.yml
 
     - name: Upgrade primary devices
       when: patch_tag == "primary"
       import_tasks: tasks/t_upgrade.yml
       
-    - name: confirm primary upgrade is complete
-      when: patch_tag == "primary"
-      import_tasks: tasks/t_upgrade_confirm.yml
+#    - name: confirm primary upgrade is complete
+#      when: patch_tag == "primary"
+#      import_tasks: tasks/t_upgrade_confirm.yml
       
     - name: Upgrade secondary devices
       when: patch_tag == "secondary"
       import_tasks: tasks/t_upgrade.yml
       
-    - name: confirm secondary upgrade is complete
-      when: patch_tag == "secondary"
-      import_tasks: tasks/t_upgrade_confirm.yml
+#    - name: confirm secondary upgrade is complete
+#      when: patch_tag == "secondary"
+#      import_tasks: tasks/t_upgrade_confirm.yml
