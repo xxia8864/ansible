@@ -1,6 +1,6 @@
 ---
 #- name: Run Backup first
-  import_playbook: backup.yml
+#  import_playbook: backup.yml
 
 - name: Firmware upgrade workflow
   hosts: all
