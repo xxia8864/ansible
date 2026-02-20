@@ -10,4 +10,4 @@
       -o UserKnownHostsFile=/dev/null
   run_once: true
   no_log: true
-  delegate_to: localhost
+  delegate_to: {{ delegate_host }}
