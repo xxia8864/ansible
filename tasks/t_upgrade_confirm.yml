@@ -1,0 +1,11 @@
+- name: Verify IOS version
+  assert:
+    that: version.stdout is search('Version ' + expected_ios_version)
+  when: ansible_network_os == 'ios'
+
+- name: Verify NXOS version  
+  assert:
+    that: 
+      - version.stdout is search('NXOS: version ' + expected_nxos_version)
+      - version.stdout is search(firmware_file)  # 顺便验证文件名
+  when: ansible_network_os == 'nxos'
