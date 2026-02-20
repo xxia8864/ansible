@@ -11,11 +11,3 @@
     run_once: true
     no_log: true
     delegate_to: localhost
-
-- name: Create backup folder
-  ansible.builtin.file:
-    path: "{{ sftp_path }}/{{ ansible_stats.data.timestamp_day }}"
-    state: directory
-    mode: '755'
-  run_once: true
-  delegate_to: sftp_target
