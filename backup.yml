@@ -18,6 +18,11 @@
       import_task: tasks/t_SFTP.yml
       delegate_to: localhost
       run_once: true
+
+    - name: Create backup folder
+      import_task: tasks/t_create_folder.yml
+      run_once: true
+      delegate_to: sftp_target
       
   tasks:
     - name: run backup
@@ -28,21 +33,11 @@
           dir_path: /tmp/tmpfiles
       register: backup_outputs
             
-    - name: add SFTP server to inventory
-      import_task: tasks/t_upload.yml
-      run_once: true
-      no_log: true
-      delegate_to: localhost
-
-    - name: Create backup folder
-      import_task: tasks/t_create_folder.yml
-      run_once: true
-      delegate_to: sftp_target
-
     - name: upload backup file to SFTP server
       import_task: tasks/t_upload.yml
-      delegate_to: sftp_target      
+      delegate_to: sftp_target    
       
+  post_tasks:
     - name: delete tmp file
       import_task: tasks/t_delete_file.yml
       delegate_to: localhost
