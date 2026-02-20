@@ -1,9 +1,0 @@
-- name: Save configuration
-  vars:
-    save_commands:
-      ios: "write memory"
-      nxos: "copy running-config startup-config"
-  tasks:
-    - name: Save config
-      cli_command:
-        command: "{{ save_commands[ansible_network_os] }}"
