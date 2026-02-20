@@ -11,6 +11,7 @@
         apply:
           delegate_to: localhost
       run_once: true
+      delegate_facts: true
       
 #    - name: set file name
 #      set_fact:
