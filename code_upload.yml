@@ -23,23 +23,23 @@
     - name: Download firmware from SFTP host to controller
       ansible.builtin.fetch:
         src: "{{ sftp_path }}/{{ filename }}"
-        dest: "/tmp/{{ filename }}"
+        dest: "/tmp/tmpfiles/{{ filename }}"
         flat: true
       delegate_to: sftp_target
       run_once: true
 
     - name: Upload firmware to switch
       net_put:
-        src: "/tmp/{{ filename }}"
+        src: "/tmp/tmpfiles/{{ filename }}"
         dest: "{{ filename }}"
       vars:
         ansible_command_timeout: 3600  # 1小时
         
   post_tasks:        
-#    - name: delete firmware from temp file space
-#      import_tasks: tasks/t_delete_file.yml
-#      run_once: true
-#      delegate_to: localhost
+    - name: delete firmware from temp file space
+      import_tasks: tasks/t_delete_file.yml
+      run_once: true
+      delegate_to: localhost
 
     - name: Verify file md5
       vars:
