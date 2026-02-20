@@ -32,7 +32,7 @@
         src: "/tmp/tmpfiles/{{ filename }}"
         dest: "{{ filename }}"
       vars:
-        ansible_command_timeout: 3600  # 1小时
+        ansible_command_timeout: 7200
         
   post_tasks:        
     - name: delete firmware from temp file space
