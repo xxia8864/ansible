@@ -5,7 +5,11 @@
   connection: network_cli
   collections:
     - ansible.netcommon
-    
+  vars:
+    md5_commands:
+      ios: "verify /md5 {{ filename }}"
+      nxos: "show file {{ filename }} md5sum"
+      
   pre_tasks:
     - name: Ensure scp library is installed on the control node
       ansible.builtin.pip:
@@ -37,12 +41,12 @@
       run_once: true
       delegate_to: localhost
 
-    - name: Verify file exists and size
+    - name: Verify file md5
       cli_command:
-        command: "dir | include {{ filename }}"
+        command: "{{ md5_commands[ansible_network_os] }}"
       register: verify
 
-    - name: Check if file is uploaded
+    - name: compare md5
       assert:
       that:
         - verify.stdout is search(filename)
