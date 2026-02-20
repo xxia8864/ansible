@@ -27,10 +27,14 @@
       delegate_to: sftp_target
       run_once: true
 
+    - name: set firmware_filename
+      set_fact:
+        firmware_filename: {{ filename }}
+
     - name: Upload firmware to switch
       net_put:
-        src: "/tmp/tmpfiles/{{ filename }}"
-        dest: "{{ filename }}"
+        src: "/tmp/tmpfiles/{{ firmware_filename }}"
+        dest: "{{ firmware_filename }}"
       vars:
         ansible_command_timeout: 7200
         
