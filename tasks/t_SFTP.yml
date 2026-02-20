@@ -1,0 +1,21 @@
+- name: add SFTP server to inventory
+  add_host:
+    name: sftp_target  
+    ansible_host: "{{ sftp_host }}"
+    ansible_user: "{{ sftp_username }}"
+    ansible_ssh_pass: "{{ sftp_password }}"
+    ansible_connection: ssh
+    ansible_ssh_common_args: >
+      -o StrictHostKeyChecking=no
+      -o UserKnownHostsFile=/dev/null
+    run_once: true
+    no_log: true
+    delegate_to: localhost
+
+- name: Create backup folder
+  ansible.builtin.file:
+    path: "{{ sftp_path }}/{{ ansible_stats.data.timestamp_day }}"
+    state: directory
+    mode: '755'
+  run_once: true
+  delegate_to: sftp_target
