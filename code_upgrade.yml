@@ -25,13 +25,13 @@
 #          debug: 
 #            msg: "{{  install_output  }}"
 
-        - name: Waiting For {{ ansible_network_hostname }} To Come Back Up     
+        - name: Waiting For devices To Come Back Up     
           wait_for:
             host: "{{ inventory_hostname }}"
             port: 22
             state: started
-            timeout: 300
-            delay: 60  
+            timeout: 600
+            delay: 100 
             
 #        - name: confirm standalone upgrade is complete
 #          import_tasks: tasks/t_patch_confirm.yml
