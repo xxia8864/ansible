@@ -37,13 +37,13 @@
       run_once: true
       delegate_to: localhost
 
-  - name: Verify file exists and size
-    cli_command:
-      command: "dir | include {{ filename }}"
-    register: verify
+    - name: Verify file exists and size
+      cli_command:
+        command: "dir | include {{ filename }}"
+      register: verify
 
-  - name: Check if file is uploaded
-    assert:
+    - name: Check if file is uploaded
+      assert:
       that:
         - verify.stdout is search(filename)
       fail_msg: "Firmware file missing"
