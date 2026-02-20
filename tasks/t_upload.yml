@@ -1,8 +1,4 @@
-- name: Create backup folder
-  ansible.builtin.file:
-    path: "{{ sftp_path }}/{{ timestamp_day }}"
-    state: directory
-    mode: "755"
+- name: upload to SFTP server
   copy:
     src: "/tmp/tmpfiles/{{ filename }}"
     dest: "{{ sftp_path }}/{{ timestamp_day }}/{{ filename }}"
