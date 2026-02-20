@@ -1,7 +1,4 @@
 ---
-- name: generate time stamp
-  import_playbook: time_stamp.yml
-  
 #- name: Save configuration
 #  import_playbook: save_config.yml
 
@@ -9,15 +6,12 @@
   hosts: all
   gather_facts: no
   connection: network_cli
-  #vars:
-  #  timestamp_day: "{{ hostvars['GLOBAL_VARS']['timestamp_day'] }}"
-  #  timestamp_sec: "{{ hostvars['GLOBAL_VARS']['timestamp_sec'] }}"
 
-  tasks:
-    - name: set time
-      set_fact:
-        timestamp_day: "{{ hostvars['GLOBAL_VARS']['timestamp_day'] }}"
-        timestamp_sec: "{{ hostvars['GLOBAL_VARS']['timestamp_sec'] }}"
+  pre_tasks:
+    - name: Generate timestamp once
+      include_tasks: tasks/time_stamp.yml
+      run_once: true
+      delegate_to: localhost
          
     - name: run backup
       cli_config:
