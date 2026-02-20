@@ -17,13 +17,17 @@
 
   tasks:
     - name: Upgrade standalone devices
+      block:
+        - name: Install
+          import_tasks: tasks/t_patch.yml
+          
+        - name: print install result
+          debug: 
+            msg: "{{  install_output  }}"
+            
+        - name: confirm standalone upgrade is complete
+          import_tasks: tasks/t_patch_confirm.yml
       when: patch_tag == "standalone"
-      debug:
-        msg:{  {ansible_network_hostname  }} + {{  patch_tag  }}
-      
-#    - name: confirm standalone upgrade is complete
-#      when: patch_tag == "standalone"
-#      import_tasks: tasks/t_upgrade_confirm.yml
 
     - name: Upgrade primary devices
       when: patch_tag == "primary"
