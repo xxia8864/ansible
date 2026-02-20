@@ -29,7 +29,7 @@
 
     - name: set firmware_filename
       set_fact:
-        firmware_filename: {{ filename }}
+        firmware_filename: "{{ filename }}"
 
     - name: Upload firmware to switch
       net_put:
