@@ -5,7 +5,6 @@
   connection: network_cli
   collections:
     - ansible.netcommon
-
       
   pre_tasks:
     - name: Ensure scp library is installed on the control node
