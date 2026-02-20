@@ -24,7 +24,7 @@
       no_log: true
       delegate_to: localhost
       
-  task:
+  tasks:
     - name: run backup
       cli_config:
         backup: yes
