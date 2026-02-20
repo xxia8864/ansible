@@ -15,6 +15,7 @@
       ansible.builtin.pip:
         name: scp
       delegate_to: localhost
+      run_once: true
 
     - name: add SFTP server to inventory
       import_tasks: tasks/t_SFTP.yml
@@ -25,7 +26,7 @@
     - name: Download firmware from SFTP host to controller
       ansible.builtin.fetch:
         src: "{{ sftp_path }}/{{ filename }}"
-        dest: "/tmp/{{ firmware }}"
+        dest: "/tmp/{{ filename }}"
         flat: true
       delegate_to: sftp_target
       run_once: true
@@ -33,7 +34,7 @@
     - name: Upload firmware to switch
       net_put:
         src: "/tmp/{{ filename }}"
-        dest: "{{ firmware }}"
+        dest: "{{ filename }}"
         
   post_tasks:        
     - name: delete firmware from temp file space
