@@ -44,10 +44,14 @@
     - name: Verify file md5
       cli_command:
         command: "{{ md5_commands[ansible_network_os] }}"
-      register: verify
-
-    - name: compare md5
+      register: md5_output
+      
+    - name: Compare with official MD5
       assert:
-      that:
-        - verify.stdout is search(filename)
-      fail_msg: "Firmware file missing"
+        that:
+          - md5 | lower in md5_output.stdout | lower
+        fail_msg: |
+          MD5 mismatch on {{ inventory_hostname }}!
+          Expected: {{ md5 }}
+          Output: {{ md5_output.stdout }}
+        success_msg: "MD5 verified on {{ nsible_network_hostname | default(inventory_hostname) }}"
