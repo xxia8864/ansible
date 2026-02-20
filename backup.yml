@@ -33,9 +33,7 @@
         when:
           - ansible_connection == 'network_cli'
       register: backup_outputs
-      
-    - name: Create backup folder
-      
+            
     - name: upload to SFTP
       import_task: tasks/t_upload.yml
       delegate_to: sftp_target
