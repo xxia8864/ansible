@@ -5,10 +5,7 @@
   connection: network_cli
   collections:
     - ansible.netcommon
-  vars:
-    md5_commands:
-      ios: "verify /md5 {{ filename }}"
-      nxos: "show file {{ filename }} md5sum"
+
       
   pre_tasks:
     - name: Ensure scp library is installed on the control node
@@ -35,14 +32,20 @@
       net_put:
         src: "/tmp/{{ filename }}"
         dest: "{{ filename }}"
+      vars:
+        ansible_command_timeout: 3600  # 1小时
         
   post_tasks:        
-    - name: delete firmware from temp file space
-      import_tasks: tasks/t_delete_file.yml
-      run_once: true
-      delegate_to: localhost
+#    - name: delete firmware from temp file space
+#      import_tasks: tasks/t_delete_file.yml
+#      run_once: true
+#      delegate_to: localhost
 
     - name: Verify file md5
+      vars:
+        md5_commands:
+          ios: "verify /md5 {{ filename }}"
+          nxos: "show file {{ filename }} md5sum"
       cli_command:
         command: "{{ md5_commands[ansible_network_os] }}"
       register: md5_output
