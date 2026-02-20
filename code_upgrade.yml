@@ -9,7 +9,6 @@
   
   pre_tasks:
     - name: Verify file md5
-      when: connection == network_cli
       import_tasks: tasks/t_md5_cal.yml
       register: md5_output
       
