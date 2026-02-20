@@ -1,5 +1,5 @@
 ---
-- name: Run Backup first
+#- name: Run Backup first
   import_playbook: backup.yml
 
 - name: Firmware upgrade workflow
@@ -18,31 +18,22 @@
   tasks:
     - name: Upgrade standalone devices
       block:
-        - name: Install
-          import_tasks: tasks/t_patch.yml
-          
-        - name: print install result
-          debug: 
-            msg: "{{  install_output  }}"
-            
-        - name: confirm standalone upgrade is complete
-          import_tasks: tasks/t_patch_confirm.yml
-      when: patch_tag == "standalone"
+#        - name: Install
+#          import_tasks: tasks/t_patch.yml
+#          
+#        - name: print install result
+#          debug: 
+#            msg: "{{  install_output  }}"
 
-    - name: Upgrade primary devices
-      when: patch_tag == "primary"
-      debug:
-        msg:{  {ansible_network_hostname  }} + {{  patch_tag  }}      
-        
-#    - name: confirm primary upgrade is complete
-#      when: patch_tag == "primary"
-#      import_tasks: tasks/t_upgrade_confirm.yml
-      
-    - name: Upgrade secondary devices
-      when: patch_tag == "primary"
-      debug:
-        msg:{  {ansible_network_hostname  }} + {{  patch_tag  }}
-        
-#    - name: confirm secondary upgrade is complete
-#      when: patch_tag == "secondary"
-#      import_tasks: tasks/t_upgrade_confirm.yml
+        - name: Waiting For {{ ansible_network_hostname }} To Come Back Up     
+          wait_for:
+            host: "{{ inventory_hostname }}"
+            port: 22
+            state: started
+            timeout: 300
+            delay: 60  
+            
+#        - name: confirm standalone upgrade is complete
+#          import_tasks: tasks/t_patch_confirm.yml
+          
+      when: patch_tag == "standalone"
