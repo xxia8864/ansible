@@ -42,20 +42,8 @@
       delegate_to: localhost
 
     - name: Verify file md5
-      vars:
-        md5_commands:
-          ios: "verify /md5 {{ filename }}"
-          nxos: "show file {{ filename }} md5sum"
-      cli_command:
-        command: "{{ md5_commands[ansible_network_os] }}"
+      import_tasks: tasks/t_md5_cal.yml
       register: md5_output
       
     - name: Compare with official MD5
-      assert:
-        that:
-          - md5 | lower in md5_output.stdout | lower
-        fail_msg: |
-          MD5 mismatch on {{ ansible_network_hostname | default(inventory_hostname) }}!
-          Expected: {{ md5 }}
-          Output: {{ md5_output.stdout }}
-        success_msg: "MD5 verified on {{ ansible_network_hostname | default(inventory_hostname) }}"
+      import_tasks: tasks/t_md5_check.yml
