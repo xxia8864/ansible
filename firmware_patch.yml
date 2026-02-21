@@ -7,7 +7,14 @@
   gather_facts: no
   connection: network_cli
   
-#  pre_tasks:
+  pre_tasks:
+    - name: get expected version
+      file_version: "{{ firmware_filename | regex_search('(\\d+\\.\\d+\\.\\d+)') }}"
+      run_once: true
+      delegate_to: localhost
+    - name: debug verion
+      debug: 
+        msg: {{ file_version  }}
 #    - name: Verify file md5
 #      import_tasks: tasks/t_md5_cal.yml
 #      register: md5_output
