@@ -18,15 +18,23 @@
         msg: "{{ file_version  }}"
       run_once: true
       
+    - name: Debug patch_tag for all hosts
+      debug:
+        msg: "{{ inventory_hostname }}: patch_tag={{ patch_tag | default('NONE') }}"
+
     - name: Group hosts by patch_tag
       ansible.builtin.group_by:
         key: "patch_{{ patch_tag }}"
+        
+    - name: Show created groups
+      tasks:
+        - debug:
+            msg: "{{ groups }}"
         
 - name: Upgrade standalone devices
   hosts: patch_standalone
   gather_facts: no
   connection: network_cli
-  strategy: free
   tasks:
     - import_tasks: tasks/t_check_md5.yml
     - import_tasks: tasks/t_patch.yml
@@ -39,7 +47,6 @@
   hosts: patch_primary
   gather_facts: no
   connection: network_cli
-  strategy: free
   tasks:
     - import_tasks: tasks/t_check_md5.yml
     - import_tasks: tasks/t_patch.yml
@@ -49,7 +56,6 @@
   hosts: patch_secondary
   gather_facts: no
   connection: network_cli
-  strategy: free
   tasks:
     - import_tasks: tasks/t_check_md5.yml
     - import_tasks: tasks/t_patch.yml
