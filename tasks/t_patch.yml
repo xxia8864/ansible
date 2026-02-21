@@ -1,5 +1,5 @@
 ---
-- name: firmware upgrade
+- name: firmware upgrade {{  patch_tag  }}
   vars:
    patch_commands:
      ios: "install add file flash:{{ firmware_filename }} activate commit prompt-level none"
