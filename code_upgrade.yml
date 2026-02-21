@@ -24,17 +24,7 @@
 #        - name: print install result
 #          debug: 
 #            msg: "{{  install_output  }}"
-
-        - name: Waiting For devices To Come Back Up     
-          wait_for:
-            host: "{{ inventory_hostname }}"
-            port: 22
-            state: started
-            timeout: 600
-            delay: 100 
-            sleep: 15
             
-#        - name: confirm standalone upgrade is complete
-#          import_tasks: tasks/t_patch_confirm.yml
-          
+        - name: confirm standalone upgrade is complete
+          import_tasks: tasks/t_patch_confirm.yml
       when: patch_tag == "standalone"
