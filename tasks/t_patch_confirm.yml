@@ -12,5 +12,5 @@
   cli_command:
     command: "show version"
   register: version_outputs
-  failed_when: {{ firmware_filename }} not in  version_outputs.stdout
+  failed_when: firmware_filename not in  version_outputs.stdout
   when: ansible_network_os == 'nxos'
