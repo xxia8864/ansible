@@ -2,12 +2,11 @@
 - name: Run Backup first
   import_playbook: backup.yml
 
-- name: Firmware upgrade workflow
+- name: Build patch groups
   hosts: all
   gather_facts: no
   connection: network_cli
-  
-  pre_tasks:
+  tasks:
     - name: get expected version
       set_fact:
         file_version: "{{ firmware_filename | regex_search('(\\d+\\.\\d+\\.\\d+)') }}"
@@ -18,34 +17,47 @@
       debug: 
         msg: "{{ file_version  }}"
       run_once: true
-        
-    - name: Verify file md5
-      import_tasks: tasks/t_check_md5.yml
-
-  tasks:
-    - name: Upgrade standalone devices
-      block:
-        - name: Install
-          import_tasks: tasks/t_patch.yml
-            
-        - name: confirm standalone upgrade is complete
-          import_tasks: tasks/t_patch_confirm.yml
-      when: patch_tag == "standalone"
       
-    - name: Upgrade primary devices
-      block:
-        - name: Install
-          import_tasks: tasks/t_patch.yml
-            
-        - name: confirm primary upgrade is complete
-          import_tasks: tasks/t_patch_confirm.yml
-      when: patch_tag == "primary"
+    - name: Group hosts by patch_tag
+      ansible.builtin.group_by:
+        key: "patch_{{ patch_tag | default('standalone') }}"
+        
+- name: Upgrade standalone devices
+  hosts: patch_standalone
+  gather_facts: no
+  connection: network_cli
+  strategy: free
+  tasks:
+    - import_tasks: tasks/t_check_md5.yml
+    - import_tasks: tasks/t_patch.yml
+    - import_tasks: tasks/t_patch_confirm.yml  
+#  pre_tasks:      
+#    - name: Verify file md5
+#      import_tasks: tasks/t_check_md5.yml
 
-    - name: Upgrade secondary devices
-      block:
-        - name: Install
-          import_tasks: tasks/t_patch.yml
-            
-        - name: confirm secondary upgrade is complete
-          import_tasks: tasks/t_patch_confirm.yml
-      when: patch_tag == "secondary"
+- name: Upgrade primary devices
+  hosts: patch_primary
+  gather_facts: no
+  connection: network_cli
+  strategy: free
+  tasks:
+    - import_tasks: tasks/t_check_md5.yml
+    - import_tasks: tasks/t_patch.yml
+    - import_tasks: tasks/t_patch_confirm.yml
+    
+- name: Gate before secondary
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - pause:
+        prompt: "Primary done. Press Enter to start SECONDARY."
+      
+- name: Upgrade secondary devices
+  hosts: patch_secondary
+  gather_facts: no
+  connection: network_cli
+  strategy: free
+  tasks:
+    - import_tasks: tasks/t_check_md5.yml
+    - import_tasks: tasks/t_patch.yml
+    - import_tasks: tasks/t_patch_confirm.yml
