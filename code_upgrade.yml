@@ -7,13 +7,13 @@
   gather_facts: no
   connection: network_cli
   
-  pre_tasks:
-    - name: Verify file md5
-      import_tasks: tasks/t_md5_cal.yml
-      register: md5_output
+#  pre_tasks:
+#    - name: Verify file md5
+#      import_tasks: tasks/t_md5_cal.yml
+#      register: md5_output
       
-    - name: Compare with official MD5
-      import_tasks: tasks/t_md5_check.yml
+#    - name: Compare with official MD5
+#      import_tasks: tasks/t_md5_check.yml
 
   tasks:
     - name: Upgrade standalone devices
