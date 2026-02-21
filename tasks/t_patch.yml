@@ -4,10 +4,13 @@
    ansible_command_timeout: 900
    patch_commands:
      ios: "install add file flash:{{ firmware_filename }} activate commit prompt-level none"
-#     nxos: "install all nxos bootflash:{{  firmware_filename  }} non-interruptive"
-     nxos: "show clock"
+     nxos: "install all nxos bootflash:{{  firmware_filename  }} non-interruptive"
+#     nxos: "show clock"
   cli_command:
     command: "{{ patch_commands[ansible_network_os] }}"
+  async: 300
+  poll: 30
+  ignore_errors: yes
   register: install_output
 
 - name: print install result
