@@ -32,7 +32,7 @@
   connection: network_cli
   tasks:
     - import_tasks: tasks/t_check_md5.yml
-    - import_tasks: tasks/t_patch.yml
+    - import_tasks: tasks/t_patch_install.yml
     - import_tasks: tasks/t_patch_confirm.yml  
 #  pre_tasks:      
 #    - name: Verify file md5
@@ -44,7 +44,7 @@
   connection: network_cli
   tasks:
     - import_tasks: tasks/t_check_md5.yml
-    - import_tasks: tasks/t_patch.yml
+    - import_tasks: tasks/t_patch_install.yml
     - import_tasks: tasks/t_patch_confirm.yml
     
 - name: Upgrade secondary devices
@@ -53,5 +53,5 @@
   connection: network_cli
   tasks:
     - import_tasks: tasks/t_check_md5.yml
-    - import_tasks: tasks/t_patch.yml
+    - import_tasks: tasks/t_patch_install.yml
     - import_tasks: tasks/t_patch_confirm.yml
