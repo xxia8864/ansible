@@ -3,7 +3,7 @@
   import_playbook: backup.yml
 
 - name: Build patch groups
-  hosts: all
+  hosts: all!sftp_target
   gather_facts: no
   connection: network_cli
   tasks:
@@ -20,7 +20,7 @@
       
     - name: Group hosts by patch_tag
       ansible.builtin.group_by:
-        key: "patch_{{ patch_tag | default('standalone') }}"
+        key: "patch_{{ patch_tag }}"
         
 - name: Upgrade standalone devices
   hosts: patch_standalone
