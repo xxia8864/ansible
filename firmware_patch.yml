@@ -3,7 +3,7 @@
 #  import_playbook: backup.yml
 
 - name: Build patch groups
-  hosts: "all!sftp_target"
+  hosts: all
   gather_facts: no
   connection: network_cli
   tasks:
