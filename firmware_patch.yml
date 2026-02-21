@@ -9,7 +9,8 @@
   
   pre_tasks:
     - name: get expected version
-      file_version: "{{ firmware_filename | regex_search('(\\d+\\.\\d+\\.\\d+)') }}"
+      set_fact:
+        file_version: "{{ firmware_filename | regex_search('(\\d+\\.\\d+\\.\\d+)') }}"
       run_once: true
       delegate_to: localhost
     - name: debug verion
