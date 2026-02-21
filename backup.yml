@@ -18,7 +18,7 @@
         filename: "{{ ansible_network_hostname | default(inventory_hostname) }}_{{ timestamp_sec }}.txt"
 
     - name: add SFTP server to inventory
-      import_tasks: tasks/t_SFTP.yml
+      import_tasks: tasks/t_sftp.yml
       delegate_to: localhost
       run_once: true
 
