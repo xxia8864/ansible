@@ -13,15 +13,13 @@
         file_version: "{{ firmware_filename | regex_search('(\\d+\\.\\d+\\.\\d+)') }}"
       run_once: true
       delegate_to: localhost
+      
     - name: debug verion
       debug: 
         msg: "{{ file_version  }}"
+        
     - name: Verify file md5
-      import_tasks: tasks/t_md5_cal.yml
-      register: md5_output
-      
-    - name: Compare with official MD5
-      import_tasks: tasks/t_md5_check.yml
+      import_tasks: tasks/t_check_md5.yml
 
   tasks:
     - name: Upgrade standalone devices
