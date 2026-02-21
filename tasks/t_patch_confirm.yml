@@ -5,7 +5,7 @@
     port: 22
     state: started
     timeout: 600
-#    delay: 100 
+    delay: 100 
     sleep: 15
     
 - name: get current OS version
