@@ -5,9 +5,19 @@
     state: directory
     mode: '0755'
   run_once: true
+  vars:
+    ansible_user: "{{ sftp_username }}"
+    ansible_password: "{{ sftp_password }}"
+    ansible_connection: ssh
+    ansible_ssh_common_args: "-o StrictHostKeyChecking=no"
 
 - name: upload to SFTP server
   copy:
     src: "/tmp/tmpfiles/{{ filename }}"
     dest: "{{ sftp_path }}/{{ timestamp_day }}/{{ filename }}"
     mode: "0444"
+  vars:
+    ansible_user: "{{ sftp_username }}"
+    ansible_password: "{{ sftp_password }}"
+    ansible_connection: ssh
+    ansible_ssh_common_args: "-o StrictHostKeyChecking=no"
