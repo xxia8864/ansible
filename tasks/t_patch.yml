@@ -6,8 +6,8 @@
      # nxos: "install all nxos bootflash:{{  firmware_filename  }} non-interruptive"
      nxos: "show version"
   cli_command:
-   command: "{{ patch_commands[ansible_network_os] }}"
-   register: install_output
+    command: "{{ patch_commands[ansible_network_os] }}"
+  register: install_output
 
 - name: print install result
   debug: 
