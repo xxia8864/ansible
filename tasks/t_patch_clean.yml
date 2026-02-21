@@ -1,0 +1,41 @@
+---
+# ── NX-OS: delete all .bin files except current firmware ──────────────────────
+- name: "[nxos] List .bin files excluding current firmware"
+  cli_command:
+    command: "dir | inc bin | ex {{ firmware_filename }}"
+  register: dir_output
+  when: ansible_network_os == 'nxos'
+
+- name: "[nxos] Parse old firmware filenames"
+  set_fact:
+    old_firmware_files: "{{ dir_output.stdout | regex_findall('(\\S+\\.bin)') }}"
+  when: ansible_network_os == 'nxos'
+
+- name: "[nxos] Debug old firmware files to be deleted"
+  debug:
+    msg: "Will delete: {{ old_firmware_files }}"
+  when: ansible_network_os == 'nxos'
+
+- name: "[nxos] Delete old firmware files from bootflash"
+  cli_command:
+    command: "delete bootflash:{{ item }} no-prompt"
+  loop: "{{ old_firmware_files }}"
+  when:
+    - ansible_network_os == 'nxos'
+    - old_firmware_files | length > 0
+
+# ── IOS-XE: remove all inactive install packages ──────────────────────────────
+- name: "[iosxe] Remove inactive install packages"
+  cli_command:
+    command: "install remove inactive"
+    prompt: 'Do you want to remove the above files\?'
+    answer: "y"
+  vars:
+    ansible_command_timeout: 300
+  register: clean_output
+  when: ansible_network_os == 'iosxe'
+
+- name: "[iosxe] Debug cleanup result"
+  debug:
+    msg: "{{ clean_output.stdout }}"
+  when: ansible_network_os == 'iosxe'
