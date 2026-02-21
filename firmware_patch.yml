@@ -25,12 +25,7 @@
     - name: Group hosts by patch_tag
       ansible.builtin.group_by:
         key: "patch_{{ patch_tag }}"
-        
-    - name: Show created groups
-      tasks:
-        - debug:
-            msg: "{{ groups }}"
-        
+      
 - name: Upgrade standalone devices
   hosts: patch_standalone
   gather_facts: no
