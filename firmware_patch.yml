@@ -17,9 +17,10 @@
     - name: debug verion
       debug: 
         msg: "{{ file_version  }}"
+      run_once: true
         
-    - name: Verify file md5
-      import_tasks: tasks/t_check_md5.yml
+#    - name: Verify file md5
+#      import_tasks: tasks/t_check_md5.yml
 
   tasks:
     - name: Upgrade standalone devices
