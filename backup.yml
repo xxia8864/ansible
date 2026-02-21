@@ -22,11 +22,6 @@
       delegate_to: localhost
       run_once: true
 
-    - name: Create backup folder
-      import_tasks: tasks/t_create_folder.yml
-      run_once: true
-      delegate_to: sftp_target
-      
   tasks:
     - name: run backup
       cli_config:
