@@ -2,7 +2,7 @@
 - name: firmware upgrade
   vars:
    patch_commands:
-     ios: "verify /md5 {{ firmware_filename }}"
+     ios: "install add file flash:{{ firmware_filename }} activate commit prompt-level none"
      # nxos: "install all nxos bootflash:{{  firmware_filename  }} non-interruptive"
      nxos: "show version"
   cli_command:
