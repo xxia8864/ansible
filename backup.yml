@@ -33,6 +33,7 @@
             
     - name: upload backup file to SFTP server
       import_tasks: tasks/t_upload.yml
+      delegate_to: sftp_target
       
   post_tasks:
     - name: delete tmp file
