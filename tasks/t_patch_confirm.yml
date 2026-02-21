@@ -1,5 +1,5 @@
 ---
-- name: Waiting For devices To Come Back Up
+- name: Waiting For SSH port responsible
   wait_for:
     host: "{{ inventory_hostname }}"
     port: 22
@@ -7,6 +7,10 @@
     timeout: 600
     delay: 100 
     sleep: 15
+
+- name: Extra wait for TACACS
+  pause:
+    seconds: 30
     
 - name: get current OS version
   cli_command:
