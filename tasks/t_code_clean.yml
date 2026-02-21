@@ -16,4 +16,4 @@
   cli_command:
     command: "delete bootflash:{{ item }} no-prompt"
   loop: "{{ old_firmware_files }}"
-  when: old_firmware_files | length > 0
+#  when: old_firmware_files | length > 0
