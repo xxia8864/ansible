@@ -1,5 +1,5 @@
 ---
-- name: Waiting For {{  patch_tag  }} devices To Come Back Up
+- name: Waiting For devices To Come Back Up
   wait_for:
     host: "{{ inventory_hostname }}"
     port: 22
