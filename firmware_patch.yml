@@ -1,6 +1,6 @@
 ---
-- name: Run Backup first
-  import_playbook: backup.yml
+#- name: Run Backup first
+#  import_playbook: backup.yml
 
 - name: Build patch groups
   hosts: all!sftp_target
