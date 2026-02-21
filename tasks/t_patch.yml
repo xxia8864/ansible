@@ -7,6 +7,8 @@
   cli_command:
     command: "{{ patch_commands[ansible_network_os] }}"
   register: install_output
+  vars:
+  ansible_command_timeout: 7200
 
 - name: print install result
   debug: 
