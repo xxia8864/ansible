@@ -26,11 +26,25 @@
       block:
         - name: Install
           import_tasks: tasks/t_patch.yml
-          
-        - name: print install result
-          debug: 
-            msg: "{{  install_output  }}"
             
         - name: confirm standalone upgrade is complete
           import_tasks: tasks/t_patch_confirm.yml
       when: patch_tag == "standalone"
+      
+    - name: Upgrade primary devices
+      block:
+        - name: Install
+          import_tasks: tasks/t_patch.yml
+            
+        - name: confirm primary upgrade is complete
+          import_tasks: tasks/t_patch_confirm.yml
+      when: patch_tag == "primary"
+
+    - name: Upgrade secondary devices
+      block:
+        - name: Install
+          import_tasks: tasks/t_patch.yml
+            
+        - name: confirm secondary upgrade is complete
+          import_tasks: tasks/t_patch_confirm.yml
+      when: patch_tag == "secondary"
