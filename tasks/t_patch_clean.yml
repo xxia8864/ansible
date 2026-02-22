@@ -24,7 +24,7 @@
     - ansible_network_os == 'nxos'
     
 # ── IOS-XE: remove all inactive install packages ──────────────────────────────
-- name: "[iosxe] Remove inactive install packages"
+- name: "iosxe Remove inactive install packages"
   cli_command:
     command: "install remove inactive"
     prompt: 'Do you want to remove the above files\?'
