@@ -1,5 +1,6 @@
 - name: Save configuration
   hosts: all
+  serial: 10
   gather_facts: no
   connection: network_cli
   vars:

@@ -4,6 +4,7 @@
   
 - name: run backup and upload to SFTP
   hosts: all
+  serial: 10
   gather_facts: no
   connection: network_cli
   

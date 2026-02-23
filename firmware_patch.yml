@@ -4,6 +4,7 @@
 
 - name: Build patch groups
   hosts: all
+  serial: 10
   gather_facts: no
   connection: network_cli
   tasks:
@@ -20,6 +21,7 @@
       
 - name: Upgrade standalone devices
   hosts: "all:!even:!odd"
+  serial: 10
   gather_facts: no
   connection: network_cli
   tasks:
@@ -29,6 +31,7 @@
 
 - name: Upgrade secondary devices
   hosts: even
+  serial: 10
   gather_facts: no
   connection: network_cli
   tasks:
@@ -38,6 +41,7 @@
     
 - name: Upgrade primary devices
   hosts: odd
+  serial: 10
   gather_facts: no
   connection: network_cli
   tasks:
@@ -47,6 +51,7 @@
 
 - name: Post patch cleanup
   hosts: all
+  serial: 10
   gather_facts: no
   connection: network_cli
   tasks:

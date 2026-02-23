@@ -4,6 +4,7 @@
 
 - name: run cli command (Multiple vendor supports)
   hosts: all
+  serial: 10
   gather_facts: no
   connection: network_cli
 

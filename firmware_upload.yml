@@ -1,6 +1,7 @@
 ---
 - name: upload firmware
   hosts: all
+  serial: 10
   gather_facts: no
   connection: network_cli
   collections:
