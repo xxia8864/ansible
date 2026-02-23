@@ -50,4 +50,4 @@
   gather_facts: no
   connection: network_cli
   tasks:
-    - import_tasks: t_patch_clean.yml
+    - import_tasks: tasks/t_patch_clean.yml
