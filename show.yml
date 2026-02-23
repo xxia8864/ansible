@@ -10,6 +10,9 @@
       delegate_to: localhost
       run_once: true
 
+    - name: set file name
+      filename: "show_output_{{ timestamp_sec }}"
+
   tasks:
     - name: run defined command from Extra variables
       cli_command:
