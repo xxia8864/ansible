@@ -15,8 +15,6 @@
 
 # add SFTP server to inventory
     - import_tasks: tasks/t_sftp.yml
-      delegate_to: localhost
-      run_once: true
 
   tasks:      
     - name: Download firmware from SFTP host to controller
