@@ -1,6 +1,6 @@
 ---
-#- name: Run Backup first
-#  import_playbook: backup.yml
+- name: Run Backup first
+  import_playbook: backup.yml
 
 - name: Build patch groups
   hosts: all
@@ -18,28 +18,17 @@
         msg: "{{ file_version  }}"
       run_once: true
       
-    - name: Debug patch_tag for all hosts
-      debug:
-        msg: "{{ inventory_hostname }}: patch_tag={{ patch_tag | default('NONE') }}"
-
-    - name: Group hosts by patch_tag
-      ansible.builtin.group_by:
-        key: "patch_{{ patch_tag }}"
-      
 - name: Upgrade standalone devices
-  hosts: patch_standalone
+  hosts: "all:!even:!odd"
   gather_facts: no
   connection: network_cli
   tasks:
     - import_tasks: tasks/t_check_md5.yml
     - import_tasks: tasks/t_patch_install.yml
-    - import_tasks: tasks/t_patch_confirm.yml  
-#  pre_tasks:      
-#    - name: Verify file md5
-#      import_tasks: tasks/t_check_md5.yml
+    - import_tasks: tasks/t_patch_confirm.yml
 
-- name: Upgrade primary devices
-  hosts: patch_primary
+- name: Upgrade secondary devices
+  hosts: even
   gather_facts: no
   connection: network_cli
   tasks:
@@ -47,11 +36,18 @@
     - import_tasks: tasks/t_patch_install.yml
     - import_tasks: tasks/t_patch_confirm.yml
     
-- name: Upgrade secondary devices
-  hosts: patch_secondary
+- name: Upgrade primary devices
+  hosts: odd
   gather_facts: no
   connection: network_cli
   tasks:
     - import_tasks: tasks/t_check_md5.yml
     - import_tasks: tasks/t_patch_install.yml
     - import_tasks: tasks/t_patch_confirm.yml
+
+- name: Post patch cleanup
+  hosts: all
+  gather_facts: no
+  connection: network_cli
+  tasks:
+    - import_tasks: t_patch_clean.yml
