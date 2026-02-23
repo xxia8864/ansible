@@ -46,7 +46,7 @@
  #   - import_tasks: tasks/t_patch_confirm.yml
 
 - name: Post patch cleanup
-  hosts: "all!sftp_target"
+  hosts: all
   gather_facts: no
   connection: network_cli
   tasks:
