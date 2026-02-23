@@ -29,6 +29,8 @@
     - name: set firmware_filename
       set_fact:
         firmware_filename: "{{ filename }}"
+      delegate_to: localhost
+      run_once: true
 
     - name: Upload firmware to switch
       net_put:
