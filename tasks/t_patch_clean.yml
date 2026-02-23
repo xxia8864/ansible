@@ -16,12 +16,12 @@
     msg: "Will delete: {{ old_firmware_files }}"
   when: ansible_network_os == "nxos"
 
-- name: "[nxos] Delete old firmware files from bootflash"
-  cli_command:
-    command: "delete bootflash:{{ item }} no-prompt"
-  loop: "{{ old_firmware_files }}"
-  when:
-    - ansible_network_os == "nxos"
+#- name: "[nxos] Delete old firmware files from bootflash"
+#  cli_command:
+#    command: "delete bootflash:{{ item }} no-prompt"
+#  loop: "{{ old_firmware_files }}"
+#  when:
+#    - ansible_network_os == "nxos"
     
 # ── IOS-XE: remove all inactive install packages ──────────────────────────────
 - name: "iosxe Remove inactive install packages"
