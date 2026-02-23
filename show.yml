@@ -4,18 +4,17 @@
   gather_facts: no
   connection: network_cli
 
-  tasks:
-    - name: generate time stamp
-      set_fact:
-        timestamp_day: "{{ lookup('pipe','TZ=America/New_York date +%Y%m%d') }}"
-        timestamp_sec: "{{ lookup('pipe','TZ=America/New_York date +%H%M%S') }}"
-      run_once: true
+  pre_tasks:
+# name: Generate timestamp once
+    - import_tasks: tasks/t_time_stamp.yml
       delegate_to: localhost
+      run_once: true
 
     - name: debug
       debug:
         msg: "{{ patch_tag }}"
 
+  tasks:
     - name: run defined command from Extra variables
       cli_command:
         command: "{{ item }}"
