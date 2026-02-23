@@ -10,13 +10,6 @@
       delegate_to: localhost
       run_once: true
 
-    - name: debug
-      debug:
-        msg: "{{ patch_tag }}"
-    - name: set filename
-      set_fact:
-        filename: "show_output_{{ timestamp_sec }}.txt"
-
   tasks:
     - name: run defined command from Extra variables
       cli_command:
