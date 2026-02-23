@@ -10,6 +10,7 @@
       -o StrictHostKeyChecking=no
       -o UserKnownHostsFile=/dev/null
   no_log: true
+  delegate_to: localhost
 #---
 #- name: Create backup folder on SFTP
 #  file:
