@@ -13,6 +13,9 @@
     - name: debug
       debug:
         msg: "{{ patch_tag }}"
+    - name: set filename
+      set_fact:
+        filename: "show_output_{{ timestamp_sec }}.txt"
 
   tasks:
     - name: run defined command from Extra variables
@@ -43,52 +46,31 @@
           {% endfor %}
           {% endfor %}
           ========================================
-        dest: "/tmp/show_output_{{ timestamp_sec }}.txt"
+        dest: "/tmp/{{  filename  }}"
       run_once: true
       delegate_to: localhost
 
-    - name: add SFTP server to inventory
-      add_host:
-        name: sftp_target  
-        ansible_host: "{{ sftp_host }}"
-        ansible_user: "{{ sftp_username }}"
-        ansible_ssh_pass: "{{ sftp_password }}"
-        ansible_connection: ssh
-        ansible_ssh_common_args: >
-          -o StrictHostKeyChecking=no
-          -o UserKnownHostsFile=/dev/null
-      run_once: true
-      no_log: true
+# add SFTP server to inventory
+    - import_tasks: tasks/t_sftp.yml
       delegate_to: localhost
-
-    - name: Create backup folder
-      ansible.builtin.file:
-        path: "{{ sftp_path }}/{{ timestamp_day }}"
-        state: directory
-        mode: '0755'
       run_once: true
+
+# name: upload backup file to SFTP server
+    - import_tasks: tasks/t_upload.yml
       delegate_to: sftp_target
 
-    - name: upload to SFTP
-      copy:
-        src: "/tmp/show_output_{{ timestamp_sec }}.txt"
-        dest: "{{ sftp_path }}/show_output_{{ timestamp_sec }}.txt"
-        mode: "0444"
-      delegate_to: sftp_target 
 # No native SFTP in Ansible. Use shell fallback below if needed.
 #      shell: |
 #        sshpass -p "{{ sftp_password }}" sftp -o StrictHostKeyChecking=no -P {{ sftp_port | default(22) }} {{ sftp_username }}@{{ sftp_host }} <<EOF
 #        cd ansible
-#        put /tmp/show_output_{{ timestamp_sec }}.txt 
+#        put /tmp/show_output_{{ timestamp_sec }}.txt
 #        bye
 #        EOF
 #      delegate_to: localhost
-      run_once: true
-      no_log: false
 
-    - name: delete tmp file
-      file:
-        path: "/tmp/show_output_{{ timestamp_sec }}.txt"
-        state: absent
-      run_once: true
+  post_tasks:
+# name: delete tmp file
+    - import_tasks: tasks/t_delete_file.yml
       delegate_to: localhost
+      run_once: true
+      no_log: fals
