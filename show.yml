@@ -11,7 +11,10 @@
       run_once: true
 
     - name: set file name
-      filename: "show_output_{{ timestamp_sec }}"
+      set_fact:
+        filename: "show_output_{{ timestamp_sec }}"
+      run_once: true
+      delegate_to: localhost
 
   tasks:
     - name: run defined command from Extra variables
