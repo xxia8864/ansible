@@ -56,6 +56,7 @@
 # name: upload backup file to SFTP server
     - import_tasks: tasks/t_upload.yml
       delegate_to: sftp_target
+      run_once: true
 
 # No native SFTP in Ansible. Use shell fallback below if needed.
 #      shell: |
