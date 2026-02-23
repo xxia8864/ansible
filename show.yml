@@ -7,12 +7,12 @@
   pre_tasks:
 # name: Generate timestamp once
     - import_tasks: tasks/t_time_stamp.yml
-      delegate_to: localhost
-      run_once: true
 
     - name: set file name
       set_fact:
         filename: "show_output_{{ timestamp_sec }}"
+      delegate_to: localhost
+      run_once: true
 
   tasks:
     - name: run defined command from Extra variables
