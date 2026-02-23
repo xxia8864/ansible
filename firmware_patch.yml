@@ -15,7 +15,7 @@
       
     - name: debug version
       debug: 
-        msg: "{{ file_version  }}"
+        msg: "{{  file_version  }}"
       run_once: true
       
 - name: Upgrade standalone devices
@@ -46,7 +46,7 @@
  #   - import_tasks: tasks/t_patch_confirm.yml
 
 - name: Post patch cleanup
-  hosts: all
+  hosts: "all!sftp_target"
   gather_facts: no
   connection: network_cli
   tasks:
