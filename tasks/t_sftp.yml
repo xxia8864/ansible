@@ -11,6 +11,7 @@
       -o UserKnownHostsFile=/dev/null
   no_log: true
   delegate_to: localhost
+  run_once: true
 #---
 #- name: Create backup folder on SFTP
 #  file:
