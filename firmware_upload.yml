@@ -13,7 +13,7 @@
       delegate_to: localhost
       run_once: true
 
-    - name: add SFTP server to inventory
+# add SFTP server to inventory
       import_tasks: tasks/t_sftp.yml
       delegate_to: localhost
       run_once: true
@@ -39,10 +39,10 @@
         ansible_command_timeout: 7200
         
   post_tasks:        
-    - name: delete firmware from temp file space
-      import_tasks: tasks/t_delete_file.yml
+# delete firmware from temp file space
+    - import_tasks: tasks/t_delete_file.yml
       run_once: true
       delegate_to: localhost
 
-    - name: Verify file md5
-      import_tasks: tasks/t_check_md5.yml
+ # Verify file md5
+    -  import_tasks: tasks/t_check_md5.yml
