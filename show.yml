@@ -7,6 +7,7 @@
   pre_tasks:
 # name: Generate timestamp once
     - import_tasks: tasks/t_time_stamp.yml
+      delegate_to: localhost
 
     - name: set file name
       set_fact:
