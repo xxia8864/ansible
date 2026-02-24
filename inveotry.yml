@@ -8,6 +8,9 @@
     csv_file: hosts.csv
 
   tasks:
+    - debug:
+        msg:
+          {{ host }}
     - name: Get inventory_id from Tower job context
       set_fact:
         inventory_id: "{{ tower_inventory_id }}"
