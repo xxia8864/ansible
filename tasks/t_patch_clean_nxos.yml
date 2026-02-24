@@ -12,7 +12,7 @@
   debug:
     msg: "Will delete: {{ old_firmware_files }}"
 
-#- name: "[nxos] Delete old firmware files from bootflash"
-#  cli_command:
-#    command: "delete bootflash:{{ item }} no-prompt"
-#  loop: "{{ old_firmware_files }}"
+- name: "[nxos] Delete old firmware files from bootflash"
+  cli_command:
+    command: "delete bootflash:{{ item }} no-prompt"
+  loop: "{{ old_firmware_files }}"
