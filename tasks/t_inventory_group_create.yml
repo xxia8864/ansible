@@ -9,7 +9,7 @@
     return_content: yes
     status_code: 200
   register: grp_check
-  run_once: false
+  run_once: true
 
 
 - name: Create group if missing
@@ -26,5 +26,5 @@
       name: "{{ group_name }}"
       inventory: "{{ inventory_id }}"
     status_code: 201
-  run_once: false
+  run_once: true
   when: (grp_check.json.count | default(0) | int) == 0

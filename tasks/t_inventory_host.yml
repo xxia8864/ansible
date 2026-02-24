@@ -9,7 +9,7 @@
     return_content: yes
     status_code: 200
   register: host_check
-  run_once: false
+  run_once: true
 
 
 - name: Create host if missing
@@ -29,7 +29,7 @@
       variables: |
         ansible_network_hostname: {{ row.ansible_network_hostname }}
     status_code: 201
-  run_once: false
+  run_once: true
   when: (host_check.json.count | default(0) | int) == 0
 
 - name: Update host if exists (description + variables)
@@ -48,5 +48,5 @@
         ansible_host: {{ row.name }}
         ansible_network_hostname: {{ row.ansible_network_hostname }}
     status_code: 200
-  run_once: false
+  run_once: true
   when: (host_check.json.count | default(0) | int) == 1
