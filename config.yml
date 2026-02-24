@@ -18,12 +18,5 @@
         - ansible_connection == 'network_cli'
       register: config_output
 
-    - name: save config
-      cli_command:
-        command: >-
-          {{
-            {
-              'ios': 'write memory',
-              'nxos': 'copy running-config startup-config'
-            }[ansible_network_os]
-          }}
+- name: save config after change
+  import_playbook: save_config.yml
