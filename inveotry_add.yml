@@ -5,23 +5,20 @@
     controller_host: "https://{{ controller_IP }}"
     controller_token: "{{ controller_token }}"
   tasks:
-    - name: Who am I (Tower /api/v2/me/)
+
+    - name: Lookup inventory ID
       uri:
-        url: "{{ controller_host }}/api/v2/me/"
+        url: "{{ controller_host }}/api/v2/inventories/?name={{ inventory_name }}"
         method: GET
         headers:
           Authorization: "Bearer {{ controller_token }}"
-          Content-Type: "application/json"
-          Accept: "application/json"
         validate_certs: no
-        status_code: 200
         return_content: yes
-      register: me
+      register: inv_result
 
-    - name: Print identity result
-      debug:
-        var: me.json
-
+    - name: Set inventory_id
+      set_fact:
+        inventory_id: "{{ inv_result.json.results[0].id }}"
     - name: Add host 1
       uri:
         url: "{{ controller_host }}/api/v2/hosts/"
