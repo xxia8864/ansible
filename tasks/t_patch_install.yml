@@ -9,10 +9,6 @@
   cli_command:
     command: "{{ patch_commands[ansible_network_os] }}"
   async: 60
-  poll: 10
+  poll: 0
   ignore_errors: yes
   register: install_output
-
-- name: print install result
-  debug: 
-    msg: "{{  install_output  }}"
