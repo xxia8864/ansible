@@ -39,7 +39,6 @@
       loop: "{{ unique_groups }}"
       loop_control:
         loop_var: group_name
-      run_once: true
 
     # 2) Upsert hosts (create or update) by IP (name == IP)
     - name: Upsert hosts from CSV
@@ -47,7 +46,6 @@
       loop: "{{ csv_data.list }}"
       loop_control:
         loop_var: row
-      run_once: true
 
     # 3) Associate hosts to groups
     - name: Associate hosts to groups
@@ -55,4 +53,3 @@
       loop: "{{ csv_data.list }}"
       loop_control:
         loop_var: row
-      run_once: true

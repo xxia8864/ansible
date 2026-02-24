@@ -9,6 +9,7 @@
     return_content: yes
     status_code: 200
   register: host_lookup
+  run_once: false
 
 - name: Add host to groups listed in CSV
   uri:
@@ -40,3 +41,4 @@
     loop_var: g
   when: g_clean != ""
   ignore_errors: yes
+  run_once: false
