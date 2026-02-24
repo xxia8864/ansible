@@ -43,9 +43,6 @@
   ignore_errors: yes
   run_once: false
 
-- name: Debug what we're sending
+- name: Debug actual request body
   debug:
-    msg:
-      - "host_id type: {{ host_lookup.json.results[0].id | type_debug }}"
-      - "host_id value: {{ host_lookup.json.results[0].id }}"
-      - "host_id int: {{ host_lookup.json.results[0].id | int }}"
+    msg: "{{ {'id': (host_lookup.json.results[0].id | int)} }}"
