@@ -1,27 +1,39 @@
 - name: Manage Controller inventory hosts
   hosts: localhost
   gather_facts: false
+
   vars:
     controller_host: "https://{{ controller_IP }}"
     controller_token: "{{ controller_token }}"
-  tasks:
+    csv_file: hosts.csv
 
-    - name: Lookup inventory ID
+  pre_tasks:
+    - name: Get inventory_id from Tower job context
+      set_fact:
+        inventory_id: "{{ tower_inventory_id }}"
+
+    - name: Validate selected inventory is not empty
       uri:
-        url: "{{ controller_host }}/api/v2/inventories/?name={{ inventory_name }}"
+        url: "{{ controller_host }}/api/v2/hosts/?inventory={{ inventory_id }}&page_size=1"
         method: GET
         headers:
           Authorization: "Bearer {{ controller_token }}"
+          Accept: "application/json"
         validate_certs: no
         return_content: yes
-      register: inv_result
+        status_code: 200
+      register: inv_hosts
+      failed_when: (inv_hosts.json.count | default(0) | int) == 0
 
-    - name: Set inventory_id
-      set_fact:
-        inventory_id: "{{ inv_result.json.results[0].id }}"
-    - name: Add host 1
+    - name: Read CSV
+      read_csv:
+        path: "{{ csv_file }}"
+      register: csv_data
+
+  tasks:
+    - name: Ensure groups exist
       uri:
-        url: "{{ controller_host }}/api/v2/hosts/"
+        url: "{{ controller_host }}/api/v2/groups/"
         method: POST
         headers:
           Authorization: "Bearer {{ controller_token }}"
@@ -29,18 +41,15 @@
         validate_certs: no
         body_format: json
         body:
-          name: "10.10.10.11"
-          description: "N9K-LEAF-01"
+          name: "{{ item }}"
           inventory: "{{ inventory_id }}"
-          variables: |
-            ansible_host: 10.10.10.11
-            ansible_network_hostname: N9K-LEAF-01
         status_code: 201
+      loop: "{{ csv_data.list | map(attribute='groups') | map('split', ',') | list | flatten | unique }}"
       ignore_errors: yes
 
-    - name: Add host 2
+    - name: Associate hosts to groups (simple)
       uri:
-        url: "{{ controller_host }}/api/v2/hosts/"
+        url: "{{ controller_host }}/api/v2/groups/{{ group_id }}/hosts/"
         method: POST
         headers:
           Authorization: "Bearer {{ controller_token }}"
@@ -48,11 +57,20 @@
         validate_certs: no
         body_format: json
         body:
-          name: "10.10.10.12"
-          description: "N9K-LEAF-02"
-          inventory: "{{ inventory_id }}"
-          variables: |
-            ansible_host: 10.10.10.12
-            ansible_network_hostname: N9K-LEAF-02
-        status_code: 201
+          id: "{{ host_id }}"
+        status_code: 204
+      vars:
+        host_lookup: >-
+          {{ lookup('url',
+             controller_host + '/api/v2/hosts/?name=' + (item.0.name | urlencode) + '&inventory=' + (inventory_id | string),
+             headers={'Authorization': 'Bearer ' + controller_token},
+             validate_certs=False) | from_json }}
+        group_lookup: >-
+          {{ lookup('url',
+             controller_host + '/api/v2/groups/?name=' + (item.1 | urlencode) + '&inventory=' + (inventory_id | string),
+             headers={'Authorization': 'Bearer ' + controller_token},
+             validate_certs=False) | from_json }}
+        host_id: "{{ host_lookup.results[0].id }}"
+        group_id: "{{ group_lookup.results[0].id }}"
+      loop: "{{ csv_data.list | subelements('groups', skip_missing=True, split=',') }}"
       ignore_errors: yes
