@@ -10,6 +10,7 @@
     status_code: 200
   register: host_lookup
   run_once: true
+  no_log: true
 
 - name: Get current groups for this host
   uri:
@@ -18,6 +19,8 @@
       Authorization: "Bearer {{ controller_token }}"
     validate_certs: no
   register: current_groups
+  run_once: true
+  no_log: true
 
 - name: Remove host from all current groups
   uri:
@@ -32,6 +35,8 @@
       {{ {'id': host_lookup.json.results[0].id | int, 'disassociate': true} | to_json }}
     status_code: [204, 400]
   loop: "{{ current_groups.json.results }}"
+  run_once: true
+  no_log: true
 
 - name: Add host to groups listed in CSV
   uri:
@@ -64,3 +69,4 @@
   when: g_clean != ""
   ignore_errors: yes
   run_once: true
+  no_log: true

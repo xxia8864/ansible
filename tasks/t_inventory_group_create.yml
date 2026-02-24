@@ -10,6 +10,7 @@
     status_code: 200
   register: grp_check
   run_once: true
+  no_log: true
 
 
 - name: Create group if missing
@@ -27,4 +28,5 @@
       inventory: "{{ inventory_id }}"
     status_code: 201
   run_once: true
+  no log: true
   when: (grp_check.json.count | default(0) | int) == 0
