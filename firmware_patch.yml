@@ -27,7 +27,7 @@
   tasks:
     - import_tasks: tasks/t_check_md5.yml
     - import_tasks: tasks/t_patch_install.yml
-    - import_tasks: tasks/t_patch_confirm.yml
+#    - import_tasks: tasks/t_patch_confirm.yml
 
 - name: Upgrade secondary devices
   hosts: even
@@ -37,7 +37,7 @@
   tasks:
     - import_tasks: tasks/t_check_md5.yml
     - import_tasks: tasks/t_patch_install.yml
-    - import_tasks: tasks/t_patch_confirm.yml
+ #   - import_tasks: tasks/t_patch_confirm.yml
     
 - name: Upgrade primary devices
   hosts: odd
@@ -47,7 +47,7 @@
   tasks:
     - import_tasks: tasks/t_check_md5.yml
     - import_tasks: tasks/t_patch_install.yml
-    - import_tasks: tasks/t_patch_confirm.yml
+ #   - import_tasks: tasks/t_patch_confirm.yml
 
 - name: Post patch cleanup
   hosts: all
