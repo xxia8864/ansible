@@ -1,0 +1,10 @@
+(input configuration)
+fields:
+  - id: controller_token
+    type: string
+    label: controller_token
+required:
+  - controller_token
+injector configuration
+extra_vars:
+  controller_token: '{{ controller_token }}'
