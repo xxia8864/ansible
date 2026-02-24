@@ -1,0 +1,42 @@
+- name: Lookup host id (should exist after upsert)
+  uri:
+    url: "{{ controller_host }}/api/v2/hosts/?name={{ row.name }}&inventory={{ inventory_id }}"
+    method: GET
+    headers:
+      Authorization: "Bearer {{ controller_token }}"
+      Accept: "application/json"
+    validate_certs: no
+    return_content: yes
+    status_code: 200
+  register: host_lookup
+
+- name: Add host to groups listed in CSV
+  uri:
+    url: "{{ controller_host }}/api/v2/groups/{{ group_id }}/hosts/"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ controller_token }}"
+      Content-Type: "application/json"
+      Accept: "application/json"
+    validate_certs: no
+    body_format: json
+    body:
+      id: "{{ host_lookup.json.results[0].id }}"
+    status_code: [204, 400]
+  vars:
+    g_clean: "{{ g | regex_replace('^\\s+|\\s+$', '') }}"
+    group_lookup: >-
+      {{
+        lookup(
+          'url',
+          controller_host + '/api/v2/groups/?name=' + g_clean + '&inventory=' + (inventory_id | string),
+          headers={'Authorization': 'Bearer ' + controller_token},
+          validate_certs=False
+        ) | from_json
+      }}
+    group_id: "{{ group_lookup.results[0].id }}"
+  loop: "{{ (row.groups | default('')).split(',') }}"
+  loop_control:
+    loop_var: g
+  when: g_clean != ""
+  ignore_errors: yes

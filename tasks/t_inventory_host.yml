@@ -25,7 +25,6 @@
       description: "{{ row.description }}"
       inventory: "{{ inventory_id }}"
       variables: |
-        ansible_host: {{ row.name }}
         ansible_network_hostname: {{ row.ansible_network_hostname }}
     status_code: 201
   when: (host_check.json.count | default(0) | int) == 0
