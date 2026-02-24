@@ -42,3 +42,10 @@
   when: g_clean != ""
   ignore_errors: yes
   run_once: false
+
+- name: Debug what we're sending
+  debug:
+    msg:
+      - "host_id type: {{ host_lookup.json.results[0].id | type_debug }}"
+      - "host_id value: {{ host_lookup.json.results[0].id }}"
+      - "host_id int: {{ host_lookup.json.results[0].id | int }}"
