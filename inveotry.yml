@@ -3,9 +3,8 @@
   gather_facts: false
 
   vars:
-    controller_host: "{{https://{{ lookup('env', 'TOWER_HOST' }}"
+    controller_host: "https://{{ lookup('env', 'TOWER_HOST' }}"
     controller_token: "{{ lookup('env', 'TOWER_OAUTH_TOKEN' }}"
-    csv_file: hosts.csv
 
   tasks:
     - debug:
