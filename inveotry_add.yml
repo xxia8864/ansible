@@ -2,7 +2,7 @@
   hosts: localhost
   gather_facts: false
   vars:
-    controller_host: "https://{{ tower_IP }}"
+    controller_host: "https://{{ controller_IP }}"
     controller_token: "{{ lookup('env','TOWER_TOKEN') }}"
     inventory_name: "HK_Switches"
     hosts_to_add:
@@ -14,3 +14,37 @@
         ansible_host: 10.0.0.2
         ansible_network_os: ios
 #        groups: ["network_devices", "patch_odd"]
+  tasks:
+    - name: Who am I
+      uri:
+        url: "{{ tower_host }}/api/v2/me/"
+        method: GET
+        headers:
+          Authorization: "Bearer {{ tower_token }}"
+        validate_certs: no
+      register: me
+    - debug:
+        var: me.json
+
+    - name: Ensure host exists
+      awx.awx.host:
+        controller_host: "{{ controller_host }}"
+        controller_oauthtoken: "{{ controller_token }}"
+        inventory: "{{ inventory_name }}"
+        name: "{{ item.name }}"
+        variables:
+          ansible_host: "{{ item.ansible_host }}"
+          ansible_network_os: "{{ item.ansible_network_os }}"
+        state: present
+      loop: "{{ hosts_to_add }}"
+
+    - name: Ensure group membership
+      awx.awx.group:
+        controller_host: "{{ controller_host }}"
+        controller_oauthtoken: "{{ controller_token }}"
+        inventory: "{{ inventory_name }}"
+        name: "{{ item.1 }}"
+        hosts:
+          - "{{ item.0.name }}"
+        state: present
+      loop: "{{ hosts_to_add | subelements('groups') }}"
