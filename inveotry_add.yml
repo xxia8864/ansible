@@ -31,10 +31,11 @@
         body:
           name: "10.10.10.11"
           description: "N9K-LEAF-01"
-          inventory: "{{ inventory_name }}"
+          inventory: "{{ inventory_id }}"
           variables: |
             ansible_host: 10.10.10.11
             ansible_network_hostname: N9K-LEAF-01
+        status_code: 201
       ignore_errors: yes
 
     - name: Add host 2
@@ -49,8 +50,9 @@
         body:
           name: "10.10.10.12"
           description: "N9K-LEAF-02"
-          inventory: "{{ inventory_name }}"
+          inventory: "{{ inventory_id }}"
           variables: |
             ansible_host: 10.10.10.12
             ansible_network_hostname: N9K-LEAF-02
+        status_code: 201
       ignore_errors: yes
