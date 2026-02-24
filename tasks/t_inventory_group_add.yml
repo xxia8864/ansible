@@ -11,6 +11,28 @@
   register: host_lookup
   run_once: true
 
+- name: Get current groups for this host
+  uri:
+    url: "{{ controller_host }}/api/v2/hosts/{{ host_lookup.json.results[0].id }}/groups/"
+    headers:
+      Authorization: "Bearer {{ controller_token }}"
+    validate_certs: no
+  register: current_groups
+
+- name: Remove host from all current groups
+  uri:
+    url: "{{ controller_host }}/api/v2/groups/{{ item.id }}/hosts/"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ controller_token }}"
+      Content-Type: "application/json"
+    validate_certs: no
+    body_format: raw
+    body: >-
+      {{ {'id': host_lookup.json.results[0].id | int, 'disassociate': true} | to_json }}
+    status_code: [204, 400]
+  loop: "{{ current_groups.json.results }}"
+
 - name: Add host to groups listed in CSV
   uri:
     url: "{{ controller_host }}/api/v2/groups/{{ group_id }}/hosts/"
