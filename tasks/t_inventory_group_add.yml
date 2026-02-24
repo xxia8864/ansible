@@ -22,8 +22,8 @@
     validate_certs: no
     body_format: raw
     body:
-      id: "{{ {'id': (host_lookup.json.results[0].id | int)} | to_json }}"
-    status_code: [204, 400]
+      id: "{{ {'id': (host_lookup.json.results[0].id | int)} | to_json | to_bytes }}"
+    status_code: [204, 400, 409]
   vars:
     g_clean: "{{ g | regex_replace('^\\s+|\\s+$', '') }}"
     group_lookup: >-
