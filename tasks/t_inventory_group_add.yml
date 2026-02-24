@@ -21,7 +21,7 @@
     validate_certs: no
     body_format: json
     body:
-      id: "{{ host_lookup.json.results[0].id | int }}"
+      id: {{ host_lookup.json.results[0].id | int }}
     status_code: [204, 400]
   vars:
     g_clean: "{{ g | regex_replace('^\\s+|\\s+$', '') }}"

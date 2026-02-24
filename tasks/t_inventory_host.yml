@@ -31,7 +31,7 @@
 
 - name: Update host if exists (description + variables)
   uri:
-    url: "{{ controller_host }}/api/v2/hosts/{{ host_check.json.results[0].id ｜ int }}/"
+    url: "{{ controller_host }}/api/v2/hosts/{{ host_check.json.results[0].id }}/"
     method: PATCH
     headers:
       Authorization: "Bearer {{ controller_token }}"
