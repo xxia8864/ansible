@@ -1,0 +1,16 @@
+- name: Manage Controller inventory hosts
+  hosts: localhost
+  gather_facts: false
+  vars:
+    controller_host: "https://{{ tower_IP }}"
+    controller_token: "{{ lookup('env','TOWER_TOKEN') }}"
+    inventory_name: "HK_Switches"
+    hosts_to_add:
+      - name: sw01
+        ansible_host: 10.0.0.1
+        ansible_network_os: nxos
+#        groups: ["network_devices", "patch_even"]
+      - name: sw02
+        ansible_host: 10.0.0.2
+        ansible_network_os: ios
+#        groups: ["network_devices", "patch_odd"]
