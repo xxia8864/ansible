@@ -19,9 +19,9 @@
       Content-Type: "application/json"
       Accept: "application/json"
     validate_certs: no
-    body_format: json
+    body_format: raw
     body:
-      id: {{ host_lookup.json.results[0].id | int }}
+      id: "{{ {'id': (host_lookup.json.results[0].id | int)} | to_json }}"
     status_code: [204, 400]
   vars:
     g_clean: "{{ g | regex_replace('^\\s+|\\s+$', '') }}"
