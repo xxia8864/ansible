@@ -1,2 +1,2 @@
-collections:
-  - name: ansible.netcommon
+#collections:
+#  - name: ansible.netcommon
