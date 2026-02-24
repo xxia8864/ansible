@@ -1,9 +1,9 @@
 - name: Lookup host id (should exist after upsert)
   uri:
-    url: "{{ host }}/api/v2/hosts/?name={{ row.name }}&inventory={{ inventory_id }}"
+    url: "{{ controller_host }}/api/v2/hosts/?name={{ row.name }}&inventory={{ inventory_id }}"
     method: GET
     headers:
-      Authorization: "Bearer {{ oauth_token }}"
+      Authorization: "Bearer {{ controller_token }}"
       Accept: "application/json"
     validate_certs: no
     return_content: yes
@@ -14,9 +14,9 @@
 
 - name: Get current groups for this host
   uri:
-    url: "{{ host }}/api/v2/hosts/{{ host_lookup.json.results[0].id }}/groups/"
+    url: "{{ controller_host }}/api/v2/hosts/{{ host_lookup.json.results[0].id }}/groups/"
     headers:
-      Authorization: "Bearer {{ oauth_token }}"
+      Authorization: "Bearer {{ controller_token }}"
     validate_certs: no
   register: current_groups
   run_once: true
@@ -24,10 +24,10 @@
 
 - name: Remove host from all current groups
   uri:
-    url: "{{ host }}/api/v2/groups/{{ item.id }}/hosts/"
+    url: "{{ controller_host }}/api/v2/groups/{{ item.id }}/hosts/"
     method: POST
     headers:
-      Authorization: "Bearer {{ oauth_token }}"
+      Authorization: "Bearer {{ controller_token }}"
       Content-Type: "application/json"
     validate_certs: no
     body_format: raw
@@ -40,10 +40,10 @@
 
 - name: Add host to groups listed in CSV
   uri:
-    url: "{{ host }}/api/v2/groups/{{ group_id }}/hosts/"
+    url: "{{ controller_host }}/api/v2/groups/{{ group_id }}/hosts/"
     method: POST
     headers:
-      Authorization: "Bearer {{ oauth_token }}"
+      Authorization: "Bearer {{ controller_token }}"
       Content-Type: "application/json"
       Accept: "application/json"
     validate_certs: no

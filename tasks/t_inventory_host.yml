@@ -1,9 +1,9 @@
 - name: Lookup host by IP (name) in selected inventory
   uri:
-    url: "{{ host }}/api/v2/hosts/?name={{ row.name }}&inventory={{ inventory_id }}"
+    url: "{{ controller_host }}/api/v2/hosts/?name={{ row.name }}&inventory={{ inventory_id }}"
     method: GET
     headers:
-      Authorization: "Bearer {{ oauth_token }}"
+      Authorization: "Bearer {{ controller_token }}"
       Accept: "application/json"
     validate_certs: no
     return_content: yes
@@ -14,10 +14,10 @@
 
 - name: Create host if missing
   uri:
-    url: "{{ host }}/api/v2/hosts/"
+    url: "{{ controller_host }}/api/v2/hosts/"
     method: POST
     headers:
-      Authorization: "Bearer {{ oauth_token }}"
+      Authorization: "Bearer {{ controller_token }}"
       Content-Type: "application/json"
       Accept: "application/json"
     validate_certs: no
@@ -35,10 +35,10 @@
 
 - name: Update host if exists (description + variables)
   uri:
-    url: "{{ host }}/api/v2/hosts/{{ host_check.json.results[0].id }}/"
+    url: "{{ controller_host }}/api/v2/hosts/{{ host_check.json.results[0].id }}/"
     method: PATCH
     headers:
-      Authorization: "Bearer {{ oauth_token }}"
+      Authorization: "Bearer {{ controller_token }}"
       Content-Type: "application/json"
       Accept: "application/json"
     validate_certs: no

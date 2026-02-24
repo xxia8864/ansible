@@ -3,14 +3,16 @@
   gather_facts: false
 
   vars:
-    controller_host: "https://{{ host }}"
-    controller_token: "{{ oauth_token }}"
+    controller_host: "https://{{ lookup('env', 'TOWER_HOST' }}"
+    controller_token: "{{ lookup('env', 'TOWER_OAUTH_TOKEN' }}"
     csv_file: hosts.csv
 
   tasks:
     - debug:
         msg:
-          "{{ host }}"
+          - "{{ controller_host }}"
+          - "{{ controller_token }}"
+
     - name: Get inventory_id from Tower job context
       set_fact:
         inventory_id: "{{ tower_inventory_id }}"
