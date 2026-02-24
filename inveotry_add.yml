@@ -25,26 +25,3 @@
       register: me
     - debug:
         var: me.json
-
-    - name: Ensure host exists
-      awx.awx.host:
-        controller_host: "{{ controller_host }}"
-        controller_oauthtoken: "{{ controller_token }}"
-        inventory: "{{ inventory_name }}"
-        name: "{{ item.name }}"
-        variables:
-          ansible_host: "{{ item.ansible_host }}"
-          ansible_network_os: "{{ item.ansible_network_os }}"
-        state: present
-      loop: "{{ hosts_to_add }}"
-
-    - name: Ensure group membership
-      awx.awx.group:
-        controller_host: "{{ controller_host }}"
-        controller_oauthtoken: "{{ controller_token }}"
-        inventory: "{{ inventory_name }}"
-        name: "{{ item.1 }}"
-        hosts:
-          - "{{ item.0.name }}"
-        state: present
-      loop: "{{ hosts_to_add | subelements('groups') }}"
