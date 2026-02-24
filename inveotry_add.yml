@@ -19,6 +19,20 @@
       register: csv_data
       run_once: true
 
+    - name: Build unique group list from CSV
+      set_fact:
+        unique_groups: >-
+          {{
+            (
+              (csv_data.list | map(attribute='groups') | list | join(',')) .split(',')
+              | map('regex_replace', '^\\s+|\\s+$', '')
+              | reject('equalto', '')
+              | list
+              | unique
+            )
+          }}
+      run_once: true
+
     # 1) Ensure groups exist
     - name: Ensure groups exist
       include_tasks: tasks/t_inventory_group_create.yml
