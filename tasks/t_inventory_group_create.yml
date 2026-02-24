@@ -12,7 +12,6 @@
   run_once: true
   no_log: true
 
-
 - name: Create group if missing
   uri:
     url: "{{ host }}/api/v2/groups/"
@@ -28,5 +27,5 @@
       inventory: "{{ inventory_id }}"
     status_code: 201
   run_once: true
-  no log: true
+  no_log: true
   when: (grp_check.json.count | default(0) | int) == 0
