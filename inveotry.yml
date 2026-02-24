@@ -3,8 +3,8 @@
   gather_facts: false
 
   vars:
-    controller_host: "https://{{ lookup('env', 'TOWER_HOST' }}"
-    controller_token: "{{ lookup('env', 'TOWER_OAUTH_TOKEN' }}"
+    controller_host: "https://{{ lookup('env', 'TOWER_HOST') }}"
+    controller_token: "{{ lookup('env', 'TOWER_OAUTH_TOKEN') }}"
 
   tasks:
     - debug:
