@@ -1,9 +1,9 @@
 - name: Check group exists
   uri:
-    url: "{{ controller_host }}/api/v2/groups/?name={{ group_name }}&inventory={{ inventory_id }}"
+    url: "{{ host }}/api/v2/groups/?name={{ group_name }}&inventory={{ inventory_id }}"
     method: GET
     headers:
-      Authorization: "Bearer {{ controller_token }}"
+      Authorization: "Bearer {{ oauth_token }}"
       Accept: "application/json"
     validate_certs: no
     return_content: yes
@@ -15,10 +15,10 @@
 
 - name: Create group if missing
   uri:
-    url: "{{ controller_host }}/api/v2/groups/"
+    url: "{{ host }}/api/v2/groups/"
     method: POST
     headers:
-      Authorization: "Bearer {{ controller_token }}"
+      Authorization: "Bearer {{ oauth_token }}"
       Content-Type: "application/json"
       Accept: "application/json"
     validate_certs: no

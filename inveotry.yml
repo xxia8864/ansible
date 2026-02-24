@@ -3,8 +3,8 @@
   gather_facts: false
 
   vars:
-    controller_host: "https://{{ controller_IP }}"
-    controller_token: "{{ controller_token }}"
+    controller_host: "https://{{ host }}"
+    controller_token: "{{ oauth_token }}"
     csv_file: hosts.csv
 
   tasks:

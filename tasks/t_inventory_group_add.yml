@@ -1,9 +1,9 @@
 - name: Lookup host id (should exist after upsert)
   uri:
-    url: "{{ controller_host }}/api/v2/hosts/?name={{ row.name }}&inventory={{ inventory_id }}"
+    url: "{{ host }}/api/v2/hosts/?name={{ row.name }}&inventory={{ inventory_id }}"
     method: GET
     headers:
-      Authorization: "Bearer {{ controller_token }}"
+      Authorization: "Bearer {{ oauth_token }}"
       Accept: "application/json"
     validate_certs: no
     return_content: yes
@@ -14,9 +14,9 @@
 
 - name: Get current groups for this host
   uri:
-    url: "{{ controller_host }}/api/v2/hosts/{{ host_lookup.json.results[0].id }}/groups/"
+    url: "{{ host }}/api/v2/hosts/{{ host_lookup.json.results[0].id }}/groups/"
     headers:
-      Authorization: "Bearer {{ controller_token }}"
+      Authorization: "Bearer {{ oauth_token }}"
     validate_certs: no
   register: current_groups
   run_once: true
@@ -24,10 +24,10 @@
 
 - name: Remove host from all current groups
   uri:
-    url: "{{ controller_host }}/api/v2/groups/{{ item.id }}/hosts/"
+    url: "{{ host }}/api/v2/groups/{{ item.id }}/hosts/"
     method: POST
     headers:
-      Authorization: "Bearer {{ controller_token }}"
+      Authorization: "Bearer {{ oauth_token }}"
       Content-Type: "application/json"
     validate_certs: no
     body_format: raw
@@ -40,10 +40,10 @@
 
 - name: Add host to groups listed in CSV
   uri:
-    url: "{{ controller_host }}/api/v2/groups/{{ group_id }}/hosts/"
+    url: "{{ host }}/api/v2/groups/{{ group_id }}/hosts/"
     method: POST
     headers:
-      Authorization: "Bearer {{ controller_token }}"
+      Authorization: "Bearer {{ oauth_token }}"
       Content-Type: "application/json"
       Accept: "application/json"
     validate_certs: no
@@ -57,8 +57,8 @@
       {{
         lookup(
           'url',
-          controller_host + '/api/v2/groups/?name=' + g_clean + '&inventory=' + (inventory_id | string),
-          headers={'Authorization': 'Bearer ' + controller_token},
+          host + '/api/v2/groups/?name=' + g_clean + '&inventory=' + (inventory_id | string),
+          headers={'Authorization': 'Bearer ' + oauth_token},
           validate_certs=False
         ) | from_json
       }}
