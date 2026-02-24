@@ -49,7 +49,7 @@
 
     # 3) Associate hosts to groups
     - name: Associate hosts to groups
-      include_tasks: tasks/t_inventory_group_add.yml
+      include_tasks: tasks/t_inventory_group_asso.yml
       loop: "{{ csv_data.list }}"
       loop_control:
         loop_var: row

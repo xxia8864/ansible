@@ -10,7 +10,7 @@
     status_code: 200
   register: grp_check
   run_once: true
-  no_log: true
+  no_log: false
 
 - name: Create group if missing
   uri:
