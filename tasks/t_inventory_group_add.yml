@@ -22,7 +22,7 @@
     validate_certs: no
     body_format: json
     body:
-      id: '{"id": {{ host_lookup.json.results[0].id | int }}}'
+      id: "{{ host_lookup.json.results[0].id | int }}"
     status_code: [204, 400, 409]
   vars:
     g_clean: "{{ g | regex_replace('^\\s+|\\s+$', '') }}"
@@ -30,7 +30,7 @@
       {{
         lookup(
           'url',
-          controller_host + '/api/v2/groups/?name=' + g_clean + '&inventory=' + (inventory_id | string),
+          controller_host + '/api/v2/groups/?name=' + g_clean + '&inventory=' + (inventory_id ｜ int),
           headers={'Authorization': 'Bearer ' + controller_token},
           validate_certs=False
         ) | from_json
