@@ -58,7 +58,7 @@
         lookup(
           'url',
           host + '/api/v2/groups/?name=' + g_clean + '&inventory=' + (inventory_id | string),
-          headers={'Authorization': 'Bearer ' + oauth_token},
+          headers={'Authorization': 'Bearer ' + controller_token},
           validate_certs=False
         ) | from_json
       }}
@@ -69,4 +69,4 @@
   when: g_clean != ""
   ignore_errors: yes
   run_once: true
-  no_log: false
+  no_log: true
