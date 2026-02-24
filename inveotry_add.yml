@@ -3,25 +3,21 @@
   gather_facts: false
   vars:
     controller_host: "https://{{ controller_IP }}"
-    controller_token: "{{ lookup('env','TOWER_TOKEN') }}"
-    inventory_name: "HK_Switches"
-    hosts_to_add:
-      - name: sw01
-        ansible_host: 10.0.0.1
-        ansible_network_os: nxos
-#        groups: ["network_devices", "patch_even"]
-      - name: sw02
-        ansible_host: 10.0.0.2
-        ansible_network_os: ios
-#        groups: ["network_devices", "patch_odd"]
+    controller_token: "{{ controller_token }}"
   tasks:
-    - name: Who am I
+    - name: Who am I (Tower /api/v2/me/)
       uri:
-        url: "{{ tower_host }}/api/v2/me/"
+        url: "{{ controller_host }}/api/v2/me/"
         method: GET
         headers:
-          Authorization: "Bearer {{ tower_token }}"
+          Authorization: "Bearer {{ controller_token }}"
+          Content-Type: "application/json"
+          Accept: "application/json"
         validate_certs: no
+        status_code: 200
+        return_content: yes
       register: me
-    - debug:
+
+    - name: Print identity result
+      debug:
         var: me.json
