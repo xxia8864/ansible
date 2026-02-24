@@ -11,153 +11,34 @@
     - name: Get inventory_id from Tower job context
       set_fact:
         inventory_id: "{{ tower_inventory_id }}"
+      run_once: true
 
     - name: Read CSV
       read_csv:
         path: "{{ csv_file }}"
       register: csv_data
+      run_once: true
 
-    # ---- 1) Ensure groups exist (create only if missing) ----
-    - name: Build unique group list from CSV
-      set_fact:
-        unique_groups: >-
-          {{
-            (
-              (csv_data.list | map(attribute='groups') | list | join(',')) .split(',')
-              | map('regex_replace', '^\\s+|\\s+$', '')
-              | reject('equalto', '')
-              | list
-              | unique
-            )
-          }}
-
-    - name: Ensure each group exists
-      block:
-        - name: Check group exists
-          uri:
-            url: "{{ controller_host }}/api/v2/groups/?name={{ item }}&inventory={{ inventory_id }}"
-            method: GET
-            headers:
-              Authorization: "Bearer {{ controller_token }}"
-              Accept: "application/json"
-            validate_certs: no
-            return_content: yes
-            status_code: 200
-          register: grp_check
-
-        - name: Create group if missing
-          uri:
-            url: "{{ controller_host }}/api/v2/groups/"
-            method: POST
-            headers:
-              Authorization: "Bearer {{ controller_token }}"
-              Content-Type: "application/json"
-              Accept: "application/json"
-            validate_certs: no
-            body_format: json
-            body:
-              name: "{{ item }}"
-              inventory: "{{ inventory_id }}"
-            status_code: 201
-          when: (grp_check.json.count | default(0) | int) == 0
+    # 1) Ensure groups exist
+    - name: Ensure groups exist
+      include_tasks: tasks/t_inventory_group_create.yml
       loop: "{{ unique_groups }}"
+      loop_control:
+        loop_var: group_name
+      run_once: true
 
-    # ---- 2) Upsert hosts by IP (name == mgmt IP) ----
-    - name: Upsert hosts (create if missing, otherwise update from CSV)
-      block:
-        - name: Lookup host by IP (name) in selected inventory
-          uri:
-            url: "{{ controller_host }}/api/v2/hosts/?name={{ item.name }}&inventory={{ inventory_id }}"
-            method: GET
-            headers:
-              Authorization: "Bearer {{ controller_token }}"
-              Accept: "application/json"
-            validate_certs: no
-            return_content: yes
-            status_code: 200
-          register: host_check
-
-        - name: Create host if missing
-          uri:
-            url: "{{ controller_host }}/api/v2/hosts/"
-            method: POST
-            headers:
-              Authorization: "Bearer {{ controller_token }}"
-              Content-Type: "application/json"
-              Accept: "application/json"
-            validate_certs: no
-            body_format: json
-            body:
-              name: "{{ item.name }}"
-              description: "{{ item.description }}"
-              inventory: "{{ inventory_id }}"
-              variables: |
-                ansible_host: {{ item.name }}
-                ansible_network_hostname: {{ item.ansible_network_hostname }}
-            status_code: 201
-          when: (host_check.json.count | default(0) | int) == 0
-
-        - name: Update host if exists (description + variables)
-          uri:
-            url: "{{ controller_host }}/api/v2/hosts/{{ host_check.json.results[0].id }}/"
-            method: PATCH
-            headers:
-              Authorization: "Bearer {{ controller_token }}"
-              Content-Type: "application/json"
-              Accept: "application/json"
-            validate_certs: no
-            body_format: json
-            body:
-              description: "{{ item.description }}"
-              variables: |
-                ansible_host: {{ item.name }}
-                ansible_network_hostname: {{ item.ansible_network_hostname }}
-            status_code: 200
-          when: (host_check.json.count | default(0) | int) == 1
+    # 2) Upsert hosts (create or update) by IP (name == IP)
+    - name: Upsert hosts from CSV
+      include_tasks: tasks/t_inventory_host.yml
       loop: "{{ csv_data.list }}"
+      loop_control:
+        loop_var: row
+      run_once: true
 
-    # ---- 3) Associate hosts to groups (by CSV groups column) ----
+    # 3) Associate hosts to groups
     - name: Associate hosts to groups
-      block:
-        - name: Lookup host id
-          uri:
-            url: "{{ controller_host }}/api/v2/hosts/?name={{ item.name }}&inventory={{ inventory_id }}"
-            method: GET
-            headers:
-              Authorization: "Bearer {{ controller_token }}"
-              Accept: "application/json"
-            validate_certs: no
-            return_content: yes
-            status_code: 200
-          register: host_lookup
-
-        - name: Add host to each group in CSV
-          uri:
-            url: "{{ controller_host }}/api/v2/groups/{{ group_lookup.json.results[0].id }}/hosts/"
-            method: POST
-            headers:
-              Authorization: "Bearer {{ controller_token }}"
-              Content-Type: "application/json"
-              Accept: "application/json"
-            validate_certs: no
-            body_format: json
-            body:
-              id: "{{ host_lookup.json.results[0].id }}"
-            status_code: [204, 400]
-          vars:
-            group_name: "{{ g | regex_replace('^\\s+|\\s+$', '') }}"
-            group_lookup: >-
-              {{
-                lookup(
-                  'url',
-                  controller_host + '/api/v2/groups/?name=' + group_name + '&inventory=' + (inventory_id | string),
-                  headers={'Authorization': 'Bearer ' + controller_token},
-                  validate_certs=False
-                ) | from_json
-              }}
-          loop: "{{ (item.groups | default('') ).split(',') }}"
-          loop_control:
-            loop_var: g
-          when: (g | regex_replace('^\\s+|\\s+$', '')) != ""
-          ignore_errors: yes
+      include_tasks: tasks/t_inventory_group_add.yml
       loop: "{{ csv_data.list }}"
+      loop_control:
+        loop_var: row
+      run_once: true

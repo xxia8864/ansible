@@ -1,0 +1,49 @@
+- name: Lookup host by IP (name) in selected inventory
+  uri:
+    url: "{{ controller_host }}/api/v2/hosts/?name={{ row.name }}&inventory={{ inventory_id }}"
+    method: GET
+    headers:
+      Authorization: "Bearer {{ controller_token }}"
+      Accept: "application/json"
+    validate_certs: no
+    return_content: yes
+    status_code: 200
+  register: host_check
+
+- name: Create host if missing
+  uri:
+    url: "{{ controller_host }}/api/v2/hosts/"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ controller_token }}"
+      Content-Type: "application/json"
+      Accept: "application/json"
+    validate_certs: no
+    body_format: json
+    body:
+      name: "{{ row.name }}"
+      description: "{{ row.description }}"
+      inventory: "{{ inventory_id }}"
+      variables: |
+        ansible_host: {{ row.name }}
+        ansible_network_hostname: {{ row.ansible_network_hostname }}
+    status_code: 201
+  when: (host_check.json.count | default(0) | int) == 0
+
+- name: Update host if exists (description + variables)
+  uri:
+    url: "{{ controller_host }}/api/v2/hosts/{{ host_check.json.results[0].id }}/"
+    method: PATCH
+    headers:
+      Authorization: "Bearer {{ controller_token }}"
+      Content-Type: "application/json"
+      Accept: "application/json"
+    validate_certs: no
+    body_format: json
+    body:
+      description: "{{ row.description }}"
+      variables: |
+        ansible_host: {{ row.name }}
+        ansible_network_hostname: {{ row.ansible_network_hostname }}
+    status_code: 200
+  when: (host_check.json.count | default(0) | int) == 1

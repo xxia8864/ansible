@@ -1,0 +1,27 @@
+- name: Check group exists
+  uri:
+    url: "{{ controller_host }}/api/v2/groups/?name={{ group_name }}&inventory={{ inventory_id }}"
+    method: GET
+    headers:
+      Authorization: "Bearer {{ controller_token }}"
+      Accept: "application/json"
+    validate_certs: no
+    return_content: yes
+    status_code: 200
+  register: grp_check
+
+- name: Create group if missing
+  uri:
+    url: "{{ controller_host }}/api/v2/groups/"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ controller_token }}"
+      Content-Type: "application/json"
+      Accept: "application/json"
+    validate_certs: no
+    body_format: json
+    body:
+      name: "{{ group_name }}"
+      inventory: "{{ inventory_id }}"
+    status_code: 201
+  when: (grp_check.json.count | default(0) | int) == 0
