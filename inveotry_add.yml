@@ -21,3 +21,39 @@
     - name: Print identity result
       debug:
         var: me.json
+
+    - name: Add host 1
+      uri:
+        url: "{{ controller_host }}/api/v2/hosts/"
+        method: POST
+        headers:
+          Authorization: "Bearer {{ controller_token }}"
+          Content-Type: "application/json"
+        validate_certs: no
+        body_format: json
+        body:
+          name: "10.10.10.11"
+          description: "N9K-LEAF-01"
+          inventory: "{{ inventory_name }}"
+          variables: |
+            ansible_host: 10.10.10.11
+            ansible_network_hostname: N9K-LEAF-01
+      ignore_errors: yes
+
+    - name: Add host 2
+      uri:
+        url: "{{ controller_host }}/api/v2/hosts/"
+        method: POST
+        headers:
+          Authorization: "Bearer {{ controller_token }}"
+          Content-Type: "application/json"
+        validate_certs: no
+        body_format: json
+        body:
+          name: "10.10.10.12"
+          description: "N9K-LEAF-02"
+          inventory: "{{ inventory_name }}"
+          variables: |
+            ansible_host: 10.10.10.12
+            ansible_network_hostname: N9K-LEAF-02
+      ignore_errors: yes
