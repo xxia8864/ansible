@@ -7,11 +7,6 @@
     controller_token: "{{ lookup('env', 'TOWER_OAUTH_TOKEN') }}"
 
   tasks:
-    - debug:
-        msg:
-          - "{{ controller_host }}"
-          - "{{ controller_token }}"
-
     - name: Get inventory_id from Tower job context
       set_fact:
         inventory_id: "{{ tower_inventory_id }}"
