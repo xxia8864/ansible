@@ -1,4 +1,7 @@
 ---
+- name: Disconnect from device
+  meta: reset_connection
+  
 - name: Waiting For SSH port responsible
   wait_for:
     host: "{{ inventory_hostname }}"
@@ -7,6 +10,7 @@
     timeout: 600
     delay: 100 
     sleep: 15
+  delegate_to: localhost
 
 - name: Extra wait for TACACS
   pause:
