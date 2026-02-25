@@ -57,5 +57,5 @@
   loop_control:
     loop_var: g
   when: g_clean != ""
-  no_log: flase
+  no_log: false
   run_once: true
