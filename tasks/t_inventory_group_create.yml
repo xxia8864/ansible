@@ -30,7 +30,7 @@
       - name: odd
       - name: temp
   loop: "{{ standard_groups }}"
-  no_log: false
+  no_log: true
   run_once: true
 
 - name: Get all groups in inventory
@@ -43,14 +43,17 @@
   run_once: true
   no_log: true
 
-- name: Create group lookup dict
+- name: Build group_id_map
   set_fact:
-    group_ids: >-
+    group_id_map: >-
       {{
-        groups_response.json.results |
-        map(attribute='name') |
-        zip(groups_response.json.results | map(attribute='id')) |
-        list |
-        items2dict
+        dict(
+          groups_response.json.results | map(attribute='name') |
+          zip(groups_response.json.results | map(attribute='id'))
+        )
       }}
   run_once: true
+
+- name: Debug mapping
+  debug:
+    var: group_id_map
