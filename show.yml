@@ -21,6 +21,9 @@
         command: "{{ item }}"
       loop: "{{ cli_cmd }}"
       register: cli_outputs
+
+    - debug:
+        msg: "{{ description | default('No description') }}"
         
     - name: create output file locally
       copy:
@@ -35,7 +38,7 @@
 
           =================================================
           IP: {{ host }}
-          Hostname: {{ hostvars[host].description | default("hostname undefined") }}
+          Hostname: {{ hostvars[host].ansible_network_hostname | default("hostname undefined") }}
           {% for result in hostvars[host].cli_outputs.results %} 
           ----------------------------------------
           Command {{ loop.index }}: {{ result.item }}
