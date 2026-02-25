@@ -2,11 +2,10 @@
 - name: Run Backup first
   import_playbook: backup.yml
 
-- name: Build patch groups
-  hosts: "all:!temp"
+- name: pre-run
+  hosts: localhost
   serial: 10
   gather_facts: no
-  connection: network_cli
   tasks:
     - name: get expected version
       set_fact:
@@ -20,27 +19,27 @@
       run_once: true
 
 - name: Upgrade secondary devices
-  hosts: even
+  hosts: "even:&nxos"
   serial: 10
   gather_facts: no
   connection: network_cli
   tasks:
     - import_tasks: tasks/t_check_md5_nxos.yml
     - import_tasks: tasks/t_patch_install_nxos.yml
-#    - import_tasks: tasks/t_patch_confirm.yml
+    - import_tasks: tasks/t_patch_confirm.yml
 
 - name: Upgrade primary devices
-  hosts: odd
+  hosts: "odd:&nxos"
   serial: 10
   gather_facts: no
   connection: network_cli
   tasks:
     - import_tasks: tasks/t_check_md5_nxos.yml
     - import_tasks: tasks/t_patch_install_nxos.yml
-#    - import_tasks: tasks/t_patch_confirm.yml
+    - import_tasks: tasks/t_patch_confirm.yml
 
 - name: Post patch cleanup
-  hosts: "all:!temp"
+  hosts: "even:&odd:&nxos"
   serial: 10
   gather_facts: no
   connection: network_cli

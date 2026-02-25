@@ -26,7 +26,6 @@
     - name: odd
 #    - name: temp
   no_log: true
-  run_once: true
 
 - name: Get all groups in inventory
   uri:
@@ -35,7 +34,6 @@
       Authorization: "Bearer {{ controller_token }}"
     validate_certs: no
   register: groups_response
-  run_once: true
   no_log: true
 
 - name: Build group_id_map
@@ -47,4 +45,3 @@
           zip(groups_response.json.results | map(attribute='id'))
         )
       }}
-  run_once: true

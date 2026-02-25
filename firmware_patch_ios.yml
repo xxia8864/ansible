@@ -2,11 +2,10 @@
 #- name: Run Backup first
 #  import_playbook: backup.yml
 
-- name: Build patch groups
-  hosts: all
+- name: pre-run
+  hosts: localhost
   serial: 10
   gather_facts: no
-  connection: network_cli
   tasks:
     - name: get expected version
       set_fact:
@@ -19,18 +18,8 @@
         msg: "{{  file_version  }}"
       run_once: true
 
-- name: Upgrade standalone devices
-  hosts: "all:!even:!odd"
-  serial: 10
-  gather_facts: no
-  connection: network_cli
-  tasks:
-    - import_tasks: tasks/t_check_md5_ios.yml
-    - import_tasks: tasks/t_patch_install_ios.yml
-#    - import_tasks: tasks/t_patch_confirm.yml
-
 - name: Upgrade secondary devices
-  hosts: even
+  hosts: "even:&ios"
   serial: 10
   gather_facts: no
   connection: network_cli
@@ -40,7 +29,7 @@
 #    - import_tasks: tasks/t_patch_confirm.yml
 
 - name: Upgrade primary devices
-  hosts: odd
+  hosts: "odd:&ios"
   serial: 10
   gather_facts: no
   connection: network_cli
@@ -50,7 +39,7 @@
 #    - import_tasks: tasks/t_patch_confirm.yml
 
 - name: Post patch cleanup
-  hosts: all
+  hosts: "even:&odd:&ios"
   serial: 10
   gather_facts: no
   connection: network_cli

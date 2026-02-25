@@ -10,13 +10,11 @@
     - name: Get inventory_id from Tower job context
       set_fact:
         inventory_id: "{{ tower_inventory_id }}"
-      run_once: true
 
     - name: Read CSV
       read_csv:
         path: "{{ csv_file }}"
       register: csv_data
-      run_once: true
 
     - name: Build unique group list from CSV
       set_fact:
@@ -30,7 +28,6 @@
               | unique
             )
           }}
-      run_once: true
 
     - name: Create group in inventory
       include_tasks: tasks/t_inventory_group_create.yml
