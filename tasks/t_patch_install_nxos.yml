@@ -1,8 +1,8 @@
 ---
 - name: firmware upgrade
   cli_command:
-#    command: "install all nxos bootflash:{{ firmware_filename }} non-interruptive"
-    command: "copy running-config bootflash:test.txt"
+    command: "install all nxos bootflash:{{ firmware_filename }} non-interruptive"
+#    command: "copy running-config bootflash:test.txt"
   async: 300
   poll: 60
   ignore_errors: yes
