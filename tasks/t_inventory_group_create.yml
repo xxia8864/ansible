@@ -32,3 +32,25 @@
   loop: "{{ standard_groups }}"
   no_log: false
   run_once: true
+
+- name: Get all groups in inventory
+  uri:
+    url: "{{ controller_host }}/api/v2/groups/?inventory={{ inventory_id }}&page_size=200"
+    headers:
+      Authorization: "Bearer {{ controller_token }}"
+    validate_certs: no
+  register: groups_response
+  run_once: true
+  no_log: true
+
+- name: Create group lookup dict
+  set_fact:
+    group_ids: >-
+      {{
+        groups_response.json.results |
+        map(attribute='name') |
+        zip(groups_response.json.results | map(attribute='id')) |
+        list |
+        items2dict
+      }}
+  run_once: true
