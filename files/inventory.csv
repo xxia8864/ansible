@@ -1,4 +1,4 @@
 name,description,ansible_network_hostname,groups
 1.2.3.4,hostname1,hostname1,"nxos,odd"
 2.3.4.5,hostname2,hostname2,"nxos,even"
-3.4.5.6,hostname3,hostname3,"ios,standalone"
+3.4.5.6,hostname3,hostname3,"ios,odd"
