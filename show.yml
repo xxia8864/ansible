@@ -21,11 +21,6 @@
         command: "{{ item }}"
       loop: "{{ cli_cmd }}"
       register: cli_outputs
-
-    - debug:
-        msg:
-          - "{{ description | default('No description') }}"
-          - "{{ ansible_network_hostname }}"
         
     - name: create output file locally
       copy:
