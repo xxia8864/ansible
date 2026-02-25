@@ -1,7 +1,8 @@
 ---
 - name: add SFTP server to inventory
   add_host:
-    name: sftp_target  
+    name: sftp_target
+    group: temp
     ansible_host: "{{ sftp_host }}"
     ansible_user: "{{ sftp_username }}"
     ansible_ssh_pass: "{{ sftp_password }}"

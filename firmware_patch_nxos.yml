@@ -3,7 +3,7 @@
 #  import_playbook: backup.yml
 
 - name: Build patch groups
-  hosts: all
+  hosts: "all:!temp"
   serial: 10
   gather_facts: no
   connection: network_cli
@@ -18,16 +18,6 @@
       debug:
         msg: "{{  file_version  }}"
       run_once: true
-
-- name: Upgrade standalone devices
-  hosts: "all:!even:!odd"
-  serial: 10
-  gather_facts: no
-  connection: network_cli
-  tasks:
-    - import_tasks: tasks/t_check_md5_nxos.yml
-    - import_tasks: tasks/t_patch_install_nxos.yml
-#    - import_tasks: tasks/t_patch_confirm.yml
 
 - name: Upgrade secondary devices
   hosts: even
@@ -50,7 +40,7 @@
 #    - import_tasks: tasks/t_patch_confirm.yml
 
 - name: Post patch cleanup
-  hosts: all
+  hosts: "all:!temp"
   serial: 10
   gather_facts: no
   connection: network_cli
