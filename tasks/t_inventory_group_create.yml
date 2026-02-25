@@ -14,7 +14,7 @@
     group_body:
       name: "{{ item.name }}"
       inventory: "{{ inventory_id | int }}"
-      variables: "{{ item.variables | default({}) }}"
+      variables: "{{ item.variables | default({}) | to_json}}"
   loop:
     - name: nxos
       variables:
