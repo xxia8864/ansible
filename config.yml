@@ -3,7 +3,7 @@
   import_playbook: backup.yml
 
 - name: run cli command (Multiple vendor supports)
-  hosts: all
+  hosts: "all:!temp"
   serial: 10
   gather_facts: no
   connection: network_cli
