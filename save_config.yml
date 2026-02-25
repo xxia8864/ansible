@@ -1,5 +1,5 @@
 - name: Save configuration
-  hosts: all!temp
+  hosts: "all!temp"
   serial: 10
   gather_facts: no
   connection: network_cli
