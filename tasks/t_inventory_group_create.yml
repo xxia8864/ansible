@@ -1,31 +1,40 @@
-- name: Check group exists
-  uri:
-    url: "{{ controller_host }}/api/v2/groups/?name={{ group_name }}&inventory={{ inventory_id }}"
-    method: GET
-    headers:
-      Authorization: "Bearer {{ controller_token }}"
-      Accept: "application/json"
-    validate_certs: no
-    return_content: yes
-    status_code: 200
-  register: grp_check
-  run_once: true
-  no_log: true
+---
+- name: create inventory group
+  hosts: localhost
+  gather_facts: no
+  vars:
+    standard_groups:
+      - name: nxos
+        variables:
+          ansible_network_os: nxos
+      - name: ios
+        variables:
+          ansible_network_os: ios
+      - name: even
+      - name: odd
+      - name: temp
+#      - name: eos
+#        variables:
+#          ansible_network_os: eos
 
-- name: Create group if missing
-  uri:
-    url: "{{ controller_host }}/api/v2/groups/"
-    method: POST
-    headers:
-      Authorization: "Bearer {{ controller_token }}"
-      Content-Type: "application/json"
-      Accept: "application/json"
-    validate_certs: no
-    body_format: json
-    body:
-      name: "{{ group_name }}"
-      inventory: "{{ inventory_id }}"
-    status_code: 201
-  run_once: true
-  no_log: true
-  when: (grp_check.json.count | default(0) | int) == 0
+  tasks:
+    - name: Create or update standard groups
+      uri:
+        url: "{{ controller_host }}/api/v2/groups/"
+        method: POST
+        headers:
+          Authorization: "Bearer {{ controller_token }}"
+          Content-Type: "application/json"
+        validate_certs: no
+        body_format: raw
+        body: >-
+          {{
+            {
+              'name': item.name,
+              'inventory': inventory_id | int,
+              'variables': | default({})) | to_json
+            } | to_json
+          }}
+        status_code: [201, 400]  # 400 = already exists
+      loop: "{{ standard_groups }}"
+      no_log: true
