@@ -62,4 +62,4 @@
   when: g_clean != ""
   ignore_errors: yes
   run_once: true
-  no_log: true
+  no_log: false
