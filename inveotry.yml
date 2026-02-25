@@ -32,21 +32,18 @@
           }}
       run_once: true
 
-    # 1) Ensure groups exist
-    - name: Ensure groups exist
+    - name: Create group in inventory
       include_tasks: tasks/t_inventory_group_create.yml
       loop: "{{ unique_groups }}"
       loop_control:
         loop_var: group_name
 
-    # 2) Upsert hosts (create or update) by IP (name == IP)
     - name: Upsert hosts from CSV
       include_tasks: tasks/t_inventory_host.yml
       loop: "{{ csv_data.list }}"
       loop_control:
         loop_var: row
 
-    # 3) Associate hosts to groups
     - name: Associate hosts to groups
       include_tasks: tasks/t_inventory_group_asso.yml
       loop: "{{ csv_data.list }}"

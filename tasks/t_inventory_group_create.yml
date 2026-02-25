@@ -1,7 +1,5 @@
 ---
 - name: create inventory group
-  hosts: localhost
-  gather_facts: no
   vars:
     standard_groups:
       - name: nxos
@@ -38,3 +36,4 @@
         status_code: [201, 400]  # 400 = already exists
       loop: "{{ standard_groups }}"
       no_log: true
+      run_once: true
