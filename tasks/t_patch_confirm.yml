@@ -1,6 +1,16 @@
 ---
 - name: Disconnect from device
   meta: reset_connection
+
+- name: Wait for device to go offline
+  wait_for:
+    host: "{{ ansible_host }}"
+    port: 22
+    state: stopped
+    timeout: 180
+    sleep: 10
+  delegate_to: localhost
+  register: went_down
   
 - name: Waiting For SSH port responsible
   wait_for:
