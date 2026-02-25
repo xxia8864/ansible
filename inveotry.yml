@@ -34,9 +34,6 @@
 
     - name: Create group in inventory
       include_tasks: tasks/t_inventory_group_create.yml
-      loop: "{{ unique_groups }}"
-      loop_control:
-        loop_var: group_name
 
     - name: Upsert hosts from CSV
       include_tasks: tasks/t_inventory_host.yml

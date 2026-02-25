@@ -14,26 +14,23 @@
 #      - name: eos
 #        variables:
 #          ansible_network_os: eos
-
-  tasks:
-    - name: Create or update standard groups
-      uri:
-        url: "{{ controller_host }}/api/v2/groups/"
-        method: POST
-        headers:
-          Authorization: "Bearer {{ controller_token }}"
-          Content-Type: "application/json"
-        validate_certs: no
-        body_format: raw
-        body: >-
-          {{
-            {
-              'name': item.name,
-              'inventory': inventory_id | int,
-              'variables': | default({})) | to_json
-            } | to_json
-          }}
-        status_code: [201, 400]  # 400 = already exists
-      loop: "{{ standard_groups }}"
-      no_log: true
-      run_once: true
+    uri:
+      url: "{{ controller_host }}/api/v2/groups/"
+      method: POST
+      headers:
+        Authorization: "Bearer {{ controller_token }}"
+        Content-Type: "application/json"
+      validate_certs: no
+      body_format: raw
+      body: >-
+        {{
+          {
+            'name': item.name,
+            'inventory': inventory_id | int,
+            'variables': | default({})) | to_json
+          } | to_json
+        }}
+      status_code: [201, 400]  # 400 = already exists
+    loop: "{{ standard_groups }}"
+    no_log: true
+    run_once: true
