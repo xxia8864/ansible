@@ -3,8 +3,8 @@
   vars:
     ansible_command_timeout: 900
   cli_command:
-    command: "install all nxos bootflash:{{ firmware_filename }} non-interruptive"
-#    command: "show install all impact nxos bootflash:{{ firmware_filename }}"
+#    command: "install all nxos bootflash:{{ firmware_filename }} non-interruptive"
+    command: "test.txt"
   async: 60
   poll: 0
   ignore_errors: yes
