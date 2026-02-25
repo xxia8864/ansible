@@ -13,7 +13,7 @@
         {
           'name': item.name,
           'inventory': inventory_id | int,
-          'variables': (item.variables | default({})) | to_json
+          'variables': (item.variables | default({})) 
         } | to_json
       }}
     status_code: [201, 400]
