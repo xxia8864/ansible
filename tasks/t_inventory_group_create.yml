@@ -1,5 +1,25 @@
 ---
-- name: create inventory group
+- name: Create standard inventory groups
+  uri:
+    url: "{{ controller_host }}/api/v2/groups/"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ controller_token }}"
+      Content-Type: "application/json"
+    validate_certs: no
+    body_format: raw
+    body: >-
+      {{
+        {
+          'name': item.name,
+          'inventory': inventory_id | int,
+          'variables': (item.variables | default({})) | to_json
+        } | to_json
+      }}
+    status_code: [201, 400]
+  loop: "{{ standard_groups }}"
+  no_log: true
+  run_once: true
   vars:
     standard_groups:
       - name: nxos
@@ -8,29 +28,9 @@
       - name: ios
         variables:
           ansible_network_os: ios
-      - name: even
-      - name: odd
-      - name: temp
 #      - name: eos
 #        variables:
 #          ansible_network_os: eos
-    uri:
-      url: "{{ controller_host }}/api/v2/groups/"
-      method: POST
-      headers:
-        Authorization: "Bearer {{ controller_token }}"
-        Content-Type: "application/json"
-      validate_certs: no
-      body_format: raw
-      body: >-
-        {{
-          {
-            'name': item.name,
-            'inventory': inventory_id | int,
-            'variables': | default({})) | to_json
-          } | to_json
-        }}
-      status_code: [201, 400]  # 400 = already exists
-    loop: "{{ standard_groups }}"
-    no_log: true
-    run_once: true
+      - name: even
+      - name: odd
+      - name: temp
