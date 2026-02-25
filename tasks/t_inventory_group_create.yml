@@ -25,7 +25,7 @@
     - name: even
     - name: odd
     - name: temp
-  no_log: false
+  no_log: true
   run_once: true
 
 - name: Get all groups in inventory
@@ -48,7 +48,3 @@
         )
       }}
   run_once: true
-
-- name: Debug mapping
-  debug:
-    var: group_id_map
