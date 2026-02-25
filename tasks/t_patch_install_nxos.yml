@@ -6,6 +6,6 @@
 #    command: "install all nxos bootflash:{{ firmware_filename }} non-interruptive"
     command: "copy running-config bootflash:test.txt"
   async: 60
-  poll: 0
+  poll: 10
   ignore_errors: yes
   register: install_output
