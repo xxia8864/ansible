@@ -18,7 +18,7 @@
       }}
     status_code: [201, 400]
   loop: "{{ standard_groups }}"
-  no_log: true
+  no_log: false
   run_once: true
   vars:
     standard_groups:
