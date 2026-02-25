@@ -24,7 +24,7 @@
         ansible_network_os: ios
     - name: even
     - name: odd
-    - name: temp
+#    - name: temp
   no_log: true
   run_once: true
 
