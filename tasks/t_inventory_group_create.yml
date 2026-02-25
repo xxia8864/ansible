@@ -25,7 +25,7 @@
     - name: even
     - name: odd
     - name: temp
-  no_log: true
+  no_log: false
   run_once: true
 
 - name: Get all groups in inventory
