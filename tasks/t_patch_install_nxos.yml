@@ -1,11 +1,9 @@
 ---
 - name: firmware upgrade
-  vars:
-    ansible_command_timeout: 900
   cli_command:
 #    command: "install all nxos bootflash:{{ firmware_filename }} non-interruptive"
     command: "copy running-config bootflash:test.txt"
-  async: 60
-  poll: 0
+  async: 300
+  poll: 60
   ignore_errors: yes
   register: install_output
