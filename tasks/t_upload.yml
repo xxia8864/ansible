@@ -5,13 +5,14 @@
     state: directory
     mode: '0755'
   run_once: true
-  delegate_to: sftp_target
   ansible_connection: ssh
+  delegate_to: sftp_target
 
 - name: upload to SFTP server
   copy:
     src: "/tmp/tmpfiles/{{ filename }}"
     dest: "{{ sftp_path }}/{{ timestamp_day }}/{{ filename }}"
     mode: "0444"
+    ansible_connection: ssh
   delegate_to: sftp_target
-  ansible_connection: ssh
+
