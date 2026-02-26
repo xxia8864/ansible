@@ -11,7 +11,7 @@
     - name: interface status check before patch
       cli_command:
         command: "show interface status"
-        register: int_status_output
+      register: int_status_output
 
     - name: set filename for interface status
       set_fact:
