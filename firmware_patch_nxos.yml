@@ -1,8 +1,8 @@
 ---
-- name: Run Backup first
-  import_playbook: backup.yml
+#- name: Run Backup first
+#  import_playbook: backup.yml
 
-- name: Upgrade secondary devices
+- name: Upgrade even device group
   hosts: "even:&nxos"
   serial: 10
   gather_facts: no
@@ -27,7 +27,7 @@
 #    - import_tasks: tasks/t_patch_install_nxos.yml
 #    - import_tasks: tasks/t_patch_confirm.yml
 
-- name: Upgrade primary devices
+- name: Upgrade odd device group
   hosts: "odd:&nxos"
   serial: 10
   gather_facts: no
