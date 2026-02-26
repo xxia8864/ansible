@@ -38,10 +38,10 @@
     - import_tasks: tasks/t_patch_install_nxos.yml
     - import_tasks: tasks/t_patch_confirm.yml
 
-- name: Post patch cleanup
-  hosts: "even:&odd:&nxos"
-  serial: 10
-  gather_facts: no
-  connection: network_cli
-  tasks:
-    - import_tasks: tasks/t_patch_clean_nxos.yml
+#- name: Post patch cleanup
+#  hosts: "even:&odd:&nxos"
+#  serial: 10
+#  gather_facts: no
+#  connection: network_cli
+#  tasks:
+#    - import_tasks: tasks/t_patch_clean_nxos.yml
