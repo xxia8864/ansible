@@ -60,15 +60,13 @@
   retries: 3
   delay: 30
   until: >
-    int_status_recheck.stdout_lines | difference(int_status_before.stdout_lines) | 
-    select('search', 'Po') | list | length == 0
+    int_status_recheck.stdout_lines | 
+    difference(int_status_before.stdout_lines) | list | length == 0
+  ignore_errors: true
 
-- name: check if Po still down after retries
-  block:
-    - name: fail if Po still down
-      fail:
-        msg: "PO port down after upgrade: {{ int_diff }}"
-      when: >
-        int_status_recheck.stdout_lines | difference(int_status_before.stdout_lines) |
-        select('search', 'Po') | list | length > 0
-  any_errors_fatal: true
+- name: fail if diff still exists
+  fail:
+    msg: "Interface status changed after upgrade: {{ lines_removed }}"
+  when: >
+    int_status_recheck.stdout_lines | 
+    difference(int_status_before.stdout_lines) | list | length > 0
