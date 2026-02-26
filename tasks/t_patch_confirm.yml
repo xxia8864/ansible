@@ -17,7 +17,7 @@
     host: "{{ inventory_hostname }}"
     port: 22
     state: started
-    timeout: 600
+    timeout: 1200
     delay: 100 
     sleep: 15
   delegate_to: localhost
