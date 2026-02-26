@@ -5,15 +5,15 @@
 - name: Wait until ping fails (device going down)
   shell: "ping -c 1 -W 1 {{ ansible_host }}"
   register: ping_result
-  retries: 2
-  delay: 10
+  retries: 30
+  delay: 30
   until: ping_result.rc != 0
   ignore_errors: yes
 
 - name: Wait until ping succeeds (device back up)
   shell: "ping -c 1 -W 1 {{ ansible_host }}"
   register: ping_result
-  retries: 3
+  retries: 300
   delay: 10
   until: ping_result.rc == 0
 
