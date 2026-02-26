@@ -35,7 +35,7 @@
   connection: network_cli
   tasks:
 #    - import_tasks: tasks/t_check_md5_nxos.yml
-#    - import_tasks: tasks/t_patch_install_nxos.yml
+    - import_tasks: tasks/t_patch_install_nxos.yml
     - import_tasks: tasks/t_patch_confirm.yml
 
 #- name: Post patch cleanup
