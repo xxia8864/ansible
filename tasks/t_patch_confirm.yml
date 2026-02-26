@@ -55,7 +55,7 @@
 
 - name: set filename for interface status
   set_fact:
-    filename: "if_{{ patch_log }}.txt"
+    filename: "patch_log.txt"
 
 - import_tasks: tasks/t_upload.yml
   vars:
