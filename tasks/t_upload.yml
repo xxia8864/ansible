@@ -4,8 +4,9 @@
     path: "{{ sftp_path }}/{{ timestamp_day }}"
     state: directory
     mode: '0755'
+    ansible_connection: ssh
   run_once: true
-  ansible_connection: ssh
+
   delegate_to: sftp_target
 
 - name: upload to SFTP server
