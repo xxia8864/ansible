@@ -3,7 +3,7 @@
   cli_command:
     command: "install all nxos bootflash:{{ firmware_filename }} non-interruptive"
 #    command: "reload"
-  async: 100
-  poll: 10
+  async: 2
+  poll: 1
   ignore_errors: yes
   register: install_output
