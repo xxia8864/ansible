@@ -28,6 +28,8 @@
         src: "/tmp/tmpfiles/{{ filename }}"
         dest: "{{ filename }}"
       delegate_to: sftp_target
+      vars:
+        ansible_connection: ssh
 #    - import_tasks: tasks/t_check_md5_nxos.yml
 #    - import_tasks: tasks/t_patch_install_nxos.yml
 #    - import_tasks: tasks/t_patch_confirm.yml
