@@ -9,7 +9,6 @@
   delay: 30
   until: ping_result.rc != 0
   ignore_errors: yes
-  failed_when: false
 
 - name: Wait until ping succeeds (device back up)
   shell: "ping -c 1 -W 1 {{ ansible_host }}"
