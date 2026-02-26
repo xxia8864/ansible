@@ -17,9 +17,9 @@
   delay: 10
   until: ping_result.rc == 0
 
-#- name: Extra wait for TACACS
-#  pause:
-#    seconds: 30
+- name: Extra wait for TACACS
+  pause:
+    seconds: 30
 - name: get expected version
   set_fact:
     file_version: "{{ firmware_filename | regex_search('(\\d+\\.\\d+\\.\\d+)') }}"
