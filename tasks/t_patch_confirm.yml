@@ -20,15 +20,55 @@
 - name: Extra wait for TACACS
   pause:
     seconds: 30
+
 - name: get expected version
   set_fact:
     file_version: "{{ firmware_filename | regex_search('(\\d+\\.\\d+\\.\\d+)') }}"
   run_once: true
   delegate_to: localhost
-- name: get current OS version
 
+- name: get current OS version
   cli_command:
     command: "show version"
   register: version_outputs
   failed_when: file_version not in version_outputs.stdout
 
+- name: interface status check after patch
+  cli_command:
+    command: "show interface status"
+  register: int_status_after
+
+- name: compare interface status
+  set_fact:
+    int_diff: "{{ int_status_before.stdout_lines | difference(int_status_after.stdout_lines) }}"
+
+- name: append diff to log
+  blockinfile:
+    path: "/tmp/tmpfiles/patch_log.txt"
+    block: |
+      {{ ansible_network_hostname }}
+      {{ int_diff }}
+    insertafter: EOF
+    create: yes
+  delegate_to: localhost
+  when: int_diff | length > 0
+
+- name: recheck interface status
+  cli_command:
+    command: "show interface status"
+  register: int_status_recheck
+  retries: 3
+  delay: 30
+  until: >
+    int_status_recheck.stdout_lines | difference(int_status_before.stdout_lines) | 
+    select('search', 'Po') | list | length == 0
+
+- name: check if Po still down after retries
+  block:
+    - name: fail if Po still down
+      fail:
+        msg: "PO port down after upgrade: {{ int_diff }}"
+      when: >
+        int_status_recheck.stdout_lines | difference(int_status_before.stdout_lines) |
+        select('search', 'Po') | list | length > 0
+  any_errors_fatal: true
