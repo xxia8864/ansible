@@ -7,7 +7,8 @@
   serial: 10
   gather_facts: no
   connection: network_cli
-  tasks:
+  pre_tasks:
+    - import_tasks: tasks/t_time_stamp.yml
     - name: interface status check before patch
       cli_command:
         command: "show interface status"
