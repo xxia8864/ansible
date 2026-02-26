@@ -26,12 +26,9 @@
   run_once: true
   delegate_to: localhost
 - name: get current OS version
+
   cli_command:
     command: "show version"
   register: version_outputs
-  failed_when: file_version not in  version_outputs.stdout
-- name: testest
-  debug:
-    msg:
-      - "version:{{version_outputs.stdout}}"
-      - "fileversion:{{  file_version  }}"
+  failed_when: file_version not in version_outputs.stdout
+
