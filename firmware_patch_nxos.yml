@@ -1,6 +1,6 @@
 ---
-- name: Run Backup first
-  import_playbook: backup.yml
+#- name: Run Backup first
+#  import_playbook: backup.yml
 
 - name: Upgrade even device group
   hosts: "even:&nxos"
@@ -23,11 +23,7 @@
         content: "{{ int_status_output.stdout }}"
         dest: "/tmp/tmpfiles/{{ filename }}"
 
-    - name: upload to SFTP server
-      net_put:
-        src: "/tmp/tmpfiles/{{ filename }}"
-        dest: "{{ filename }}"
-      delegate_to: sftp_target
+    - import_tasks: tasks/t_upload.yml
       vars:
         ansible_connection: ssh
 #    - import_tasks: tasks/t_check_md5_nxos.yml
