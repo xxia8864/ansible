@@ -10,7 +10,7 @@
     - name: get expected version
       set_fact:
         file_version: "{{ firmware_filename | regex_search('(\\d+\\.\\d+\\.\\d+)') }}"
-      run_once: true
+#      run_once: true
 #      delegate_to: localhost
 
     - name: debug version
