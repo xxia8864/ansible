@@ -8,7 +8,6 @@
 
 - name: test ping
   shell: "ping -c 1 {{ ansible_host }}"
-  delegate_to: localhost
   register: pingresult
 
 - name: debug again
@@ -23,7 +22,6 @@
   retries: 200
   delay: 10
   until: ping_result.rc != 0
-  delegate_to: localhost
   ignore_errors: yes
 
 - name: Wait until ping succeeds (device back up)
@@ -32,7 +30,6 @@
   retries: 300
   delay: 10
   until: ping_result.rc == 0
-  delegate_to: localhost
 
 - name: Extra wait for TACACS
   pause:
