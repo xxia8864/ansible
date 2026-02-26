@@ -8,4 +8,5 @@
   async: 2
   poll: 1
   ignore_errors: yes
+  failed_when: false
   register: install_output
