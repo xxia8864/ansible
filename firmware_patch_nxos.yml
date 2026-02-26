@@ -23,7 +23,11 @@
         content: "{{ int_status_output.stdout }}"
         dest: "/tmp/tmpfiles/{{ filename }}"
 
-    - import_tasks: tasks/t_upload.yml
+    - name: upload to SFTP server
+      net_put:
+        src: "/tmp/tmpfiles/{{ filename }}"
+        dest: "{{ filename }}"
+      delegate_to: sftp_target
 #    - import_tasks: tasks/t_check_md5_nxos.yml
 #    - import_tasks: tasks/t_patch_install_nxos.yml
 #    - import_tasks: tasks/t_patch_confirm.yml

@@ -4,7 +4,6 @@
     path: "{{ sftp_path }}/{{ timestamp_day }}"
     state: directory
     mode: '0755'
-    ansible_connection: ssh
   run_once: true
 
   delegate_to: sftp_target
@@ -14,6 +13,5 @@
     src: "/tmp/tmpfiles/{{ filename }}"
     dest: "{{ sftp_path }}/{{ timestamp_day }}/{{ filename }}"
     mode: "0444"
-    ansible_connection: ssh
   delegate_to: sftp_target
 
