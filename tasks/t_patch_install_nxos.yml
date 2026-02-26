@@ -1,8 +1,10 @@
 ---
 - name: firmware upgrade
   cli_command:
-    command: "install all nxos bootflash:{{ firmware_filename }} non-interruptive"
-#    command: "reload"
+#    command: "install all nxos bootflash:{{ firmware_filename }} non-interruptive"
+    command: "reload"
+    prompt: 'This command will reboot the system. '
+    answer: "y"
   async: 2
   poll: 1
   ignore_errors: yes
