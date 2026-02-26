@@ -8,9 +8,24 @@
   gather_facts: no
   connection: network_cli
   tasks:
-    - import_tasks: tasks/t_check_md5_nxos.yml
-    - import_tasks: tasks/t_patch_install_nxos.yml
-    - import_tasks: tasks/t_patch_confirm.yml
+    - name: interface status check before patch
+      cli_command:
+        command: "show interface status"
+        register: int_status_output
+
+    - name: set filename for interface status
+      set_fact:
+        filename: "{{ ansible_network_hostname }}_{{ timestamp_sec }}_if.txt"
+
+    - name: save to local file
+      copy:
+        content: "{{ int_status_output.stdout }}"
+        dest: "/tmp/tmpfiles/{{ filename }}"
+
+    - import_tasks: tasks/t_upload.yml
+#    - import_tasks: tasks/t_check_md5_nxos.yml
+#    - import_tasks: tasks/t_patch_install_nxos.yml
+#    - import_tasks: tasks/t_patch_confirm.yml
 
 - name: Upgrade primary devices
   hosts: "odd:&nxos"
@@ -18,9 +33,9 @@
   gather_facts: no
   connection: network_cli
   tasks:
-    - import_tasks: tasks/t_check_md5_nxos.yml
-    - import_tasks: tasks/t_patch_install_nxos.yml
-    - import_tasks: tasks/t_patch_confirm.yml
+#    - import_tasks: tasks/t_check_md5_nxos.yml
+#    - import_tasks: tasks/t_patch_install_nxos.yml
+#    - import_tasks: tasks/t_patch_confirm.yml
 
 #- name: Post patch cleanup
 #  hosts: "even:&odd:&nxos"
