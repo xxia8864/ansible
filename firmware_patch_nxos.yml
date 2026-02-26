@@ -2,22 +2,6 @@
 #- name: Run Backup first
 #  import_playbook: backup.yml
 
-- name: pre-run
-  hosts: localhost
-  serial: 10
-  gather_facts: no
-  tasks:
-    - name: get expected version
-      set_fact:
-        file_version: "{{ firmware_filename | regex_search('(\\d+\\.\\d+\\.\\d+)') }}"
-      run_once: true
-      delegate_to: localhost
-
-    - name: debug version
-      debug:
-        msg: "{{  file_version  }}"
-      run_once: true
-
 - name: Upgrade secondary devices
   hosts: "even:&nxos"
   serial: 10
