@@ -17,9 +17,9 @@
   delay: 10
   until: ping_result.rc == 0
 
-- name: Extra wait for TACACS
-  pause:
-    seconds: 30
+#- name: Extra wait for TACACS
+#  pause:
+#    seconds: 30
     
 - name: get current OS version
   cli_command:
