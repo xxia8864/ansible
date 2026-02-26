@@ -6,6 +6,17 @@
   debug:
     msg: "{{  ansible_host  }}"
 
+- name: test ping
+  shell: "ping -c 1 {{ ansible_host }}"
+  delegate_to: localhost
+  register: pingresult
+
+- name: debug again
+  debug:
+    msg: "{{  pingresult  }}"
+
+
+
 - name: Wait until ping fails (device going down)
   shell: "ping -c 1 -W 1 {{ ansible_host }}"
   register: ping_result
