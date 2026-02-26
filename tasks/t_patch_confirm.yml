@@ -7,7 +7,7 @@
     host: "{{ ansible_host }}"
     port: 22
     state: stopped
-    timeout: 180
+    timeout: 1200
     sleep: 10
   delegate_to: localhost
   register: went_down
@@ -17,7 +17,7 @@
     host: "{{ inventory_hostname }}"
     port: 22
     state: started
-    timeout: 1200
+    timeout: 300
     delay: 100 
     sleep: 15
   delegate_to: localhost
