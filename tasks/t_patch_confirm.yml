@@ -40,7 +40,7 @@
 
 - name: compare interface status
   set_fact:
-    int_diff: "{{ int_status_before.stdout_lines[0] | difference(int_status_after.stdout_lines[0]) }}"
+    int_diff: "{{ int_status_before.stdout_lines | difference(int_status_after.stdout_lines) }}"
 
 - name: debug inter diff
   debug:
@@ -48,7 +48,7 @@
 
 - name: debug int status before
   debug:
-    msg: "{{ int_status_before.stdout_lines[0] }}"
+    msg: "{{ int_status_before.stdout_lines }}"
 
 - name: append diff to log
   blockinfile:
@@ -65,9 +65,9 @@
   set_fact:
     filename: "patch_log.txt"
 
-- import_tasks: tasks/t_upload.yml
-  vars:
-    ansible_connection: ssh
+#- import_tasks: tasks/t_upload.yml
+#  vars:
+#    ansible_connection: ssh
 
 - name: recheck interface status
   cli_command:
