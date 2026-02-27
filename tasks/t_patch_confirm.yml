@@ -46,6 +46,10 @@
   debug:
     msg: "{{ int_diff }}"
 
+- name: debug inter diff
+  debug:
+    msg: "{{ int_status_before.stdout_lines[0] }}"
+
 - name: append diff to log
   blockinfile:
     path: "/tmp/tmpfiles/patch_log.txt"
