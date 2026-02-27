@@ -1,13 +1,15 @@
 ---
 - name: MD5 calculate
-  cli_command:
-    command: "show file {{ firmware_filename }} md5sum"
+  nxos_command:
+    commands:
+    - command: show file {{ firmware_filename }} md5sum
+      output: json
   register: md5_output
 
 - name: Compare with official MD5
   assert:
     that:
-      - md5 | lower in md5_output.stdout | lower
+      - md5 | lower == md5_output.stdout[0].file_content_md5sum | lower
     fail_msg: |
       MD5 mismatch on {{ ansible_network_hostname | default(inventory_hostname) }}!
       Expected: {{ md5 }}
