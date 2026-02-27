@@ -32,59 +32,9 @@
   register: version_outputs
   failed_when: firmware_filename not in version_outputs.stdout[0].nxos_file_name
 
-- name: interface status check after patch
-  nxos_command:
-    commands:
-    - command: show interface status up
-      output: json
-  register: int_status_after_json
+- include_tasks: tasks/t_recheck_diff.yml
 
-- name: compare interface status
-  set_fact:
-    int_diff: "{{ int_status_before_json.stdout[0].TABLE_interface.ROW_interface | 
-                  difference(int_status_after_json.stdout[0].TABLE_interface.ROW_interface) }}"
-
-- name: append diff to log
-  shell: |
-    echo "{{ ansible_network_hostname }} below interface status changed during upgrade" >> /tmp/tmpfiles/patch_log.txt
-    {% for intf in int_diff %}
-    echo "{{ intf.interface }}" >> /tmp/tmpfiles/patch_log.txt
-    {% endfor %}
-  delegate_to: localhost
-  when: int_diff | length > 0
-
-- name: set filename for interface status
-  set_fact:
-    filename: "patch_log.txt"
-
-- import_tasks: tasks/t_upload.yml
-  vars:
-    ansible_connection: ssh
-  when: int_diff | length > 0
-
-- name: check again after 60 secconds
-  wait_for:
-    timeout: 60
-  delegate_to: localhost
-  when: int_diff | length > 0
-
-- name: recheck interface status
-  nxos_command:
-    commands:
-    - command: show interface status up
-      output: json
-  register: int_status_recheck_json
-  when: int_diff | length > 0
-
-- name: set recheck diff
-  set_fact:
-    int_diff_recheck: "{{ int_status_before_json.stdout[0].TABLE_interface.ROW_interface | 
-                  difference(int_status_recheck_json.stdout[0].TABLE_interface.ROW_interface) }}"
-  when: int_diff | length > 0
-
-- name: fail if still different
+- name: fail if interface not recovered within 8 minutes
   fail:
-    msg: "Interface diff still exists after 60s: {{ int_diff_recheck }}"
-  when:
-    - int_diff | length > 0
-    - int_diff_recheck | length > 0
+    msg: "those interface are down after patch: {{ int_diff }}"
+  when: retry_count | int >= 16 and int_diff | length > 0
