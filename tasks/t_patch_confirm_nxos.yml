@@ -35,20 +35,15 @@
 - name: interface status check after patch
   nxos_command:
     commands:
-    - command: show interface lo 0 status 
+    - command: show interface status up
       output: json
   register: int_status_after_json
 
-#- name: compare interface status
-#  set_fact:
-#    int_diff: "{{ int_status_before_json.stdout[0] | 
-#                  difference(int_status_before_json.stdout[0]) }}"
-
 - name: compare interface status
-  ansible.utils.fact_diff:
-    before: "{{ int_status_before_json.stdout[0] }}"
-    after: "{{ int_status_before_json.stdout[0] }}"
-  register: int_diff
+  set_fact:
+    int_diff: "{{ int_status_before_json.stdout[0] | 
+                  difference(int_status_before_json.stdout[0]) }}"
+
                   
 - name: debug inter diff
   debug:
@@ -73,14 +68,14 @@
   delegate_to: localhost
   when: int_diff | length > 0
 
-- name: set filename for interface status
-  set_fact:
-    filename: "patch_log.txt"
+#- name: set filename for interface status
+#  set_fact:
+#    filename: "patch_log.txt"
 
-- import_tasks: tasks/t_upload.yml
-  vars:
-    ansible_connection: ssh
-  when: int_diff | length > 0
+#- import_tasks: tasks/t_upload.yml
+#  vars:
+#    ansible_connection: ssh
+#  when: int_diff | length > 0
 
 - name: check again after 60 secconds
   wait_for:
@@ -102,7 +97,7 @@
 
 - name: set recheck diff
   set_fact:
-    int_diff_recheck: "{{ int_status_before.stdout[0] | to_json == int_status_after.stdout[0] | to_json }}"
+    int_diff_recheck: "{{ int_status_before.stdout[0] | to_json != int_status_after.stdout[0] | to_json }}"
   when: int_diff | length > 0
 
 - name: fail if still different
