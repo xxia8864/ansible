@@ -45,7 +45,7 @@
 #                  difference(int_status_before_json.stdout[0]) }}"
 
 - name: compare interface status
-  fact_diff:
+  ansible.utils.fact_diff:
     before: "{{ int_status_before_json.stdout[0] }}"
     after: "{{ int_status_before_json.stdout[0] }}"
   register: int_diff
