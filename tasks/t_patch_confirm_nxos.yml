@@ -58,8 +58,6 @@
       {{ intf.interface }}
       {% endfor %}
     insertafter: EOF
-    append_newline: true
-    prepend_newline: true
     create: yes
   delegate_to: localhost
   when: int_diff | length > 0
