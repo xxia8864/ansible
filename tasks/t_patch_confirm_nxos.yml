@@ -1,11 +1,11 @@
 ---
-#- name: Wait until ping fails (device going down)
-#  shell: "ping -c 1 -W 1 {{ ansible_host }}"
-#  register: ping_result
-#  retries: 30
-#  delay: 30
-#  until: ping_result.rc != 0
-#  failed_when: false
+- name: Wait until ping fails (device going down)
+  shell: "ping -c 1 -W 1 {{ ansible_host }}"
+  register: ping_result
+  retries: 30
+  delay: 30
+  until: ping_result.rc != 0
+  failed_when: false
 
 - name: Wait until ping succeeds (device back up)
   shell: "ping -c 1 -W 1 {{ ansible_host }}"
@@ -18,11 +18,11 @@
   pause:
     seconds: 30
 
-#- name: get expected version
-#  set_fact:
-#    file_version: "{{ firmware_filename | regex_search('(\\d+\\.\\d+\\.\\d+)') }}"
-#  run_once: true
-#  delegate_to: localhost
+- name: get expected version
+  set_fact:
+    file_version: "{{ firmware_filename | regex_search('(\\d+\\.\\d+\\.\\d+)') }}"
+  run_once: true
+  delegate_to: localhost
 
 - name: get current OS version
   nxos_command:
@@ -53,14 +53,14 @@
   delegate_to: localhost
   when: int_diff | length > 0
 
-#- name: set filename for interface status
-#  set_fact:
-#    filename: "patch_log.txt"
+- name: set filename for interface status
+  set_fact:
+    filename: "patch_log.txt"
 
-#- import_tasks: tasks/t_upload.yml
-#  vars:
-#    ansible_connection: ssh
-#  when: int_diff | length > 0
+- import_tasks: tasks/t_upload.yml
+  vars:
+    ansible_connection: ssh
+  when: int_diff | length > 0
 
 - name: check again after 60 secconds
   wait_for:
