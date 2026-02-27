@@ -80,14 +80,10 @@
 - name: recheck interface status
   nxos_command:
     commands:
-    - command: show interface status
+    - command: show interface status up
       output: json
   register: int_status_recheck_json
   when: int_diff | length > 0
-
-- name: debug int status recheck
-  debug:
-    msg: "{{ int_status_recheck }}"
 
 - name: set recheck diff
   set_fact:
