@@ -49,14 +49,6 @@
   debug:
     msg: "{{ int_diff }}"
 
-- name: debug int status before
-  debug:
-    msg: "{{ int_status_before_json.stdout_lines[0] }}"
-
-- name: debug int status after
-  debug:
-    msg: "{{ int_status_after_json.stdout_lines[0] }}"
-
 - name: append diff to log
   blockinfile:
     path: "/tmp/tmpfiles/patch_log.txt"
@@ -66,6 +58,8 @@
       {{ intf.interface }}
       {% endfor %}
     insertafter: EOF
+    append_newline: true
+    prepend_newline: true
     create: yes
   delegate_to: localhost
   when: int_diff | length > 0
@@ -100,7 +94,7 @@
 - name: set recheck diff
   set_fact:
     int_diff_recheck: "{{ int_status_before_json.stdout[0].TABLE_interface.ROW_interface | 
-                  difference(int_status_after_json.stdout[0].TABLE_interface.ROW_interface) }}"
+                  difference(int_status_recheck_json.stdout[0].TABLE_interface.ROW_interface) }}"
   when: int_diff | length > 0
 
 - name: debug int_diff_recheck
