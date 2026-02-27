@@ -4,6 +4,7 @@
 
 - name: pre-work
   hosts: localhost
+  gather_facts: no
   tasks:
   - name: create fresh log file
     copy:
