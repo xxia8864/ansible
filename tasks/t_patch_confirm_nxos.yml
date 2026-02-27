@@ -96,8 +96,8 @@
 
 - name: set recheck diff
   set_fact:
-    int_diff_recheck: ""{{ int_status_before_json.TABLE_interface.ROW_interface | 
-                  difference(int_status_after_json.TABLE_interface.ROW_interface) }}""
+    int_diff_recheck: "{{ int_status_before_json.TABLE_interface.ROW_interface | 
+                  difference(int_status_after_json.TABLE_interface.ROW_interface) }}"
   when: int_diff | length > 0
 
 - name: fail if still different
