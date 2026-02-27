@@ -1,6 +1,6 @@
 ---
-- name: Run Backup first
-  import_playbook: backup.yml
+#- name: Run Backup first
+#  import_playbook: backup.yml
 
 - name: Upgrade even device group
   hosts: "even:&nxos"
@@ -18,10 +18,10 @@
   tasks:
     - import_tasks: tasks/t_patch_nxos.yml
 
-- name: Post patch cleanup
-  hosts: "even:&odd:&nxos"
-  serial: 10
-  gather_facts: no
-  connection: network_cli
-  tasks:
-    - import_tasks: tasks/t_patch_clean_nxos.yml
+#- name: Post patch cleanup
+#  hosts: "even:&odd:&nxos"
+#  serial: 10
+#  gather_facts: no
+#  connection: network_cli
+#  tasks:
+#    - import_tasks: tasks/t_patch_clean_nxos.yml
