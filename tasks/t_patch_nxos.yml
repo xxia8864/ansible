@@ -52,4 +52,4 @@
 #  failed_when: false
 #  register: install_output
 
-- import_tasks: tasks/t_patch_confirm.yml
+- import_tasks: tasks/t_patch_confirm_nxos.yml
