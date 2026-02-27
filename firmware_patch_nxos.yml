@@ -4,7 +4,7 @@
 
 - name: pre-work
   hosts: localhost
-  task:
+  tasks:
   - name: create fresh log file
     copy:
       content: ""
