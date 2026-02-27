@@ -82,7 +82,7 @@
     commands:
     - command: show interface status
       output: json
-  register: int_status_recheck
+  register: int_status_recheck_json
   when: int_diff | length > 0
 
 - name: debug int status recheck
