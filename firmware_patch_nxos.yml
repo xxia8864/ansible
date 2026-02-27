@@ -1,6 +1,6 @@
 ---
-- name: Run Backup first
-  import_playbook: backup.yml
+#- name: Run Backup first
+#  import_playbook: backup.yml
 
 - name: Upgrade even device group
   hosts: "even:&nxos"
@@ -21,12 +21,12 @@
     - name: save to local file
       copy:
         content: "{{ int_status_before.stdout }}"
-        dest: "/tmp/tmpfiles/{{ filename }}"
+  #      dest: "/tmp/tmpfiles/{{ filename }}"
 
-    - import_tasks: tasks/t_upload.yml
-      vars:
-        ansible_connection: ssh
-    - import_tasks: tasks/t_delete_file.yml
+ #   - import_tasks: tasks/t_upload.yml
+ #     vars:
+ #       ansible_connection: ssh
+ #   - import_tasks: tasks/t_delete_file.yml
 #    - import_tasks: tasks/t_check_md5_nxos.yml
 #    - import_tasks: tasks/t_patch_install_nxos.yml
     - import_tasks: tasks/t_patch_confirm.yml

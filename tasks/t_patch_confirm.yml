@@ -27,11 +27,11 @@
 #  run_once: true
 #  delegate_to: localhost
 
-- name: get current OS version
-  cli_command:
-    command: "show version"
-  register: version_outputs
-  failed_when: firmware_filename not in version_outputs.stdout
+#- name: get current OS version
+#  cli_command:
+#    command: "show version"
+#  register: version_outputs
+#  failed_when: firmware_filename not in version_outputs.stdout
 
 - name: interface status check after patch
   cli_command:
@@ -40,7 +40,7 @@
 
 - name: compare interface status
   set_fact:
-    int_diff: "{{ int_status_before.stdout[0].splitlines() | difference(int_status_after.stdout[0].splitlines()) }}"
+    int_diff: "{{ int_status_before.stdout_lines[0] | difference(int_status_after.stdout_lines[0]) }}"
 
 - name: debug inter diff
   debug:
@@ -48,7 +48,7 @@
 
 - name: debug int status before
   debug:
-    msg: "{{ int_status_before.stdout[0].splitlines() }}"
+    msg: "{{ int_status_before.stdout[0].stdout_lines[0] }}"
 
 - name: append diff to log
   blockinfile:
