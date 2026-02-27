@@ -5,6 +5,11 @@
     command: "show interface status | inc connected"
   register: int_status_before
 
+- name: interface status check before patch using json format
+  cli_command:
+    command: "show interface status | json"
+  register: int_status_before_json
+
 - name: set filename for interface status
   set_fact:
     filename: "if_{{ ansible_network_hostname }}_{{ timestamp_sec }}.txt"
