@@ -1,7 +1,7 @@
 ---
 - name: wait before recheck
   wait_for:
-    timeout: 60
+    timeout: 30
   delegate_to: localhost
   
 - name: interface status check after patch
@@ -15,6 +15,10 @@
   set_fact:
     int_diff: "{{ int_status_before_json.stdout[0].TABLE_interface.ROW_interface | 
                   difference(int_status_after_json.stdout[0].TABLE_interface.ROW_interface) }}"
+
+- name: show interface that is not up
+    debug:
+      msg: "{{  int_diff  }}"
 
 - name: append diff to log
   shell: |
@@ -30,11 +34,7 @@
     retry_count: 0
     int_diff: []
     
-- name: check iterface status for 8 minutes after upgrade
-  include_tasks: tasks/t_recheck_diff.yml
+- name: recheck again if needed
+  include_tasks: tasks/t_patch_if_check_nxos.yml
+  when: retry_count | int < 16 and int_diff | length > 0
 
-- name: fail if interface not recovered within 8 minutes
-  fail:
-    msg: "Interface diff still exists after 8 retries: {{ int_diff }}"
-  when: retry_count | int >= 16 and int_diff | length > 0
-  
