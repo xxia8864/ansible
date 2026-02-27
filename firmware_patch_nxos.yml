@@ -18,9 +18,9 @@
       set_fact:
         filename: "if_{{ ansible_network_hostname }}_{{ timestamp_sec }}.txt"
 
-    - name: save to local file
-      copy:
-        content: "{{ int_status_before.stdout }}"
+  #  - name: save to local file
+  #    copy:
+  #      content: "{{ int_status_before.stdout }}"
   #      dest: "/tmp/tmpfiles/{{ filename }}"
 
  #   - import_tasks: tasks/t_upload.yml
