@@ -2,21 +2,21 @@
 #- name: Run Backup first
 #  import_playbook: backup.yml
 
-- name: create fresh log file
+- name: pre-work
   hosts: localhost
-  copy:
-    content: ""
-    dest: "/tmp/tmpfiles/patch_log.txt"
-    force: yes
-  delegate_to: localhost
+  task:
+  - name: create fresh log file
+    copy:
+      content: ""
+      dest: "/tmp/tmpfiles/patch_log.txt"
+      force: yes
+    delegate_to: localhost
 
 - name: Upgrade even device group
   hosts: "even:&nxos"
   serial: 10
   gather_facts: no
   connection: network_cli
-  collections:
-    - ansible.utils
   tasks:
     - import_tasks: tasks/t_patch_nxos.yml
 
