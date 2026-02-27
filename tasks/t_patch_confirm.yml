@@ -5,8 +5,8 @@
 - name: Wait until ping fails (device going down)
   shell: "ping -c 1 -W 1 {{ ansible_host }}"
   register: ping_result
-  retries: 3
-  delay: 3
+  retries: 30
+  delay: 30
   until: ping_result.rc != 0
   ignore_errors: yes
 
@@ -17,21 +17,21 @@
   delay: 10
   until: ping_result.rc == 0
 
-#- name: Extra wait for TACACS
-#  pause:
-#    seconds: 30
+- name: Extra wait for TACACS
+  pause:
+    seconds: 30
 
-#- name: get expected version
-#  set_fact:
-#    file_version: "{{ firmware_filename | regex_search('(\\d+\\.\\d+\\.\\d+)') }}"
-#  run_once: true
-#  delegate_to: localhost
+- name: get expected version
+  set_fact:
+    file_version: "{{ firmware_filename | regex_search('(\\d+\\.\\d+\\.\\d+)') }}"
+  run_once: true
+  delegate_to: localhost
 
-#- name: get current OS version
-#  cli_command:
-#    command: "show version"
-#  register: version_outputs
-#  failed_when: firmware_filename not in version_outputs.stdout
+- name: get current OS version
+  cli_command:
+    command: "show version"
+  register: version_outputs
+  failed_when: firmware_filename not in version_outputs.stdout
 
 - name: interface status check after patch
   cli_command:
@@ -65,13 +65,13 @@
   set_fact:
     filename: "patch_log.txt"
 
-#- import_tasks: tasks/t_upload.yml
-#  vars:
-#    ansible_connection: ssh
-#    when: int_diff | length > 0
+- import_tasks: tasks/t_upload.yml
+  vars:
+    ansible_connection: ssh
+  when: int_diff | length > 0
+- import_tasks: tasks/t_delete_file.yml
 
-
-- name: wait if diff exists
+- name: check again after 60 secconds
   wait_for:
     timeout: 60
   delegate_to: localhost

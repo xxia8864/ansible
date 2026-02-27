@@ -1,0 +1,31 @@
+---
+- import_tasks: tasks/t_time_stamp.yml
+- name: interface status check before patch
+  cli_command:
+    command: "show interface status | inc connected"
+  register: int_status_before
+
+- name: set filename for interface status
+  set_fact:
+    filename: "if_{{ ansible_network_hostname }}_{{ timestamp_sec }}.txt"
+
+- name: save to local file
+  copy:
+    content: "{{ int_status_before.stdout }}"
+    dest: "/tmp/tmpfiles/{{ filename }}"
+
+- import_tasks: tasks/t_upload.yml
+  vars:
+    ansible_connection: ssh
+- import_tasks: tasks/t_delete_file.yml
+- import_tasks: tasks/t_check_md5_nxos.yml
+
+- name: firmware upgrade
+  cli_command:
+    command: "install all nxos bootflash:{{ firmware_filename }} non-interruptive"
+  async: 2
+  poll: 1
+  ignore_errors: yes
+  failed_when: false
+  register: install_output
+- import_tasks: tasks/t_patch_confirm.yml
