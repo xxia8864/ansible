@@ -41,20 +41,20 @@
 
 - name: compare interface status
   set_fact:
-    int_diff: "{{ int_status_before_json.TABLE_interface.ROW_interface | 
-                  difference(int_status_after_json.TABLE_interface.ROW_interface) }}"
-
+    int_diff: "{{ int_status_before.stdout[0].TABLE_interface.ROW_interface | 
+                  difference(int_status_after.stdout[0].TABLE_interface.ROW_interface) }}"
+                  
 - name: debug inter diff
   debug:
     msg: "{{ int_diff }}"
 
 - name: debug int status before
   debug:
-    msg: "{{ int_status_before_json.stdout_lines }}"
+    msg: "{{ int_status_before_json }}"
 
 - name: debug int status after
   debug:
-    msg: "{{ int_status_after_json.stdout_lines }}"
+    msg: "{{ int_status_after_json }}"
 
 - name: append diff to log
   blockinfile:
@@ -96,8 +96,8 @@
 
 - name: set recheck diff
   set_fact:
-    int_diff_recheck: "{{ int_status_before_json.TABLE_interface.ROW_interface | 
-                  difference(int_status_after_json.TABLE_interface.ROW_interface) }}"
+    int_diff_recheck: "{{ int_status_before_json.stdout[0] | 
+                  difference(int_status_after_json.stdout[0]) }}"
   when: int_diff | length > 0
 
 - name: fail if still different
