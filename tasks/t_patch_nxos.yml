@@ -1,10 +1,10 @@
 ---
 - import_tasks: tasks/t_time_stamp.yml
-#- name: interface status check before patch
-#  nxos_command:
-#    commands:
-#    - command: show interface status
-#  register: int_status_before
+- name: interface status check before patch
+  nxos_command:
+    commands:
+    - command: show interface status
+  register: int_status_before
 
 - name: interface status check before patch using json format
   nxos_command:
@@ -13,44 +13,44 @@
       output: json
   register: int_status_before_json
 
-#  cli_command:
-#    command: "show interface status | json"
-#  register: int_status_before_json
+  cli_command:
+    command: "show interface status | json"
+  register: int_status_before_json
 
-#- name: set filename for interface status
-#  set_fact:
-#    filename: "if_{{ ansible_network_hostname }}_{{ timestamp_sec }}.txt"
+- name: set filename for interface status
+  set_fact:
+    filename: "if_{{ ansible_network_hostname }}_{{ timestamp_sec }}.txt"
 
-#- name: save to local file
-#  copy:
-#    content: "{{ int_status_before.stdout }}"
-#    dest: "/tmp/tmpfiles/{{ filename }}"
+- name: save to local file
+  copy:
+    content: "{{ int_status_before.stdout }}"
+    dest: "/tmp/tmpfiles/{{ filename }}"
 
-#- import_tasks: tasks/t_upload.yml
-#  vars:
-#    ansible_connection: ssh
-#- import_tasks: tasks/t_delete_file.yml
-#- import_tasks: tasks/t_check_md5_nxos.yml
+- import_tasks: tasks/t_upload.yml
+  vars:
+    ansible_connection: ssh
+- import_tasks: tasks/t_delete_file.yml
+- import_tasks: tasks/t_check_md5_nxos.yml
 
-#- name: firmware upgrade
-#  nxos_install_os:
-#    system_image_file: '{{ target_image }}'
-#    issu: no
-#  register: install_output
-#  vars:
-#    ansible_command_timeout: 600
-#    ansible_connect_timeout: 600
+- name: firmware upgrade
+  nxos_install_os:
+    system_image_file: '{{ target_image }}'
+    issu: no
+  register: install_output
+  vars:
+    ansible_command_timeout: 600
+    ansible_connect_timeout: 600
     
-#- name: Print Install Results
-#  debug:
-#    msg: "{{install_output}}"
+- name: Print Install Results
+  debug:
+    msg: "{{install_output}}"
     
-#  cli_command:
-#    command: "install all nxos bootflash:{{ firmware_filename }} non-interruptive"
-#  async: 2
-#  poll: 1
-#  ignore_errors: yes
-#  failed_when: false
-#  register: install_output
+  cli_command:
+    command: "install all nxos bootflash:{{ firmware_filename }} non-interruptive"
+  async: 2
+  poll: 1
+  ignore_errors: yes
+  failed_when: false
+  register: install_output
 
 - import_tasks: tasks/t_patch_confirm_nxos.yml
