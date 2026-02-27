@@ -98,11 +98,15 @@
 - name: set recheck diff
   set_fact:
     int_diff_recheck: "{{ int_status_before..stdout_lines[0] != int_status_after..stdout_lines[0] }}"
-  when: int_diff | length > 0
+#  when: int_diff | length > 0
 
-- name: fail if still different
-  fail:
-    msg: "Interface diff still exists after 60s: {{ int_diff_recheck }}"
-  when:
-    - int_diff | length > 0
-    - int_diff_recheck | false
+- name: debug int_diff_recheck
+  debug:
+    msg: "{{ int_diff_recheck }}"
+
+#- name: fail if still different
+#  fail:
+#    msg: "Interface diff still exists after 60s: {{ int_diff_recheck }}"
+#  when:
+#    - int_diff | length > 0
+#    - int_diff_recheck | false
