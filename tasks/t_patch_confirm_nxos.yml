@@ -102,8 +102,7 @@
 
 - name: set recheck diff
   set_fact:
-    int_diff_recheck: "{{ int_status_before_json.stdout[0] | 
-                  difference(int_status_recheck.stdout[0]) }}"
+    int_diff_recheck: "{{ int_status_before.stdout[0] | to_json == int_status_after.stdout[0] | to_json }}"
   when: int_diff | length > 0
 
 - name: fail if still different
@@ -111,4 +110,4 @@
     msg: "Interface diff still exists after 60s: {{ int_diff_recheck }}"
   when:
     - int_diff | length > 0
-    - int_diff_recheck | length > 0
+    - int_diff_recheck | false
