@@ -2,6 +2,14 @@
 - name: Run Backup first
   import_playbook: backup.yml
 
+- name: create fresh log file
+  hosts: localhost
+  copy:
+    content: ""
+    dest: "/tmp/tmpfiles/patch_log.txt"
+    force: yes
+  delegate_to: localhost
+
 - name: Upgrade even device group
   hosts: "even:&nxos"
   serial: 10
