@@ -13,10 +13,6 @@
       output: json
   register: int_status_before_json
 
-  cli_command:
-    command: "show interface status | json"
-  register: int_status_before_json
-
 - name: set filename for interface status
   set_fact:
     filename: "if_{{ ansible_network_hostname }}_{{ timestamp_sec }}.txt"
@@ -45,12 +41,12 @@
   debug:
     msg: "{{install_output}}"
     
-  cli_command:
-    command: "install all nxos bootflash:{{ firmware_filename }} non-interruptive"
-  async: 2
-  poll: 1
-  ignore_errors: yes
-  failed_when: false
-  register: install_output
+#  cli_command:
+#    command: "install all nxos bootflash:{{ firmware_filename }} non-interruptive"
+#  async: 2
+#  poll: 1
+#  ignore_errors: yes
+#  failed_when: false
+#  register: install_output
 
 - import_tasks: tasks/t_patch_confirm_nxos.yml
