@@ -34,7 +34,7 @@
     retry_count: 0
     int_diff: []
     
-- name: recheck again if needed
+# recheck again for 8 minutes
   include_tasks: tasks/t_patch_if_check_nxos.yml
   when: retry_count | int < 16 and int_diff | length > 0
 
