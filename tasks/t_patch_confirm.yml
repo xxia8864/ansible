@@ -48,7 +48,7 @@
 
 - name: debug int status before
   debug:
-    msg: "{{ int_status_before.stdout[0].stdout_lines[0] }}"
+    msg: "{{ int_status_before.stdout_lines[0] }}"
 
 - name: append diff to log
   blockinfile:
