@@ -40,7 +40,7 @@
 
 - name: compare interface status
   set_fact:
-    int_diff: "{{ int_status_before.stdout_lines | difference(int_status_after.stdout_lines) }}"
+    int_diff: "{{ int_status_before.stdout_lines | map('regex_replace', '\\s+', ' ') | list | difference(int_status_after.stdout_lines | map('regex_replace', '\\s+', ' ') | list) }}"
 
 - name: debug inter diff
   debug:
@@ -73,7 +73,6 @@
   vars:
     ansible_connection: ssh
   when: int_diff | length > 0
-- import_tasks: tasks/t_delete_file.yml
 
 - name: check again after 60 secconds
   wait_for:
@@ -93,7 +92,7 @@
 
 - name: set recheck diff
   set_fact:
-    int_diff_recheck: "{{ int_status_before.stdout_lines | difference(int_status_recheck.stdout_lines) }}"
+    int_diff_recheck: "{{ int_status_before.stdout_lines | map('regex_replace', '\\s+', ' ') | list | difference(int_status_recheck.stdout_lines | map('regex_replace', '\\s+', ' ') | list) }}"
   when: int_diff | length > 0
 
 - name: fail if still different
