@@ -32,18 +32,18 @@
 - import_tasks: tasks/t_delete_file.yml
 - import_tasks: tasks/t_check_md5_nxos.yml
 
-- name: firmware upgrade
-  nxos_install_os:
-    system_image_file: '{{ target_image }}'
-    issu: no
-  register: install_output
-  vars:
-    ansible_command_timeout: 600
-    ansible_connect_timeout: 600
+#- name: firmware upgrade
+#  nxos_install_os:
+#    system_image_file: '{{ target_image }}'
+#    issu: no
+#  register: install_output
+#  vars:
+#    ansible_command_timeout: 600
+#    ansible_connect_timeout: 600
     
-- name: Print Install Results
-  debug:
-    msg: "{{install_output}}"
+#- name: Print Install Results
+#  debug:
+#    msg: "{{install_output}}"
     
 #  cli_command:
 #    command: "install all nxos bootflash:{{ firmware_filename }} non-interruptive"
