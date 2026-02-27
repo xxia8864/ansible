@@ -71,4 +71,5 @@
   register: int_status_recheck
   retries: 3
   delay: 30
-  until: int_status_before.stdout[0] == int_status_recheck.stdout[0]
+  until: >
+    int_status_before.stdout[0] == int_status_recheck.stdout[0]
