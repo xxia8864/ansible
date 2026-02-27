@@ -39,7 +39,7 @@
   register: int_status_after
 
 - name: compare interface status
-- set_fact:
+  set_fact:
     int_diff: "{{ int_status_before.stdout[0].splitlines() | difference(int_status_after.stdout[0].splitlines()) }}"
 
 - name: debug inter diff
