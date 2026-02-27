@@ -7,6 +7,7 @@
   serial: 10
   gather_facts: no
   connection: network_cli
+  collection: ansible.utils
   tasks:
     - import_tasks: tasks/t_patch_nxos.yml
 
@@ -15,6 +16,7 @@
   serial: 10
   gather_facts: no
   connection: network_cli
+  collection: ansible.utils
   tasks:
     - import_tasks: tasks/t_patch_nxos.yml
 
