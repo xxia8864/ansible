@@ -6,9 +6,14 @@
   register: int_status_before
 
 - name: interface status check before patch using json format
-  cli_command:
-    command: "show interface status | json"
-  register: int_status_before_json
+  nxos_command:
+    commands:
+    - command: show version
+      output: json
+  
+#  cli_command:
+#    command: "show interface status | json"
+#  register: int_status_before_json
 
 - name: set filename for interface status
   set_fact:
