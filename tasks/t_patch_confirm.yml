@@ -46,10 +46,6 @@
   debug:
     msg: "{{ int_status_before.stdout_lines }}"
 
-- name: debug before after
-  debug:
-    msg: "{{ int_status_after.stdout_lines }}"
-
 - name: append diff to log
   blockinfile:
     path: "/tmp/tmpfiles/patch_log.txt"
@@ -79,6 +75,10 @@
     int_status_recheck.stdout_lines | 
     difference(int_status_before.stdout_lines) | list | length == 0
   ignore_errors: true
+
+- name: debug before diff
+  debug:
+    msg: "{{ int_status_recheck.stdout_lines }}"
 
 - name: fail if diff still exists
   fail:
