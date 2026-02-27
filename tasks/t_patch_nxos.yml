@@ -30,7 +30,7 @@
 
 - name: firmware upgrade
   nxos_install_os:
-    system_image_file: '{{ target_image }}'
+    system_image_file: '{{ firmware_filename }}'
     issu: no
   register: install_output
   vars:
