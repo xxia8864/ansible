@@ -17,9 +17,9 @@
   delay: 10
   until: ping_result.rc == 0
 
-- name: Extra wait for TACACS
-  pause:
-    seconds: 30
+#- name: Extra wait for TACACS
+#  pause:
+#    seconds: 30
 
 #- name: get expected version
 #  set_fact:
@@ -40,7 +40,15 @@
 
 - name: compare interface status
   set_fact:
-    int_diff: "{{ int_status_before.stdout | difference(int_status_after.stdout) }}"
+    int_diff: "{{ int_status_before.stdout_lines | difference(int_status_after.stdout_lines) }}"
+
+- name: debug before diff
+  debug:
+    msg: "{{ int_status_before.stdout_lines }}"
+
+- name: debug before after
+  debug:
+    msg: "{{ int_status_after.stdout_lines }}"
 
 - name: append diff to log
   blockinfile:
@@ -68,12 +76,13 @@
   retries: 3
   delay: 30
   until: >
-    int_status_recheck.stdout | 
-    difference(int_status_before.stdout) | list | length == 0
+    int_status_recheck.stdout_lines | 
+    difference(int_status_before.stdout_lines) | list | length == 0
+  ignore_errors: true
 
 - name: fail if diff still exists
   fail:
     msg: "Interface status changed after upgrade"
   when: >
-    int_status_recheck.stdout | 
-    difference(int_status_before.stdout) | list | length > 0
+    int_status_recheck.stdout_lines | 
+    difference(int_status_before.stdout_lines) | list | length > 0
