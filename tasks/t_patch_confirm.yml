@@ -68,6 +68,8 @@
 #- import_tasks: tasks/t_upload.yml
 #  vars:
 #    ansible_connection: ssh
+#    when: int_diff | length > 0
+
 
 - name: wait if diff exists
   wait_for:
