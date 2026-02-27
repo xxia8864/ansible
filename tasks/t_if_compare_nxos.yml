@@ -27,4 +27,14 @@
 
 - name: increment counter
   set_fact:
-    retry_count: "{{ retry_count | int + 1 }}"
+    retry_count: 0
+    int_diff: []
+    
+- name: check iterface status for 8 minutes after upgrade
+  include_tasks: tasks/t_recheck_diff.yml
+
+- name: fail if interface not recovered within 8 minutes
+  fail:
+    msg: "Interface diff still exists after 8 retries: {{ int_diff }}"
+  when: retry_count | int >= 16 and int_diff | length > 0
+  
