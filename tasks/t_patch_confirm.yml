@@ -50,6 +50,10 @@
   debug:
     msg: "{{ int_status_before.stdout_lines }}"
 
+- name: debug int status after
+  debug:
+    msg: "{{ int_status_after.stdout_lines }}"
+
 - name: append diff to log
   blockinfile:
     path: "/tmp/tmpfiles/patch_log.txt"
@@ -79,9 +83,13 @@
 
 - name: recheck interface status
   cli_command:
-    command: "show interface status"
+    command: "show interface status | inc connected"
   register: int_status_recheck
   when: int_diff | length > 0
+
+- name: debug int status recheck
+  debug:
+    msg: "{{ int_status_recheck.stdout_lines }}"
 
 - name: set recheck diff
   set_fact:
