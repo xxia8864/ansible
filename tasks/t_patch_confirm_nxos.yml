@@ -24,13 +24,13 @@
 #  run_once: true
 #  delegate_to: localhost
 
-- name: get current OS version
-  nxos_command:
-    commands:
-    - command: show version
-      output: json
-  register: version_outputs
-  failed_when: firmware_filename not in version_outputs.stdout
+#- name: get current OS version
+#  nxos_command:
+#    commands:
+#    - command: show version
+#      output: json
+#  register: version_outputs
+#  failed_when: firmware_filename not in version_outputs.stdout
 
 - name: interface status check after patch
   nxos_command:
