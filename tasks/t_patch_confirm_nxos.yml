@@ -50,15 +50,19 @@
     msg: "{{ int_diff }}"
 
 - name: append diff to log
-  blockinfile:
+  lineinfile:
     path: "/tmp/tmpfiles/patch_log.txt"
-    block: |
-      {{ ansible_network_hostname }} below interface status changed during upgrade
-      {% for intf in int_diff %}
-      {{ intf.interface }}
-      {% endfor %}
+    line: "{{ ansible_network_hostname }} below interface status changed during upgrade"
     insertafter: EOF
     create: yes
+  delegate_to: localhost
+  when: int_diff | length > 0
+  
+- name: append changed interfaces to log
+  lineinfile:
+    path: "/tmp/tmpfiles/patch_log.txt"
+    line: "{{ item.interface }}"
+  loop: "{{ int_diff }}"
   delegate_to: localhost
   when: int_diff | length > 0
 
