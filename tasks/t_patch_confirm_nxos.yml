@@ -35,7 +35,7 @@
 - name: interface status check after patch
   nxos_command:
     commands:
-    - command: show interface status
+    - command: show interface lo 0 status 
       output: json
   register: int_status_after_json
 
