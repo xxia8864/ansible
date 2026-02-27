@@ -24,13 +24,13 @@
 #  run_once: true
 #  delegate_to: localhost
 
-#- name: get current OS version
-#  nxos_command:
-#    commands:
-#    - command: show version
-#      output: json
-#  register: version_outputs
-#  failed_when: firmware_filename not in version_outputs.stdout
+- name: get current OS version
+  nxos_command:
+    commands:
+    - command: show version
+      output: json
+  register: version_outputs
+  failed_when: firmware_filename not in version_outputs.stdout[0].nxos_file_name
 
 - name: interface status check after patch
   nxos_command:
@@ -44,25 +44,12 @@
     int_diff: "{{ int_status_before_json.stdout[0].TABLE_interface.ROW_interface | 
                   difference(int_status_after_json.stdout[0].TABLE_interface.ROW_interface) }}"
 
-                  
-- name: debug inter diff
-  debug:
-    msg: "{{ int_diff }}"
-
 - name: append diff to log
-  lineinfile:
-    path: "/tmp/tmpfiles/patch_log.txt"
-    line: "{{ ansible_network_hostname }} below interface status changed during upgrade"
-    insertafter: EOF
-    create: yes
-  delegate_to: localhost
-  when: int_diff | length > 0
-  
-- name: append changed interfaces to log
-  lineinfile:
-    path: "/tmp/tmpfiles/patch_log.txt"
-    line: "{{ item.interface }}"
-  loop: "{{ int_diff }}"
+  shell: |
+    echo "{{ ansible_network_hostname }} below interface status changed during upgrade" >> /tmp/tmpfiles/patch_log.txt
+    {% for intf in int_diff %}
+    echo "{{ intf.interface }}" >> /tmp/tmpfiles/patch_log.txt
+    {% endfor %}
   delegate_to: localhost
   when: int_diff | length > 0
 
@@ -94,10 +81,6 @@
     int_diff_recheck: "{{ int_status_before_json.stdout[0].TABLE_interface.ROW_interface | 
                   difference(int_status_recheck_json.stdout[0].TABLE_interface.ROW_interface) }}"
   when: int_diff | length > 0
-
-- name: debug int_diff_recheck
-  debug:
-    msg: "{{ int_diff_recheck }}"
 
 - name: fail if still different
   fail:
