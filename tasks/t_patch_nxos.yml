@@ -9,7 +9,7 @@
 - name: interface status check before patch using json format
   nxos_command:
     commands:
-    - command: show interface status
+    - command: show interface lo 0 status
       output: json
   register: int_status_before_json
 
