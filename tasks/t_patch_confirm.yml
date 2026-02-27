@@ -40,15 +40,15 @@
 
 - name: compare interface status
   set_fact:
-    int_diff: "{{ int_status_before.stdout[0] | difference(int_status_after.stdout[0]) }}"
+    int_diff: "{{ int_status_before.stdout[0].splitlines() | difference(int_status_after.stdout[0].splitlines()) }}"
 
 - name: debug inter diff
   debug:
     msg: "{{ int_diff }}"
 
-- name: debug inter diff
+- name: debug int status before
   debug:
-    msg: "{{ int_status_before.stdout[0] }}"
+    msg: "{{ int_status_before.stdout[0].splitlines() }}"
 
 - name: append diff to log
   blockinfile:
@@ -75,7 +75,4 @@
   register: int_status_recheck
   retries: 3
   delay: 30
-  until: >
-    int_status_before.stdout[0]
-    ==
-    int_status_recheck.stdout[0]
+  until: int_status_before == int_status_recheck
