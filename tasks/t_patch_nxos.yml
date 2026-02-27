@@ -1,8 +1,9 @@
 ---
 - import_tasks: tasks/t_time_stamp.yml
 - name: interface status check before patch
-  cli_command:
-    command: "show interface status | inc connected"
+  nxos_command:
+    commands:
+    - command: show interface status
   register: int_status_before
 
 - name: interface status check before patch using json format
