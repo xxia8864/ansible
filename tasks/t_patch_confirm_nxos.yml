@@ -41,8 +41,8 @@
 
 - name: compare interface status
   set_fact:
-    int_diff: "{{ int_status_before.stdout[0].TABLE_interface.ROW_interface | 
-                  difference(int_status_after.stdout[0].TABLE_interface.ROW_interface) }}"
+    int_diff: "{{ int_status_before.stdout[0] | 
+                  difference(int_status_after.stdout[0]) }}"
                   
 - name: debug inter diff
   debug:
