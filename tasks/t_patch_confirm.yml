@@ -39,12 +39,12 @@
   register: int_status_after
 
 - name: compare interface status
-  set_fact:
-    int_diff: "{{ int_status_before.stdout_lines | difference(int_status_after.stdout_lines) }}"
+- set_fact:
+    int_diff: "{{ int_status_before.stdout[0].splitlines() | difference(int_status_after.stdout[0].splitlines()) }}"
 
-- name: debug before diff
+- name: debug inter diff
   debug:
-    msg: "{{ int_status_before.stdout_lines }}"
+    msg: "{{ int_diff }}"
 
 - name: append diff to log
   blockinfile:
@@ -71,18 +71,4 @@
   register: int_status_recheck
   retries: 3
   delay: 30
-  until: >
-    int_status_recheck.stdout_lines | 
-    difference(int_status_before.stdout_lines) | list | length == 0
-  ignore_errors: true
-
-- name: debug before diff
-  debug:
-    msg: "{{ int_status_recheck.stdout_lines }}"
-
-- name: fail if diff still exists
-  fail:
-    msg: "Interface status changed after upgrade"
-  when: >
-    int_status_recheck.stdout_lines | 
-    difference(int_status_before.stdout_lines) | list | length > 0
+  until: int_status_before.stdout[0] == int_status_recheck.stdout[0]
