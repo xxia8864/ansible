@@ -1,11 +1,10 @@
 ---
 - import_tasks: t_time_stamp.yml
-
-#- name: interface status check before patch
-#  nxos_command:
-#    commands:
-#    - command: show interface status
-#  register: int_status_before
+- name: interface status check before patch
+  nxos_comman:
+    commands:
+    - command: show interface status
+  register: int_status_before
 
 - name: interface status check before patch using json format
   nxos_command:
@@ -14,33 +13,33 @@
       output: json
   register: int_status_before_json
 
-#- name: set filename for interface status
-#  set_fact:
-#    filename: "if_{{ ansible_network_hostname }}_{{ timestamp_sec }}.txt"
+- name: set filename for interface status
+  set_fact:
+    filename: "if_{{ ansible_network_hostname }}_{{ timestamp_sec }}.txt"
 
-#- name: save to local file
-#  copy:
-#    content: "{{ int_status_before.stdout }}"
-#    dest: "/tmp/tmpfiles/{{ filename }}"
+- name: save to local file
+  copy:
+    content: "{{ int_status_before.stdout }}"
+    dest: "/tmp/tmpfiles/{{ filename }}"
 
-#- import_tasks: t_upload.yml
-#  vars:
-#    ansible_connection: ssh
-#- import_tasks: tasks/t_delete_file.yml
-#- import_tasks: tasks/t_check_md5.yml
+- import_tasks: t_upload.yml
+  vars:
+    ansible_connection: ssh
+- import_tasks: tasks/t_delete_file.yml
+- import_tasks: tasks/t_check_md5.yml
 
-#- name: firmware upgrade
-#  nxos_install_os:
-#    system_image_file: '{{ firmware_filename }}'
-#    issu: no
-#  register: install_output
-#  vars:
-#    ansible_command_timeout: 600
-#    ansible_connect_timeout: 600
-#  ignore_errors: yes
+- name: firmware upgrade
+  nxos_install_os:
+    system_image_file: '{{ firmware_filename }}'
+    issu: no
+  register: install_output
+  vars:
+    ansible_command_timeout: 600
+    ansible_connect_timeout: 600
+  ignore_errors: yes
     
-#- name: Print Install Results
-#  debug:
-#    msg: "{{install_output}}"
+- name: Print Install Results
+  debug:
+    msg: "{{install_output}}"
 
 - import_tasks: t_patch_confirm_nxos.yml
