@@ -32,6 +32,11 @@
   register: version_outputs
   failed_when: firmware_filename not in version_outputs.stdout[0].nxos_file_name
 
+- name: increment counter
+  set_fact:
+    retry_count: 0
+    int_diff: []
+
 - include_tasks: tasks/t_patch_if_check_nxos.yml
 
 - name: fail if interface not recovered within 8 minutes

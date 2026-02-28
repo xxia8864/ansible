@@ -31,8 +31,7 @@
 
 - name: increment counter
   set_fact:
-    retry_count: 0
-    int_diff: []
+    retry_count: "{{ retry_count | int + 1 }}"
     
 # recheck again for 8 minutes
   include_tasks: tasks/t_patch_if_check_nxos.yml
