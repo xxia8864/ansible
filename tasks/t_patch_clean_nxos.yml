@@ -1,18 +1,20 @@
 ---
 - name: nxos List .bin files excluding current firmware
-  cli_command:
-    command: "dir | inc bin | ex {{ firmware_filename }}"
+  nxos_command:
+    commands:
+      - command: "dir | inc bin | ex {{ firmware_filename }}"
   register: dir_output
 
 - name: nxos Parse old firmware filenames
   set_fact:
-    old_firmware_files: "{{ dir_output.stdout | regex_findall('(\\S+\\.bin)') }}"
+    old_firmware_files: "{{ dir_output.stdout[0] | regex_findall('(\\S+\\.bin)') }}"
 
 - name: nxos Debug old firmware files to be deleted
   debug:
     msg: "Will delete: {{ old_firmware_files }}"
 
 - name: Delete old firmware files from bootflash
-  cli_command:
-    command: "delete bootflash:{{ item }} no-prompt"
+  nxos_command:
+    commands:
+      - command: "delete bootflash:{{ item }} no-prompt"
   loop: "{{ old_firmware_files }}"
