@@ -1,7 +1,7 @@
 ---
 - import_tasks: t_time_stamp.yml
 - name: interface status check before patch
-  nxos_comman:
+  nxos_command:
     commands:
     - command: show interface status
   register: int_status_before
