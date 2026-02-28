@@ -16,7 +16,7 @@
 
 - name: Extra wait for switch fully online
   pause:
-    seconds: 120
+    seconds: 30
 
 - name: get current OS version
   nxos_command:
