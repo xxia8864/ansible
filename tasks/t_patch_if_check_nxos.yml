@@ -1,7 +1,7 @@
 ---
 - name: wait before recheck
   wait_for:
-    timeout: 30
+    timeout: 3
   delegate_to: localhost
   
 - name: interface status check after patch
@@ -17,8 +17,8 @@
                   difference(int_status_after_json.stdout[0].TABLE_interface.ROW_interface) }}"
 
 - name: show interface that is not up
-    debug:
-      msg: "{{  int_diff  }}"
+  debug:
+    msg: "{{  int_diff  }}"
 
 - name: append diff to log
   shell: |
