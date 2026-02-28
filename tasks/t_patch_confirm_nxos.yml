@@ -18,11 +18,11 @@
   pause:
     seconds: 30
 
-- name: get expected version
-  set_fact:
-    file_version: "{{ firmware_filename | regex_search('(\\d+\\.\\d+\\.\\d+)') }}"
-  run_once: true
-  delegate_to: localhost
+#- name: get expected version
+#  set_fact:
+#    file_version: "{{ firmware_filename | regex_search('(\\d+\\.\\d+\\.\\d+)') }}"
+#  run_once: true
+#  delegate_to: localhost
 
 - name: get current OS version
   nxos_command:
@@ -32,7 +32,7 @@
   register: version_outputs
   failed_when: firmware_filename not in version_outputs.stdout[0].nxos_file_name
 
-- include_tasks: tasks/t_recheck_diff.yml
+- include_tasks: tasks/t_patch_if_check_nxos.yml
 
 - name: fail if interface not recovered within 8 minutes
   fail:
