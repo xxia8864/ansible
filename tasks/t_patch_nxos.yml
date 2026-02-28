@@ -17,15 +17,17 @@
   set_fact:
     filename: "if_{{ ansible_network_hostname }}_{{ timestamp_sec }}.txt"
 
-- name: save to local file
+- name: save interface status to local file
   copy:
     content: "{{ int_status_before.stdout }}"
     dest: "/tmp/tmpfiles/{{ filename }}"
 
+# Upload interface status to SFTP
 - import_tasks: t_upload.yml
   vars:
     ansible_connection: ssh
 - import_tasks: t_delete_file.yml
+
 - import_tasks: t_check_md5.yml
 
 - name: firmware upgrade
