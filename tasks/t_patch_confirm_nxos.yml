@@ -32,8 +32,8 @@
     - command: show interface status up
       output: json
   register: int_status_after_json
-  retries: 5
-  delay: 10
+  retries: 16
+  delay: 30
   until: >
     int_status_before_json.stdout[0].TABLE_interface.ROW_interface 
     == int_status_after_json.stdout[0].TABLE_interface.ROW_interface
