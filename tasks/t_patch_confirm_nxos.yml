@@ -16,7 +16,7 @@
 
 - name: Extra wait for TACACS
   pause:
-    seconds: 30
+    seconds: 60
 
 - name: get current OS version
   nxos_command:
@@ -39,7 +39,9 @@
   retries: 16
   delay: 30
   until: >
-    int_status_before_json.stdout[0].TABLE_interface.ROW_interface 
+    int_status_after_json.stdout is defined and
+    int_status_after_json.stdout | length > 0 and
+    int_status_before_json.TABLE_interface.ROW_interface 
     == int_status_after_json.stdout[0].TABLE_interface.ROW_interface
   failed_when: false
 
