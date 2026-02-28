@@ -13,26 +13,3 @@
   no_log: true
   delegate_to: localhost
   run_once: true
-
-#---
-#- name: Create backup folder on SFTP
-#  file:
-#    path: "{{ sftp_path }}/{{ timestamp_day }}"
-#    state: directory
-#  delegate_to: "{{ sftp_host }}"
-#  vars:
-#    ansible_user: "{{ sftp_username }}"
-#    ansible_password: "{{ sftp_password }}"
-#    ansible_connection: ssh
-#    ansible_ssh_common_args: "-o StrictHostKeyChecking=no"
-#  run_once: true
-
-#- name: Upload files
-#  copy:
-#    src: "/tmp/{{ filename }}"
-#    dest: "{{ sftp_path }}/{{ timestamp_day }}/{{ filename }}"
-#  delegate_to: "{{ sftp_host }}"
-#  vars:
-#    ansible_user: "{{ sftp_username }}"
-#    ansible_password: "{{ sftp_password }}"
-#    ansible_connection: ssh

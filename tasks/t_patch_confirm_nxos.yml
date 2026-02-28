@@ -64,6 +64,14 @@
   delegate_to: localhost
   when: int_diff | length > 0
 
+- name: set file name for SFTP upload
+  set_fact:
+    filename: patch_log.txt
+
+- import_tasks: t_upload.yml
+  vars:
+    ansible_connection: ssh
+
 - name: fail if interface not recovered within 8 minutes
   fail:
     msg: "those interface are down after patch: {{ int_diff }}"

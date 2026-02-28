@@ -1,5 +1,5 @@
 ---
-- import_tasks: tasks/t_time_stamp.yml
+- import_tasks: t_time_stamp.yml
 
 #- name: interface status check before patch
 #  nxos_command:
@@ -23,7 +23,7 @@
 #    content: "{{ int_status_before.stdout }}"
 #    dest: "/tmp/tmpfiles/{{ filename }}"
 
-#- import_tasks: tasks/t_upload.yml
+#- import_tasks: t_upload.yml
 #  vars:
 #    ansible_connection: ssh
 #- import_tasks: tasks/t_delete_file.yml
@@ -43,4 +43,4 @@
 #  debug:
 #    msg: "{{install_output}}"
 
-- import_tasks: tasks/t_patch_confirm_nxos.yml
+- import_tasks: t_patch_confirm_nxos.yml
