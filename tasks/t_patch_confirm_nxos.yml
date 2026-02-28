@@ -60,6 +60,10 @@
     == int_status_after_json.stdout[0].TABLE_interface.ROW_interface
   ignore_errors: true
 
+- name: debug int_status_after_json
+  debug:
+    msg: "{{ int_status_after_json }}"
+
 - name: compare interface status
   set_fact:
     int_diff: "{{ int_status_before_json.stdout[0].TABLE_interface.ROW_interface | 
