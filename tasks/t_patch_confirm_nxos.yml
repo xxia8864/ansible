@@ -68,9 +68,7 @@
   delegate_to: localhost
   when: int_diff | length > 0
 
-#- import_tasks: tasks/t_patch_if_check_nxos.yml
-
-#- name: fail if interface not recovered within 8 minutes
-#  fail:
-#    msg: "those interface are down after patch: {{ int_diff }}"
-#  when: retry_count | int >= 16 and int_diff | length > 0
+- name: fail if interface not recovered within 8 minutes
+  fail:
+    msg: "those interface are down after patch: {{ int_diff }}"
+  when: retry_count  int_diff | length > 0
