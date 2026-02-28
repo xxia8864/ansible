@@ -26,9 +26,16 @@
   register: version_outputs
   failed_when: firmware_filename not in version_outputs.stdout[0].nxos_file_name
 
+- name: get interface status after patch
+  nxos_command:
+    commands:
+    - command: show interface status up
+      output: json
+  register: int_status_after_json
+
 - name: debug before_json
   debug:
-    msg: "{{ int_status_before_json }}"
+    msg: "{{ int_status_after_json }}"
 
 - name: recheck interface status
   nxos_command:
@@ -40,7 +47,6 @@
   delay: 30
   until: >
     int_status_after_json.stdout is defined and
-    int_status_after_json.stdout | length > 0 and
     int_status_before_json.TABLE_interface.ROW_interface 
     == int_status_after_json.stdout[0].TABLE_interface.ROW_interface
   failed_when: false
