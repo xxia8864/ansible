@@ -65,10 +65,12 @@
 - name: set file name for SFTP upload
   set_fact:
     filename: patch_log.txt
+  when: int_diff | length > 0
 
 - import_tasks: t_upload.yml
   vars:
     ansible_connection: ssh
+  when: int_diff | length > 0
 
 - name: fail if interface not recovered within 8 minutes
   fail:
