@@ -25,8 +25,8 @@
 - import_tasks: t_upload.yml
   vars:
     ansible_connection: ssh
-- import_tasks: tasks/t_delete_file.yml
-- import_tasks: tasks/t_check_md5.yml
+- import_tasks: t_delete_file.yml
+- import_tasks: t_check_md5.yml
 
 - name: firmware upgrade
   nxos_install_os:
