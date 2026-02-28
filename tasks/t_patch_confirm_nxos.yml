@@ -32,11 +32,6 @@
   register: version_outputs
   failed_when: firmware_filename not in version_outputs.stdout[0].nxos_file_name
 
-- name: increment counter
-  set_fact:
-    retry_count: 0
-    int_diff: []
-
 - name: recheck interface status
   nxos_command:
     commands:
@@ -58,6 +53,7 @@
 - name: show interface that is not up
   debug:
     msg: "{{  int_diff  }}"
+  when: int_diff | length > 0
 
 - name: append diff to log
   shell: |
@@ -71,4 +67,4 @@
 - name: fail if interface not recovered within 8 minutes
   fail:
     msg: "those interface are down after patch: {{ int_diff }}"
-  when: retry_count  int_diff | length > 0
+  when: int_diff | length > 0
