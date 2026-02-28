@@ -19,7 +19,7 @@
 
 - name: save interface status to local file
   copy:
-    content: "{{ int_status_before.stdout[0] }}"
+    content: "{{ int_status_before.stdout_lines[0] }}"
     dest: "/tmp/tmpfiles/{{ filename }}"
 
 # Upload interface status to SFTP
