@@ -14,6 +14,12 @@
       delegate_to: localhost
       run_once: true
 
+    - name: set filename
+      set_fact:
+        filename: "{{ firmware_filename }}"
+      delegate_to: localhost
+      run_once: true
+
 # add SFTP server to inventory
     - import_tasks: tasks/t_sftp.yml
 
