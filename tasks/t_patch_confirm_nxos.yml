@@ -48,6 +48,25 @@
   until: >
     int_status_before_json.stdout[0].TABLE_interface.ROW_interface 
     == int_status_after_json.stdout[0].TABLE_interface.ROW_interface
+  ignore_errors: true
+
+- name: compare interface status
+  set_fact:
+    int_diff: "{{ int_status_before_json.stdout[0].TABLE_interface.ROW_interface | 
+                  difference(int_status_after_json.stdout[0].TABLE_interface.ROW_interface) }}"
+
+- name: show interface that is not up
+  debug:
+    msg: "{{  int_diff  }}"
+
+- name: append diff to log
+  shell: |
+    echo "{{ ansible_network_hostname }} below interface status changed during upgrade" >> /tmp/tmpfiles/patch_log.txt
+    {% for intf in int_diff %}
+    echo "{{ intf.interface }}" >> /tmp/tmpfiles/patch_log.txt
+    {% endfor %}
+  delegate_to: localhost
+  when: int_diff | length > 0
 
 #- import_tasks: tasks/t_patch_if_check_nxos.yml
 
