@@ -40,4 +40,7 @@
     ansible_connect_timeout: 600
   ignore_errors: yes
 
+- name: clear connections after reboot
+  meta: reset_connection
+
 - import_tasks: t_patch_confirm_nxos.yml
