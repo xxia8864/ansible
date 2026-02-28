@@ -55,9 +55,7 @@
   register: int_status_after_json
   retries: 16
   delay: 30
-  until: >
-    int_status_before_json.stdout[0].TABLE_interface.ROW_interface 
-    == int_status_after_json.stdout[0].TABLE_interface.ROW_interface
+  until: int_status_before_json == int_status_after_json
   failed_when: false
   ignore_errors: true
 
