@@ -26,27 +26,6 @@
   register: version_outputs
   failed_when: firmware_filename not in version_outputs.stdout[0].nxos_file_name
 
-- name: get interface status after patch
-  nxos_command:
-    commands:
-    - command: show interface status up
-      output: json
-  register: int_status_after_json
-
-- name: debug int_status_after_json
-  debug:
-    msg: "{{ int_status_after_json }}"
-
-- name: compare interface status
-  set_fact:
-    int_diff: "{{ int_status_before_json.stdout[0].TABLE_interface.ROW_interface | 
-                  difference(int_status_after_json.stdout[0].TABLE_interface.ROW_interface) }}"
-
-- name: show interface that is not up
-  debug:
-    msg: "{{  int_diff  }}"
-  when: int_diff | length > 0
-
 - name: recheck interface status
   nxos_command:
     commands:
@@ -59,10 +38,6 @@
     int_status_before_json.stdout[0].TABLE_interface.ROW_interface 
     == int_status_after_json.stdout[0].TABLE_interface.ROW_interface
   ignore_errors: true
-
-- name: debug int_status_after_json
-  debug:
-    msg: "{{ int_status_after_json }}"
 
 - name: compare interface status
   set_fact:
