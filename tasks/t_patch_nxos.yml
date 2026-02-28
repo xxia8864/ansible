@@ -39,9 +39,5 @@
     ansible_command_timeout: 600
     ansible_connect_timeout: 600
   ignore_errors: yes
-    
-- name: Print Install Results
-  debug:
-    msg: "{{install_output}}"
 
 - import_tasks: t_patch_confirm_nxos.yml
