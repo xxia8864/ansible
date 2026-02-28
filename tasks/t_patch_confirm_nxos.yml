@@ -10,8 +10,8 @@
 - name: Wait until ping succeeds (device back up)
   shell: "ping -c 1 -W 1 {{ ansible_host }}"
   register: ping_result
-  retries: 300
-  delay: 10
+  retries: 30
+  delay: 20
   until: ping_result.rc == 0
 
 - name: Extra wait for TACACS
