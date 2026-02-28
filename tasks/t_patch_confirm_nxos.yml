@@ -37,7 +37,7 @@
     retry_count: 0
     int_diff: []
 
-- include_tasks: tasks/t_patch_if_check_nxos.yml
+- import_tasks: tasks/t_patch_if_check_nxos.yml
 
 - name: fail if interface not recovered within 8 minutes
   fail:
