@@ -14,7 +14,7 @@
   delay: 20
   until: ping_result.rc == 0
 
-- name: Extra wait for TACACS
+- name: Extra wait for switch fully online
   pause:
     seconds: 120
 
@@ -46,10 +46,9 @@
   retries: 16
   delay: 30
   until: >
-    int_status_after_json.stdout is defined and
     int_status_before_json.TABLE_interface.ROW_interface 
     == int_status_after_json.stdout[0].TABLE_interface.ROW_interface
-  failed_when: false
+  ignore_errors: true
 
 - name: compare interface status
   set_fact:
