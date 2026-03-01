@@ -20,6 +20,10 @@
       delegate_to: localhost
       run_once: true
 
+    # Free up space for ios devices
+    - import_tasks: tasks/t_patch_clean_ios.yml
+      when: ansible_network_os == ios
+
 # add SFTP server to inventory
     - import_tasks: tasks/t_sftp.yml
 
