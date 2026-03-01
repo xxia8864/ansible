@@ -1,5 +1,5 @@
 ---
-- name: "iosxe Remove inactive install packages"
+- name: iosxe Remove inactive install packages
   cli_command:
     command: "install remove inactive"
     prompt: 'Do you want to remove the above files\?'
@@ -8,6 +8,6 @@
     ansible_command_timeout: 300
   register: clean_output
 
-- name: "[iosxe] Debug cleanup result"
+- name: iosxe Debug cleanup result
   debug:
     msg: "{{ clean_output.stdout }}"
