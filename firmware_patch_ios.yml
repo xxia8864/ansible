@@ -1,6 +1,6 @@
 ---
-#- name: Run Backup first
-#  import_playbook: backup.yml
+- name: Run Backup first
+  import_playbook: backup.yml
 
 - name: pre-run
   hosts: localhost
@@ -18,28 +18,24 @@
         msg: "{{  file_version  }}"
       run_once: true
 
-- name: Upgrade secondary devices
+- name: Upgrade even devices
   hosts: "even:&ios"
   serial: 10
   gather_facts: no
   connection: network_cli
   tasks:
-    - import_tasks: tasks/t_check_md5_ios.yml
-    - import_tasks: tasks/t_patch_install_ios.yml
-#    - import_tasks: tasks/t_patch_confirm.yml
+    - import_tasks: tasks/t_patch_ios.yml
 
-- name: Upgrade primary devices
+- name: Upgrade odd devices
   hosts: "odd:&ios"
   serial: 10
   gather_facts: no
   connection: network_cli
   tasks:
-    - import_tasks: tasks/t_check_md5_ios.yml
-    - import_tasks: tasks/t_patch_install_ios.yml
-#    - import_tasks: tasks/t_patch_confirm.yml
+    - import_tasks: tasks/t_patch_ios.yml
 
 - name: Post patch cleanup
-  hosts: "even:&odd:&ios"
+  hosts: "all:!temp"
   serial: 10
   gather_facts: no
   connection: network_cli

@@ -1,0 +1,40 @@
+---
+- import_tasks: t_time_stamp.yml
+
+- name: interface status check before patch
+  cli_command:
+    command: "show interface status up"
+  register: int_status_before
+
+- name: set filename for interface status
+  set_fact:
+    filename: "if_{{ ansible_network_hostname }}_{{ timestamp_sec }}.txt"
+
+- name: save interface status to local file
+  copy:
+    content: "{{ int_status_before.stdout_lines[0] | join('\n') }}"
+    dest: "/tmp/tmpfiles/{{ filename }}"
+
+# Upload interface status to SFTP
+- import_tasks: t_upload.yml
+  vars:
+    ansible_connection: ssh
+- import_tasks: t_delete_file.yml
+
+- import_tasks: t_check_md5.yml
+
+- name: firmware upgrade
+  cli_command:
+    command: "install add file flash:{{ firmware_filename }} activate commit prompt-level none"
+  async: 60
+  poll: 0
+  register: install_output
+  vars:
+    ansible_command_timeout: 600
+    ansible_connect_timeout: 600
+  failed_when: false
+
+- name: clear connections after reboot
+  meta: reset_connection
+
+- import_tasks: t_patch_confirm_ios.yml
