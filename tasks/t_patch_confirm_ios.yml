@@ -18,11 +18,11 @@
   pause:
     seconds: 30
 
-#- name: get expected version
-#  set_fact:
-#    file_version: "{{ firmware_filename | regex_search('(\\d+\\.\\d+\\.\\d+)') }}"
-#  run_once: true
-#  delegate_to: localhost
+- name: get expected version
+  set_fact:
+    file_version: "{{ firmware_filename | regex_search('(\\d+\\.\\d+\\.\\d+)') }}"
+  run_once: true
+  delegate_to: localhost
 
 - name: get current OS version
   nxos_command:
