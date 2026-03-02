@@ -9,7 +9,7 @@
     return_content: yes
     status_code: 200
   register: host_check
-  no_log: false
+  no_log: true
 
 - name: Create host if missing
   uri:
