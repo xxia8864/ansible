@@ -9,7 +9,7 @@
     return_content: yes
     status_code: 200
   register: host_lookup
-  no_log: flase
+  no_log: true
 
 - name: Get current groups for this host
   uri:
