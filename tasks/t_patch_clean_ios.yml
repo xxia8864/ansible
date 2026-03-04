@@ -7,7 +7,3 @@
   vars:
     ansible_command_timeout: 300
   register: clean_output
-
-- name: iosxe Debug cleanup result
-  debug:
-    msg: "{{ clean_output.stdout }}"
