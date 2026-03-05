@@ -2,8 +2,9 @@
 - name: MD5 calculate
   vars:
    md5_commands:
-     ios: "verify /md5 {{ firmware_filename }}"
-     nxos: "show file {{ firmware_filename }} md5sum"
+     ios: "verify /md5 flash:{{ firmware_filename }}"
+     nxos: "show file bootflash:{{ firmware_filename }} md5sum"
+     ansible_command_timeout: 300
   cli_command:
    command: "{{ md5_commands[ansible_network_os] }}"
   register: md5_output
