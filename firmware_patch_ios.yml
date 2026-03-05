@@ -3,7 +3,7 @@
   import_playbook: backup.yml
 
 - name: pre-work
-  hosts: localhost
+  hosts: all
   gather_facts: no
   tasks:
   - name: create fresh log file
@@ -13,12 +13,11 @@
       force: yes
     delegate_to: localhost
 
-  - name: run defined command from Extra variables
+  - name: Set switch to load start-up configuration
     ios_config:
       lines:
         - no system ignore startupconfig switch all
       save_when: always
-      timeout: 30
     register: config_output
 
 - name: Upgrade even devices
