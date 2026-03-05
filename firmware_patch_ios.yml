@@ -3,7 +3,7 @@
   import_playbook: backup.yml
 
 - name: pre-work
-  hosts: all
+  hosts: "all:!temp"
   gather_facts: no
   tasks:
   - name: create fresh log file
@@ -12,8 +12,9 @@
       dest: "/tmp/tmpfiles/patch_log.txt"
       force: yes
     delegate_to: localhost
+    run_once: true
 
-  - name: Set switch to load start-up configuration
+  - name: Set switch to load start-up configuration while booting
     ios_config:
       lines:
         - no system ignore startupconfig switch all
