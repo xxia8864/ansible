@@ -19,8 +19,8 @@
     register: config_output
     ignore_errors: true
 
-  - name: save config after change
-    import_playbook: save_config.yml
+# name: save config after change
+  - import_playbook: save_config.yml
 
 - name: Upgrade even devices
   hosts: "even:&ios"
