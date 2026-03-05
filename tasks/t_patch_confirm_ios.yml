@@ -1,6 +1,6 @@
 ---
 - name: Wait until ping fails (device going down)
-  shell: "ping -c 1 -W 1 {{ ansible_host }}"
+  shell: "ping -c 5 -W 2 {{ ansible_host }}"
   register: ping_result
   retries: 30
   delay: 30
@@ -25,9 +25,7 @@
   delegate_to: localhost
 
 - name: get current OS version
-  nxos_command:
-    commands:
-    - command: show version
-      output: json
+  cli_command:
+    commands: "show version"
   register: version_outputs
-  failed_when: file_version not in version_outputs.stdout[0].nxos_file_name
+  failed_when: file_version not in version_outputs.stdout[0]
