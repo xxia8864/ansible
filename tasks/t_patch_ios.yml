@@ -5,6 +5,7 @@
   ios_command:
     commands:
       - show interface status | include connected
+  register: int_status_before
 
 - name: set filename for interface status
   set_fact:
