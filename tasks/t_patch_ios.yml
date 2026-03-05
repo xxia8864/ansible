@@ -29,8 +29,6 @@
     command: "install add file flash:{{ firmware_filename }} activate commit"
     prompt: 'Do you want to proceed\?'
     answer: "y"
-  async: 60
-  poll: 10
   register: install_output
   vars:
     ansible_command_timeout: 600
