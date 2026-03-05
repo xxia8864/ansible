@@ -2,9 +2,9 @@
 - import_tasks: t_time_stamp.yml
 
 - name: interface status check before patch
-  cli_command:
-    command: "show interface status ｜ inc connected"
-  register: int_status_before
+  ios_command:
+    commands:
+      - show interface status | include connected
 
 - name: set filename for interface status
   set_fact:
