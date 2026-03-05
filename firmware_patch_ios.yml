@@ -12,6 +12,7 @@
       dest: "/tmp/tmpfiles/patch_log.txt"
       force: yes
     delegate_to: localhost
+
   - name: run defined command from Extra variables
     cli_config:
       config: "no system ignore startupconfig switch all"
