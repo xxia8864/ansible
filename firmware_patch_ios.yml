@@ -14,13 +14,12 @@
     delegate_to: localhost
 
   - name: run defined command from Extra variables
-    cli_config:
-      config: "no system ignore startupconfig switch all"
+    ios_config:
+      lines:
+        - no system ignore startupconfig switch all
+      save_when: always
     register: config_output
     ignore_errors: true
-
-# name: save config after change
-  - import_playbook: save_config.yml
 
 - name: Upgrade even devices
   hosts: "even:&ios"
