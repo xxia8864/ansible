@@ -18,10 +18,8 @@
       lines:
         - no system ignore startupconfig switch all
       save_when: always
+      timeout: 30
     register: config_output
-    vars:
-      ansible_command_timeout: 30
-    ignore_errors: false
 
 - name: Upgrade even devices
   hosts: "even:&ios"
