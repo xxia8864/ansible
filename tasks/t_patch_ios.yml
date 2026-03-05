@@ -27,7 +27,7 @@
 - name: firmware upgrade
   cli_command:
     command: "install add file flash:{{ firmware_filename }} activate commit"
-    prompt: 'Do you want to proceed\?'
+    prompt: 'Do you want to proceed'
     answer: "y"
   register: install_output
   vars:
