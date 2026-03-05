@@ -12,6 +12,14 @@
       dest: "/tmp/tmpfiles/patch_log.txt"
       force: yes
     delegate_to: localhost
+  - name: run defined command from Extra variables
+    cli_config:
+      config: "no system ignore startupconfig switch all"
+    register: config_output
+    ignore_errors: true
+
+  - name: save config after change
+    import_playbook: save_config.yml
 
 - name: Upgrade even devices
   hosts: "even:&ios"
