@@ -49,7 +49,7 @@
     msg: "{{  int_diff  }}"
   when: int_diff | length > 0
 
-- name: append diff to log
+- name: append interface diff to log
   shell: |
     echo "{{ ansible_network_hostname }} below interface status changed during upgrade" >> /tmp/tmpfiles/patch_log.txt
     {% for intf in int_diff %}

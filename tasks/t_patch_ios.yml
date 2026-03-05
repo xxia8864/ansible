@@ -3,7 +3,7 @@
 
 - name: interface status check before patch
   cli_command:
-    command: "show interface status up"
+    command: "show interface status ｜ inc connected"
   register: int_status_before
 
 - name: set filename for interface status
