@@ -26,7 +26,9 @@
 
 - name: firmware upgrade
   cli_command:
-    command: "install add file flash:{{ firmware_filename }} activate commit prompt-level none"
+    command: "install add file flash:{{ firmware_filename }} activate commit"
+    prompt: 'Do you want to proceed\?'
+    answer: "y"
   async: 60
   poll: 10
   register: install_output
