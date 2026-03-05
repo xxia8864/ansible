@@ -26,6 +26,11 @@
 
 - name: get current OS version
   cli_command:
-    commands: "show version"
+    command: "show version"
   register: version_outputs
-  failed_when: file_version not in version_outputs.stdout
+
+- name: Verify version upgrade
+  assert:
+    that: file_version in version_outputs.stdout
+    fail_msg: "Version mismatch! Expected {{ file_version }}, got: {{ version_outputs.stdout }}"
+    success_msg: "✅ Version verified: {{ file_version }}"
