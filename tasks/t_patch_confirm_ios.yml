@@ -28,4 +28,4 @@
   cli_command:
     commands: "show version"
   register: version_outputs
-  failed_when: file_version not in version_outputs.stdout[0]
+  failed_when: file_version not in version_outputs.stdout
