@@ -25,11 +25,10 @@
 - import_tasks: t_check_md5.yml
 
 - name: firmware upgrade
-  cli_command:
-    command: "install add file flash:{{ firmware_filename }} activate commit"
-    prompt: 'Do you want to proceed'
-    answer: "y"
-  register: install_output
+  ios_command:
+    timeout: 300
+    commands:
+      - install add file flash:{{ firmware_filename }} activate commit prompt-level none
   vars:
     ansible_command_timeout: 600
     ansible_connect_timeout: 600
