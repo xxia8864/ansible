@@ -33,4 +33,4 @@
   assert:
     that: file_version in version_outputs.stdout
     fail_msg: "Version mismatch! Expected {{ file_version }}, got: {{ version_outputs.stdout }}"
-    success_msg: "✅ Version verified: {{ file_version }}"
+    success_msg: "Version verified: {{ file_version }}"
