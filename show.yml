@@ -1,7 +1,6 @@
 ---
 - name: run cli command (Multiple vendor supports)
   hosts: all
-  serial: 10
   gather_facts: no
   connection: network_cli
 
@@ -20,11 +19,7 @@
       cli_command:
         command: "{{ item }}"
       loop: "{{ cli_cmd }}"
-      register: cli_outputs
-      
-    - name: promote cli_outputs to hostvars
-      set_fact:
-        cli_outputs: "{{ cli_outputs }}"    
+      register: cli_outputs 
         
     - name: create output file locally
       copy:
