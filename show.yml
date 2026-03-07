@@ -14,6 +14,18 @@
       delegate_to: localhost
       run_once: true
 
+    - name: create output file locally
+      copy:
+        content: |
+          =================================================
+          Network Command Output Report
+          Generated: {{ timestamp_day }} - {{ timestamp_sec }}
+          Total Hosts: {{ ansible_play_hosts | length }}
+          =================================================
+        dest: "/tmp/tmpfiles/{{ filename }}"
+      run_once: true
+      delegate_to: localhost
+
   tasks:
     - name: run command on Cisco IOS devices
       ios_command:
@@ -23,39 +35,61 @@
       register: cli_outputs
       when: ansible_network_os == 'ios'
 
-    - name: run command on Cisco NXOS devices
+    - name: run command on Cisco Nexus devices
       nxos_command:
         commands:
           - "{{ item }}"
       loop: "{{ cli_cmd }}"
       register: cli_outputs
       when: ansible_network_os == 'nxos'
-        
-    - name: create output file locally
+
+    - name: create host temporary output file
       copy:
         content: |
           =================================================
-          Network Command Output Report
-          Generated: {{ timestamp_day }} - {{ timestamp_sec }}
-          Total Hosts: {{ ansible_play_hosts | length }}
-          =================================================
-          
-          {% for host in ansible_play_hosts %} 
-
-          =================================================
-          IP: {{ host }}
-          Hostname: {{ hostvars[host].ansible_network_hostname | default("hostname undefined") }}
-          {% for result in hostvars[host].cli_outputs.results %} 
+          IP: {{ inventory_hostname }}
+          Hostname: {{ ansible_network_hostname | default("hostname undefined") }}
+          {% for result in cli_outputs.results %}
           ----------------------------------------
           Command {{ loop.index }}: {{ result.item }}
           ----------------------------------------
-          {{ result.stdout }}      
+          {{ result.stdout }}
           {% endfor %}
-          {% endfor %}
-          ========================================
-        dest: "/tmp/tmpfiles/{{  filename  }}"
-      run_once: true
+          =================================================
+        dest: "/tmp/tmpfiles/{{ filename }}-{{ ansible_network_hostname }}.txt"
       delegate_to: localhost
+
+    - name: merge host temporary files into final report
+      shell: |
+        cat /tmp/tmpfiles/{{ filename }}-* >> /tmp/tmpfiles/{{ filename }}
+      delegate_to: localhost
+      run_once: true
+
+#    - name: create output file locally
+#      copy:
+#        content: |
+#          =================================================
+#          Network Command Output Report
+#          Generated: {{ timestamp_day }} - {{ timestamp_sec }}
+#          Total Hosts: {{ ansible_play_hosts | length }}
+#          =================================================
+#
+#          {% for host in ansible_play_hosts %}
+#
+#          =================================================
+#          IP: {{ host }}
+#          Hostname: {{ hostvars[host].ansible_network_hostname | default("hostname undefined") }}
+#          {% for result in hostvars[host].cli_outputs.results %}
+#          ----------------------------------------
+#          Command {{ loop.index }}: {{ result.item }}
+#          ----------------------------------------
+#          {{ result.stdout }}
+#          {% endfor %}
+#          {% endfor %}
+#          ========================================
+#        dest: "/tmp/tmpfiles/{{  filename  }}"
+#      run_once: true
+#      delegate_to: localhost
 
 # add SFTP server to inventory
     - import_tasks: tasks/t_sftp.yml
@@ -81,4 +115,11 @@
     - import_tasks: tasks/t_delete_file.yml
       delegate_to: localhost
       run_once: true
+      no_log: false
+
+    - import_tasks: tasks/t_delete_file.yml
+      vars:
+        files_to_delete:
+          - "{{ filename }}-{{ ansible_network_hostname }}.txt"
+      delegate_to: localhost
       no_log: false

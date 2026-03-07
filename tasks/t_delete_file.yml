@@ -1,5 +1,6 @@
 ---
-- name: delete tmp file
+- name: delete tmp file(s)
   file:
-    path: "/tmp/tmpfiles/{{ filename }}"
+    path: "/tmp/tmpfiles/{{ item }}"
     state: absent
+  loop: "{{ files_to_delete | default([filename]) }}"
