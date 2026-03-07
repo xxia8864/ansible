@@ -47,8 +47,8 @@
       copy:
         content: |
           =================================================
-          IP: {{ inventory_hostname }}
-          Hostname: {{ ansible_network_hostname | default("hostname undefined") }}
+          IP: {{ inventory_hostname | default([]) }}
+          Hostname: {{ ansible_network_hostname }}
           {% for result in cli_outputs.results %}
           ----------------------------------------
           Command {{ loop.index }}: {{ result.item }}
@@ -64,32 +64,6 @@
         cat /tmp/tmpfiles/{{ filename }}-* >> /tmp/tmpfiles/{{ filename }}
       delegate_to: localhost
       run_once: true
-
-#    - name: create output file locally
-#      copy:
-#        content: |
-#          =================================================
-#          Network Command Output Report
-#          Generated: {{ timestamp_day }} - {{ timestamp_sec }}
-#          Total Hosts: {{ ansible_play_hosts | length }}
-#          =================================================
-#
-#          {% for host in ansible_play_hosts %}
-#
-#          =================================================
-#          IP: {{ host }}
-#          Hostname: {{ hostvars[host].ansible_network_hostname | default("hostname undefined") }}
-#          {% for result in hostvars[host].cli_outputs.results %}
-#          ----------------------------------------
-#          Command {{ loop.index }}: {{ result.item }}
-#          ----------------------------------------
-#          {{ result.stdout }}
-#          {% endfor %}
-#          {% endfor %}
-#          ========================================
-#        dest: "/tmp/tmpfiles/{{  filename  }}"
-#      run_once: true
-#      delegate_to: localhost
 
 # add SFTP server to inventory
     - import_tasks: tasks/t_sftp.yml
