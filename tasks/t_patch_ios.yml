@@ -26,7 +26,6 @@
 
 - name: firmware upgrade
   ios_command:
-    timeout: 300
     commands:
       - install add file flash:{{ firmware_filename }} activate commit prompt-level none
   vars:

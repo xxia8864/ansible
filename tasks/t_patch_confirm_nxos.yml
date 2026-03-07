@@ -24,7 +24,7 @@
     - command: show version
       output: json
   register: version_outputs
-  failed_when: firmware_filename not in version_outputs.stdout[0].nxos_file_name
+  failed_when: version_outputs.stdout[0].nxos_file_name != firmware_filename
 
 - name: recheck interface status
   nxos_command:
