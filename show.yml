@@ -70,7 +70,7 @@
       delegate_to: localhost
       run_once: true
 
-# name: upload backup file to SFTP server
+# upload backup file to SFTP server
     - import_tasks: tasks/t_upload.yml
       delegate_to: sftp_target
       run_once: true
@@ -85,7 +85,7 @@
 #      delegate_to: localhost
 
   post_tasks:
-# name: delete tmp file
+# delete tmp files
     - import_tasks: tasks/t_delete_file.yml
       delegate_to: localhost
       run_once: true
