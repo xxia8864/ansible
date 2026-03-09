@@ -50,6 +50,7 @@
             dest: "/tmp/tmpfiles/{{ filename }}-{{ ansible_network_hostname }}.txt"
           delegate_to: localhost
       when: ansible_network_os == 'ios'
+      changed: no
 
     - block:
         - name: run commands on Cisco Nexus devices
