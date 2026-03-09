@@ -27,20 +27,18 @@
       delegate_to: localhost
 
   tasks:
-    - name: run command on Cisco IOS devices
-      ios_command:
-        commands:
-          - "{{ item }}"
-      loop: "{{ cli_cmd }}"
-      register: cli_outputs
+    - block:
+        - name: run commands on Cisco IOS devices
+          ios_command:
+            commands: "{{ cli_cmd }}"
+          register: cli_outputs
       when: ansible_network_os == 'ios'
 
-    - name: run command on Cisco Nexus devices
-      nxos_command:
-        commands:
-          - "{{ item }}"
-      loop: "{{ cli_cmd }}"
-      register: cli_outputs
+    - block:
+        - name: run commands on Cisco Nexus devices
+          nxos_command:
+            commands: "{{ cli_cmd }}"
+          register: cli_outputs
       when: ansible_network_os == 'nxos'
 
     - name: debug output
@@ -53,12 +51,12 @@
         
           IP: {{ inventory_hostname | default([]) }}
           Hostname: {{ ansible_network_hostname }}
-          {% for result in cli_outputs.results %}
-          
+          {% for cmd in cli_cmd %}
+
           ----------------------------------------
-          Command {{ loop.index }}: {{ result.item }}
+          Command {{ loop.index }}: {{ cmd }}
           ----------------------------------------
-          {{ result.stdout | join('\n') }}
+          {{ cli_outputs.stdout[loop.index0] }}
           {% endfor %}
           =================================================
         dest: "/tmp/tmpfiles/{{ filename }}-{{ ansible_network_hostname }}.txt"
