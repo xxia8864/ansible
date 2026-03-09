@@ -43,6 +43,10 @@
       register: cli_outputs
       when: ansible_network_os == 'nxos'
 
+     - name: run command on Cisco Nexus devices
+       debug:
+         msg: "{{cli_outputs}}"
+
     - name: create host temporary output file
       copy:
         content: |
