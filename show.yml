@@ -17,7 +17,6 @@
     - name: create output file locally
       copy:
         content: |
-          =================================================
           Network Command Output Report
           Generated: {{ timestamp_day }} - {{ timestamp_sec }}
           Total Hosts: {{ ansible_play_hosts | length }}
