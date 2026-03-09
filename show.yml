@@ -54,7 +54,7 @@
           ----------------------------------------
           Command {{ loop.index }}: {{ result.item }}
           ----------------------------------------
-          {{ result.stdout[0] | join('\n') }}
+          {{ result.stdout | join('\n') }}
           {% endfor %}
           =================================================
         dest: "/tmp/tmpfiles/{{ filename }}-{{ ansible_network_hostname }}.txt"
