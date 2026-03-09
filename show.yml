@@ -17,6 +17,7 @@
     - name: create output file locally
       copy:
         content: |
+          =================================================
           Network Command Output Report
           Generated: {{ timestamp_day }} - {{ timestamp_sec }}
           Total Hosts: {{ ansible_play_hosts | length }}
@@ -45,7 +46,6 @@
     - name: create host temporary output file
       copy:
         content: |
-          =================================================
           IP: {{ inventory_hostname | default([]) }}
           Hostname: {{ ansible_network_hostname }}
           {% for result in cli_outputs.results %}
