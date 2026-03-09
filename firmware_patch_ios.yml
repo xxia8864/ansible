@@ -20,6 +20,7 @@
         - no system ignore startupconfig switch all
       save_when: always
     register: config_output
+    ignore_error: true
 
 - name: Upgrade even devices
   hosts: "even:&ios"
