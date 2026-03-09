@@ -32,6 +32,23 @@
           ios_command:
             commands: "{{ cli_cmd }}"
           register: cli_outputs
+
+        - name: create host temporary output file
+          copy:
+            content: |
+
+              IP: {{ inventory_hostname | default([]) }}
+              Hostname: {{ ansible_network_hostname }}
+              {% for cmd in cli_cmd %}
+
+              ----------------------------------------
+              Command {{ loop.index }}: {{ cmd }}
+              ----------------------------------------
+              {{ cli_outputs.stdout[loop.index0] }}
+              {% endfor %}
+              =================================================
+            dest: "/tmp/tmpfiles/{{ filename }}-{{ ansible_network_hostname }}.txt"
+          delegate_to: localhost
       when: ansible_network_os == 'ios'
 
     - block:
@@ -39,28 +56,24 @@
           nxos_command:
             commands: "{{ cli_cmd }}"
           register: cli_outputs
+
+        - name: create host temporary output file
+          copy:
+            content: |
+
+              IP: {{ inventory_hostname | default([]) }}
+              Hostname: {{ ansible_network_hostname }}
+              {% for cmd in cli_cmd %}
+
+              ----------------------------------------
+              Command {{ loop.index }}: {{ cmd }}
+              ----------------------------------------
+              {{ cli_outputs.stdout[loop.index0] }}
+              {% endfor %}
+              =================================================
+            dest: "/tmp/tmpfiles/{{ filename }}-{{ ansible_network_hostname }}.txt"
+          delegate_to: localhost
       when: ansible_network_os == 'nxos'
-
-    - name: debug output
-      debug:
-        msg: "{{cli_outputs}}"
-
-    - name: create host temporary output file
-      copy:
-        content: |
-        
-          IP: {{ inventory_hostname | default([]) }}
-          Hostname: {{ ansible_network_hostname }}
-          {% for cmd in cli_cmd %}
-
-          ----------------------------------------
-          Command {{ loop.index }}: {{ cmd }}
-          ----------------------------------------
-          {{ cli_outputs.stdout[loop.index0] }}
-          {% endfor %}
-          =================================================
-        dest: "/tmp/tmpfiles/{{ filename }}-{{ ansible_network_hostname }}.txt"
-      delegate_to: localhost
 
     - name: merge host temporary files into final report
       shell: |
@@ -77,15 +90,6 @@
     - import_tasks: tasks/t_upload.yml
       delegate_to: sftp_target
       run_once: true
-
-# No native SFTP in Ansible. Use shell fallback below if needed.
-#      shell: |
-#        sshpass -p "{{ sftp_password }}" sftp -o StrictHostKeyChecking=no -P {{ sftp_port | default(22) }} {{ sftp_username }}@{{ sftp_host }} <<EOF
-#        cd ansible
-#        put /tmp/show_output_{{ timestamp_sec }}.txt
-#        bye
-#        EOF
-#      delegate_to: localhost
 
   post_tasks:
 # delete tmp files
