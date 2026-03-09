@@ -1,7 +1,4 @@
 ---
-- name: Run Backup first
-  import_playbook: backup.yml
-
 - name: pre-work
   hosts: "all:!temp"
   gather_facts: no
@@ -21,7 +18,10 @@
       save_when: always
     register: config_output
     ignore_errors: true
-
+    
+- name: Run Backup first
+  import_playbook: backup.yml
+  
 - name: Upgrade even devices
   hosts: "even:&ios"
   serial: 10
