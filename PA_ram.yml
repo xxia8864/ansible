@@ -1,0 +1,241 @@
+---
+# PA_ram.yml
+# ============================================================
+# Monitor PAN-OS firewall available memory and configd process RES
+# via the PAN-OS XML API (HTTPS, connection: local).
+#
+# An alert email is sent when ANY of the following occurs:
+#   - Available system memory (MiB) falls below avail_mem_threshold_mib
+#   - configd process RES exceeds configd_threshold_gb
+#   - The PAN-OS XML API call itself fails
+#
+# Required AWX credential / extra-vars (never hardcoded here):
+#   panos_api_key    - PAN-OS XML API key
+#   alert_email_to   - Alert recipient address
+#   alert_email_from - Alert sender address
+#   alert_smtp_host  - SMTP relay hostname
+# ============================================================
+
+- name: Monitor PAN-OS firewall memory and configd RES
+  hosts: firewalls
+  gather_facts: false
+  connection: local
+
+  vars:
+    # ---- Alert thresholds (edit here to tune sensitivity) ----
+    avail_mem_threshold_mib: 5000   # MiB – alert if available memory is BELOW this
+    configd_threshold_gb: 5.0       # GB  – alert if configd RES EXCEEDS this
+
+  tasks:
+
+    # -------------------------------------------------------------------------
+    # Initialise every fact that later tasks may reference conditionally.
+    # This prevents undefined-variable errors when tasks are skipped.
+    # -------------------------------------------------------------------------
+    - name: Initialise alert facts with safe defaults
+      set_fact:
+        alert_triggered: false
+        mem_alert: false
+        configd_alert: false
+        configd_not_found: false
+        api_failed: false
+        avail_mem_value: "N/A"
+        configd_res_display: "N/A"
+        configd_res_kb: 0
+        alert_reasons: []
+        system_resources_output: "Output not collected"
+
+    # -------------------------------------------------------------------------
+    # Query the PAN-OS XML API for 'show system resources'.
+    # - The API key is sent in the X-PAN-KEY header (not in the URL) to keep
+    #   it out of server access logs.
+    # - no_log: true prevents the key from appearing in Ansible task output.
+    # - ignore_errors: true lets the play continue on failure so we can still
+    #   dispatch an alert email.
+    # - output-format=json wraps the plain-text top output in a JSON envelope.
+    # -------------------------------------------------------------------------
+    - name: Call PAN-OS XML API – show system resources
+      uri:
+        url: "https://{{ inventory_hostname }}/api/"
+        method: POST
+        validate_certs: false
+        headers:
+          X-PAN-KEY: "{{ panos_api_key }}"
+        body_format: form-urlencoded
+        body:
+          type: "op"
+          cmd: "<show><system><resources></resources></system></show>"
+          output-format: "json"
+        return_content: true
+        status_code: [200]
+      register: api_response
+      ignore_errors: true
+      no_log: true
+
+    # -------------------------------------------------------------------------
+    # If the HTTP call failed (network error, non-200 response, or PAN-OS
+    # error status), record the failure and arm the alert so the email task
+    # fires at the end of the play.
+    # -------------------------------------------------------------------------
+    - name: Record API failure and arm alert
+      set_fact:
+        api_failed: true
+        alert_triggered: true
+        system_resources_output: "API call failed – no output available"
+        alert_reasons: >-
+          {{ alert_reasons + ['PAN-OS XML API call failed: ' ~
+             (api_response.msg | default(api_response.status | string | default('unknown error')))] }}
+      when: >
+        api_response.failed or
+        (api_response.status | default(0) | int) != 200
+
+    # =========================================================================
+    # Parsing and threshold evaluation – skipped entirely if the API call failed
+    # =========================================================================
+    - name: Parse API response and evaluate both thresholds
+      when: not api_failed
+      block:
+
+        # Extract the plain-text 'top' dump from the JSON wrapper.
+        # PAN-OS returns: {"response": {"@status": "success", "result": "<text>"}}
+        - name: Extract system resources text and split into lines
+          set_fact:
+            system_resources_output: "{{ api_response.json.response.result }}"
+            _output_lines: "{{ api_response.json.response.result.split('\n') }}"
+
+        # ------------------------------------------------------------------
+        # Condition 1 – Available memory
+        #
+        # The 'top' header contains a line resembling:
+        #   MiB Swap:  8192.0 total,  6144.0 free,  2048.0 used.  16234.5 avail Mem
+        #
+        # Strategy (no regex for value extraction):
+        #   1. Select the line that contains the substring 'avail Mem'.
+        #   2. Split that line on whitespace.
+        #   3. The avail Mem value is always the third-to-last token
+        #      (tokens at -1='Mem', -2='avail', -3=<value>).
+        # ------------------------------------------------------------------
+        - name: Locate the 'avail Mem' line in the top header
+          set_fact:
+            _avail_mem_line: >-
+              {{ _output_lines | select('search', 'avail Mem') | list | first | default('') }}
+
+        - name: Extract avail Mem numeric value (MiB) via whitespace splitting
+          set_fact:
+            avail_mem_value: "{{ _avail_mem_line.split()[-3] | float }}"
+          when: _avail_mem_line != ''
+
+        - name: Evaluate Condition 1 – available memory below threshold
+          set_fact:
+            mem_alert: true
+            alert_triggered: true
+            alert_reasons: >-
+              {{ alert_reasons + ['Available memory is ' ~ avail_mem_value ~ ' MiB,'
+                 ~ ' which is below the threshold of ' ~ avail_mem_threshold_mib ~ ' MiB'] }}
+          when:
+            - _avail_mem_line != ''
+            - avail_mem_value | float < avail_mem_threshold_mib | float
+
+        # ------------------------------------------------------------------
+        # Condition 2 – configd process RES column
+        #
+        # Standard 'top' process-list column layout (0-indexed):
+        #   0:PID  1:USER  2:PR  3:NI  4:VIRT  5:RES  6:SHR  7:S
+        #   8:%CPU  9:%MEM  10:TIME+  11:COMMAND
+        #
+        # We reject the header row (contains 'COMMAND') so only real process
+        # lines remain, then take the first line whose last token is 'configd'.
+        #
+        # RES may carry a unit suffix written by top when values are large:
+        #   g = GiB, m = MiB, k = KiB, (none) = already in KiB
+        # All values are normalised to KiB using string slicing (no regex).
+        # ------------------------------------------------------------------
+        - name: Locate the configd process line in the top process list
+          set_fact:
+            _configd_line: >-
+              {{ _output_lines
+                 | select('search', 'configd')
+                 | reject('search', 'COMMAND')
+                 | list | first | default('') }}
+
+        # If configd is absent, record a warning but do NOT fail the play.
+        - name: Warn if configd process is not present in output
+          set_fact:
+            configd_not_found: true
+            alert_reasons: >-
+              {{ alert_reasons + ['WARNING: configd process not found in show system resources output'] }}
+          when: _configd_line == ''
+
+        - name: Normalise configd RES to KiB and evaluate Condition 2
+          vars:
+            # Column 5 is RES in standard top output
+            _res_raw: "{{ _configd_line.split()[5] }}"
+            # Last character reveals the unit suffix (if any)
+            _res_suffix: "{{ _configd_line.split()[5][-1:] | lower }}"
+            # Strip the suffix character to isolate the numeric part
+            _res_num: >-
+              {{ _configd_line.split()[5][:-1]
+                 if _configd_line.split()[5][-1:] | lower in ['g', 'm', 'k']
+                 else _configd_line.split()[5] }}
+            # Convert everything to KiB for a uniform comparison
+            _res_kb: >-
+              {% if _res_suffix == 'g' %}{{ (_res_num | float * 1048576) | int }}
+              {% elif _res_suffix == 'm' %}{{ (_res_num | float * 1024) | int }}
+              {% elif _res_suffix == 'k' %}{{ _res_num | int }}
+              {% else %}{{ _res_num | int }}{% endif %}
+            # Derive the KiB threshold from the human-readable GB variable
+            _threshold_kb: "{{ (configd_threshold_gb | float * 1048576) | int }}"
+          set_fact:
+            configd_res_display: "{{ _res_raw }}"
+            configd_res_kb: "{{ _res_kb | trim | int }}"
+            configd_alert: "{{ _res_kb | trim | int > _threshold_kb | int }}"
+            alert_triggered: >-
+              {{ (_res_kb | trim | int > _threshold_kb | int) or alert_triggered }}
+            alert_reasons: >-
+              {{ alert_reasons
+                 + (['configd RES is ' ~ _res_raw
+                    ~ ' (normalised: ' ~ (_res_kb | trim | int) ~ ' KiB),'
+                    ~ ' which exceeds the threshold of ' ~ configd_threshold_gb ~ ' GB'
+                    ~ ' (' ~ _threshold_kb ~ ' KiB)']
+                   if _res_kb | trim | int > _threshold_kb | int else []) }}
+          when: _configd_line != ''
+
+    # =========================================================================
+    # Alert email
+    # Fires when at least one condition is breached OR the API call failed.
+    # All SMTP/address parameters come from AWX variables – nothing is hardcoded.
+    # The full 'show system resources' output is appended so on-call engineers
+    # can triage without having to log into the firewall separately.
+    # =========================================================================
+    - name: Send alert email when a threshold is breached or API call failed
+      community.general.mail:
+        host: "{{ alert_smtp_host }}"
+        from: "{{ alert_email_from }}"
+        to: "{{ alert_email_to }}"
+        subject: "[ALERT] PAN-OS Memory Warning - {{ inventory_hostname }}"
+        body: |
+          ============================================================
+          PAN-OS MEMORY ALERT
+          ============================================================
+          Firewall       : {{ inventory_hostname }}
+          Avail Mem      : {{ avail_mem_value }} MiB
+                           (alert threshold: < {{ avail_mem_threshold_mib }} MiB)
+          configd RES    : {{ configd_res_display }}
+                           (normalised: {{ configd_res_kb }} KiB,
+                            alert threshold: > {{ configd_threshold_gb }} GB)
+
+          ============================================================
+          ALERT DETAILS:
+          ============================================================
+          {% for reason in alert_reasons %}
+          - {{ reason }}
+          {% endfor %}
+          {% if configd_not_found %}
+          - NOTE: configd process was not found – RES check was skipped.
+          {% endif %}
+
+          ============================================================
+          FULL 'show system resources' OUTPUT:
+          ============================================================
+          {{ system_resources_output }}
+      when: alert_triggered | bool
