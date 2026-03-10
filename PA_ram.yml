@@ -36,11 +36,30 @@
     # If the HA query fails, fail the host immediately instead of silently
     # running the monitoring logic on the wrong peer.
     # -------------------------------------------------------------------------
-  - name: Determine if firewall is ACTIVE in HA
-    panos_active_in_ha:
-      ip_address: "{{ inventory_hostname }}"
-      api_key: "{{ panos_api_key }}"
-    register: ha_result
+#  - name: Determine if firewall is ACTIVE in HA
+#    panos_active_in_ha:
+#      ip_address: "{{ inventory_hostname }}"
+#      api_key: "{{ panos_api_key }}"
+#    register: ha_result
+  - name: Check HA state via XML API
+    uri:
+      url: "https://{{ inventory_hostname }}/api/"
+      method: POST
+      validate_certs: false
+      headers:
+        X-PAN-KEY: "{{ panos_api_key }}"
+      body_format: form-urlencoded
+      body:
+        type: "op"
+        cmd: "<show><high-availability><state/></high-availability></show>"
+      return_content: true
+    register: ha_response
+    no_log: true
+
+  - name: Extract HA state
+    set_fact:
+      ha_state: >-
+        {{ ha_response.content | regex_search('<state>(.*?)</state>', '\1') | first | default('unknown') }}
 
   - name: Debug HA state
     debug:
