@@ -58,20 +58,27 @@
              if '<local-info>' in (ha_state_response.content | lower)
              and '</local-info>' in (ha_state_response.content | lower)
              else '' }}
+        ha_local_info_prefix: >-
+          {{ ((ha_state_response.content | lower).split('<local-info>')[1].split('</local-info>')[0].split('<state-duration>')[0] | trim)
+             if '<local-info>' in (ha_state_response.content | lower)
+             and '</local-info>' in (ha_state_response.content | lower)
+             and '<state-duration>' in (ha_state_response.content | lower).split('<local-info>')[1].split('</local-info>')[0]
+             else '' }}
 
     - name: Debug raw HA XML parsing
       debug:
         msg:
+          - "ha_local_info_prefix={{ ha_local_info_prefix }}"
           - "ha_local_info_block={{ ha_local_info_block }}"
           - "ha_xml_preview={{ ha_xml_lower[:500] }}"
 
     - name: Derive local HA role from local-info block
       set_fact:
         fw_ha_state: >-
-          {% if '<state>active</state>' in ha_local_info_block %}active
+          {% if 'active' in ha_local_info_prefix and 'passive' not in ha_local_info_prefix %}active
+          {% elif 'passive' in ha_local_info_prefix %}passive
+          {% elif '<state>active</state>' in ha_local_info_block %}active
           {% elif '<state>passive</state>' in ha_local_info_block %}passive
-          {% elif '<state>active-primary</state>' in ha_local_info_block %}active
-          {% elif '<state>active-secondary</state>' in ha_local_info_block %}active
           {% else %}unknown{% endif %}
 
     - name: Fail if HA state could not be determined
