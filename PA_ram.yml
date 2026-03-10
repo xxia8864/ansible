@@ -17,7 +17,7 @@
 # ============================================================
 
 - name: Monitor PAN-OS firewall memory and configd RES
-  hosts: firewalls
+  hosts: all
   gather_facts: false
   connection: local
 
