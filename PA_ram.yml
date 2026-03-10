@@ -239,3 +239,62 @@
           ============================================================
           {{ system_resources_output }}
       when: alert_triggered | bool
+
+
+- name: Send memory monitoring report email
+  community.general.mail:
+    host: outlook.dpw.com
+    port: 25
+    from: ansible@davispolk.com
+    to: networking@davispolk.com
+    subject: "[{{ memory_status }}] PAN-OS Memory Report - {{ fw_hostname }} ({{ active_fw }})"
+    subtype: plain
+    body: |
+      ============================================================
+      PAN-OS Memory Monitoring Report
+      ============================================================
+
+      Hostname:            {{ fw_hostname }}
+      Active Firewall IP:  {{ active_fw }}
+      Passive Firewall IP: {{ passive_fw }}
+      Report Time:         {{ lookup('pipe', 'date') }}
+
+      ------------------------------------------------------------
+      MEMORY SUMMARY
+      ------------------------------------------------------------
+      Available Memory:    {{ avail_mem_mib }} MiB
+      pan_task VIRT:       {{ pan_task_virt }}
+      configd RES:         {{ configd_res }}
+      pan_task processes:  {{ pan_task_count }}
+      Status:              {{ memory_status }}
+
+      {% if memory_status == 'CRITICAL' %}
+      *** CRITICAL: {{ critical_reasons }}
+      ***
+      {% if virt_critical | bool %}
+      *** pan_task VIRT has reached or exceeded 144G.
+      *** The last time it hit 147G, the firewall crashed (OOM).
+      {% endif %}
+      {% if configd_res_critical | bool %}
+      *** configd RES has exceeded 4.5G.
+      *** This indicates excessive memory consumption by the config daemon.
+      {% endif %}
+      {% if avail_mem_critical | bool %}
+      *** Available memory has dropped below 5500 MiB.
+      *** Normal range is ~7400-7500 MiB (dips to ~6700 during commits).
+      {% endif %}
+      *** Immediate investigation is recommended.
+      {% endif %}
+
+      ------------------------------------------------------------
+      RAW SYSTEM RESOURCES OUTPUT
+      ------------------------------------------------------------
+      {{ resources_text }}
+
+      ============================================================
+      Thresholds:
+        - pan_task VIRT >= 144G  (crash point: 147G)
+        - configd RES > 4.5G
+        - Avail Mem < 5500 MiB  (normal: ~7400-7500 MiB)
+      ============================================================
+  run_once: true
