@@ -85,9 +85,9 @@
       debug:
         msg: "inventory_hostname={{ inventory_hostname }}, fw_ha_state={{ fw_ha_state }}"
 
-#    - name: Stop this host when firewall is not active
-#      meta: end_host
-#      when: fw_ha_state != 'active'
+    - name: Stop this host when firewall is not active
+      meta: end_host
+      when: fw_ha_state == 'passive'
 
   tasks:
 
