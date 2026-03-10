@@ -61,13 +61,9 @@
       ha_state: >-
         {{ ha_response.content | regex_search('<state>(.*?)</state>', '\1') | first | default('unknown') }}
 
-  - name: Debug HA state
-    debug:
-      msg: "inventory_hostname={{ inventory_hostname }}, active={{ ha_result.active }}"
-
-  - name: Stop this host when firewall is not active
+  - name: Stop if firewall is not active
     meta: end_host
-    when: not ha_result.active
+    when: ha_state != 'active'
 
   tasks:
 
