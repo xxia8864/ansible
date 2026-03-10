@@ -65,13 +65,6 @@
              and '<state-duration>' in (ha_state_response.content | lower).split('<local-info>')[1].split('</local-info>')[0]
              else '' }}
 
-    - name: Debug raw HA XML parsing
-      debug:
-        msg:
-          - "ha_local_info_prefix={{ ha_local_info_prefix }}"
-          - "ha_local_info_block={{ ha_local_info_block }}"
-          - "ha_xml_preview={{ ha_xml_lower[:500] }}"
-
     - name: Derive local HA role from local-info block
       set_fact:
         fw_ha_state: >-
@@ -92,9 +85,9 @@
       debug:
         msg: "inventory_hostname={{ inventory_hostname }}, fw_ha_state={{ fw_ha_state }}"
 
-    - name: Stop this host when firewall is not active
-      meta: end_host
-      when: fw_ha_state != 'active'
+#    - name: Stop this host when firewall is not active
+#      meta: end_host
+#      when: fw_ha_state != 'active'
 
   tasks:
 
