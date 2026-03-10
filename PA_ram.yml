@@ -139,10 +139,13 @@
         - name: Extract system resources text from XML response
           set_fact:
             system_resources_output: >-
-              {{ api_response.content | regex_search('<result>([\s\S]*?)</result>', '\1') | first | default('') }}
+              {{ api_response.content
+                 | regex_search('<!\[CDATA\[([\s\S]*?)\]\]>', '\1')
+                 | first | default('') }}
             _output_lines: >-
-              {{ (api_response.content | regex_search('<result>([\s\S]*?)</result>', '\1') | first | default('')).split('\n') }}
-
+              {{ (api_response.content
+                 | regex_search('<!\[CDATA\[([\s\S]*?)\]\]>', '\1')
+                 | first | default('')).split('\n') }}
         # ------------------------------------------------------------------
         # Condition 1 – Available memory
         #
