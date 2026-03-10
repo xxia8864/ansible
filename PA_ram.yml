@@ -21,7 +21,7 @@
   gather_facts: false
   connection: local
   collections:
-    - paloaltonetworks
+    - paloaltonetworks.panos
 
   vars:
     # ---- Alert thresholds (edit here to tune sensitivity) ----
@@ -37,7 +37,7 @@
     # running the monitoring logic on the wrong peer.
     # -------------------------------------------------------------------------
     - name: Determine if firewall is ACTIVE in HA
-      panos.panos_active_in_ha:
+      panos_active_in_ha:
         ip_address: "{{ inventory_hostname }}"
         api_key: "{{ panos_api_key }}"
       register: ha_result
