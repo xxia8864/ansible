@@ -34,52 +34,11 @@
     # If the HA query fails, fail the host immediately instead of silently
     # running the monitoring logic on the wrong peer.
     # -------------------------------------------------------------------------
-    - name: Call PAN-OS XML API – show high-availability state
-      uri:
-        url: "https://{{ inventory_hostname }}/api/"
-        method: POST
-        validate_certs: false
-        headers:
-          X-PAN-KEY: "{{ panos_api_key }}"
-        body_format: form-urlencoded
-        body:
-          type: "op"
-          cmd: "<show><high-availability><state></state></high-availability></show>"
-        return_content: true
-        status_code: [200]
-      register: ha_state_response
-      no_log: true
-
-    - name: Extract local-info block from HA XML response
-      set_fact:
-        ha_xml_lower: "{{ ha_state_response.content | lower }}"
-        ha_local_info_block: >-
-          {{ (ha_state_response.content | lower).split('<local-info>')[1].split('</local-info>')[0]
-             if '<local-info>' in (ha_state_response.content | lower)
-             and '</local-info>' in (ha_state_response.content | lower)
-             else '' }}
-        ha_local_info_prefix: >-
-          {{ ((ha_state_response.content | lower).split('<local-info>')[1].split('</local-info>')[0].split('<state-duration>')[0] | trim)
-             if '<local-info>' in (ha_state_response.content | lower)
-             and '</local-info>' in (ha_state_response.content | lower)
-             and '<state-duration>' in (ha_state_response.content | lower).split('<local-info>')[1].split('</local-info>')[0]
-             else '' }}
-
-    - name: Derive local HA role from local-info block
-      set_fact:
-        fw_ha_state: >-
-          {% if 'active' in ha_local_info_prefix and 'passive' not in ha_local_info_prefix %}active
-          {% elif 'passive' in ha_local_info_prefix %}passive
-          {% elif '<state>active</state>' in ha_local_info_block %}active
-          {% elif '<state>passive</state>' in ha_local_info_block %}passive
-          {% else %}unknown{% endif %}
-
-    - name: Fail if HA state could not be determined
-      fail:
-        msg: >-
-          Unable to determine HA state for {{ inventory_hostname }} from
-          PAN-OS XML API output. Refusing to continue.
-      when: fw_ha_state == 'unknown'
+    - name: Determine if firewall is ACTIVE in HA
+      paloaltonetworks.panos.panos_active_in_ha:
+        ip_address: "{{ inventory_hostname }}"
+        api_key: "{{ panos_api_key }}"
+      register: ha_result
 
     - name: Debug derived HA state
       debug:
