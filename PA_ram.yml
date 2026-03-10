@@ -50,12 +50,28 @@
       register: ha_state_response
       no_log: true
 
-    - name: Derive local HA role from API response
+    - name: Extract local-info block from HA XML response
+      set_fact:
+        ha_xml_lower: "{{ ha_state_response.content | lower }}"
+        ha_local_info_block: >-
+          {{ (ha_state_response.content | lower).split('<local-info>')[1].split('</local-info>')[0]
+             if '<local-info>' in (ha_state_response.content | lower)
+             and '</local-info>' in (ha_state_response.content | lower)
+             else '' }}
+
+    - name: Debug raw HA XML parsing
+      debug:
+        msg:
+          - "ha_local_info_block={{ ha_local_info_block }}"
+          - "ha_xml_preview={{ ha_xml_lower[:500] }}"
+
+    - name: Derive local HA role from local-info block
       set_fact:
         fw_ha_state: >-
-          {% set _ha_xml = ha_state_response.content | lower %}
-          {% if '<state>active</state>' in _ha_xml %}active
-          {% elif '<state>passive</state>' in _ha_xml %}passive
+          {% if '<state>active</state>' in ha_local_info_block %}active
+          {% elif '<state>passive</state>' in ha_local_info_block %}passive
+          {% elif '<state>active-primary</state>' in ha_local_info_block %}active
+          {% elif '<state>active-secondary</state>' in ha_local_info_block %}active
           {% else %}unknown{% endif %}
 
     - name: Fail if HA state could not be determined
@@ -64,6 +80,10 @@
           Unable to determine HA state for {{ inventory_hostname }} from
           PAN-OS XML API output. Refusing to continue.
       when: fw_ha_state == 'unknown'
+
+    - name: Debug derived HA state
+      debug:
+        msg: "inventory_hostname={{ inventory_hostname }}, fw_ha_state={{ fw_ha_state }}"
 
     - name: Stop this host when firewall is not active
       meta: end_host
