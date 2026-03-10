@@ -36,19 +36,19 @@
     # If the HA query fails, fail the host immediately instead of silently
     # running the monitoring logic on the wrong peer.
     # -------------------------------------------------------------------------
-    - name: Determine if firewall is ACTIVE in HA
-      panos_active_in_ha:
-        ip_address: "{{ inventory_hostname }}"
-        api_key: "{{ panos_api_key }}"
-      register: ha_result
+  - name: Determine if firewall is ACTIVE in HA
+    panos_active_in_ha:
+      ip_address: "{{ inventory_hostname }}"
+      api_key: "{{ panos_api_key }}"
+    register: ha_result
 
-    - name: Debug derived HA state
-      debug:
-        msg: "inventory_hostname={{ inventory_hostname }}, fw_ha_state={{ fw_ha_state }}"
+  - name: Debug HA state
+    debug:
+      msg: "inventory_hostname={{ inventory_hostname }}, active={{ ha_result.active }}"
 
-    - name: Stop this host when firewall is not active
-      meta: end_host
-      when: fw_ha_state == 'passive'
+  - name: Stop this host when firewall is not active
+    meta: end_host
+    when: not ha_result.active
 
   tasks:
 
