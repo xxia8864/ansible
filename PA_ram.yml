@@ -104,7 +104,6 @@
         body:
           type: "op"
           cmd: "<show><system><resources></resources></system></show>"
-          output-format: "json"
         return_content: true
         status_code: [200]
       register: api_response
@@ -137,10 +136,12 @@
 
         # Extract the plain-text 'top' dump from the JSON wrapper.
         # PAN-OS returns: {"response": {"@status": "success", "result": "<text>"}}
-        - name: Extract system resources text and split into lines
+        - name: Extract system resources text from XML response
           set_fact:
-            system_resources_output: "{{ api_response.json.response.result }}"
-            _output_lines: "{{ api_response.json.response.result.split('\n') }}"
+            system_resources_output: >-
+              {{ api_response.content | regex_search('<result>([\s\S]*?)</result>', '\1') | first | default('') }}
+            _output_lines: >-
+              {{ (api_response.content | regex_search('<result>([\s\S]*?)</result>', '\1') | first | default('')).split('\n') }}
 
         # ------------------------------------------------------------------
         # Condition 1 – Available memory
