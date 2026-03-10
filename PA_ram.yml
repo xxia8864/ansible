@@ -20,7 +20,8 @@
   hosts: all
   gather_facts: false
   connection: local
-  collections: paloaltonetworks
+  collections:
+    - paloaltonetworks
 
   vars:
     # ---- Alert thresholds (edit here to tune sensitivity) ----
