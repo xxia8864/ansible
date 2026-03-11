@@ -137,14 +137,14 @@
     - name: Parse available memory (MiB)
       set_fact:
         avail_mem_value: >-
-          {{ system_resources_output 
+          {{ api_response 
              | regex_search('([\d.]+)\s+avail\s+Mem', '\1') 
              | first | default('UNKNOWN') }}
 
     - name: Parse configd RES
       set_fact:
         configd_res_display: >-
-          {{ system_resources_output 
+          {{ api_response 
           | regex_search('\s+([\d.]+[gmkGMK]?)\s+\d+\s+[SRDZ].*configd', '\1') 
           | first | default('NOT FOUND') }}
 
