@@ -132,19 +132,19 @@
     # =========================================================================
     - name: Debug raw output
       debug:
-        var: api_response
-        
+        msg: "{{api_response.content}}"
+
     - name: Parse available memory (MiB)
       set_fact:
         avail_mem_value: >-
-          {{ system_resources_output
+          {{ api_response.content
              | regex_search('([\d.]+)\s+avail\s+Mem', '\1')
              | default([]) | first | default('UNKNOWN') }}
 
     - name: Parse configd RES
       set_fact:
         configd_res_display: >-
-          {{ system_resources_output
+          {{ api_response.content
              | regex_search('\s+([\d.]+[gmkGMK]?)\s+\d+\s+[SRDZ].*configd', '\1')
              | default([]) | first | default('NOT FOUND') }}
 
@@ -153,7 +153,7 @@
         msg:
           - "avail_mem_value={{ avail_mem_value }}"
           - "configd_res_display={{ configd_res_display }}"
-          
+
     - name: Evaluate available memory threshold
       set_fact:
         mem_alert: true
@@ -169,7 +169,7 @@
       when:
         - configd_res_display != 'NOT FOUND'
         - configd_res_display | float > configd_threshold_gb | float
-      
+
 
     # =========================================================================
     # Alert email
