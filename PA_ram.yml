@@ -149,6 +149,23 @@
         msg:
           - "avail_mem_value={{ avail_mem_value }}"
           - "configd_res_display={{ configd_res_display }}"
+          
+    - name: Evaluate available memory threshold
+      set_fact:
+        mem_alert: true
+        alert_triggered: true
+      when:
+        - avail_mem_value != 'UNKNOWN'
+        - avail_mem_value | float < avail_mem_threshold_mib | float
+
+    - name: Evaluate configd threshold
+      set_fact:
+        configd_alert: true
+        alert_triggered: true
+      when:
+        - configd_res_display != 'NOT FOUND'
+        - configd_res_display | float > configd_threshold_gb | float
+      
 
     # =========================================================================
     # Alert email
