@@ -141,11 +141,11 @@
              | regex_search('([\d.]+)\s+avail\s+Mem', '\1')
              | default([]) | first | default('UNKNOWN') }}
 
-    - name: Parse configd RES
+    - name: Parse pan_task VIRT
       set_fact:
-        configd_res_display: >-
+        pan_task_virt: >-
           {{ api_response.content
-             | regex_search('\s+([\d.]+[gmkGMK]?)\s+\d+\s+[SRDZ].*configd', '\1')
+             | regex_search('([\d.]+g)\s+[\d.]+g\s+[\d.]+g\s+[SRDZ].*pan_task', '\1')
              | default([]) | first | default('NOT FOUND') }}
 
     - name: Debug parsed memory values
