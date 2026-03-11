@@ -150,7 +150,7 @@
 
     - name: Get VIRT value from configd line
       set_fact:
-        configd_virt: "{{ configd_line.split()[4] }}"
+        configd_virt: "{{ configd_line.split()[3] }}"
       when: configd_line != ''
 
     - name: Debug parsed memory values
