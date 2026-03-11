@@ -130,6 +130,10 @@
     # =========================================================================
     # Parsing and threshold evaluation – skipped entirely if the API call failed
     # =========================================================================
+    - name: Debug raw output
+      debug:
+        var: system_resources_output
+        
     - name: Parse available memory (MiB)
       set_fact:
         avail_mem_value: >-
