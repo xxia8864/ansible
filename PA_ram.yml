@@ -141,12 +141,16 @@
              | regex_search('([\d.]+)\s+avail\s+Mem', '\1')
              | default([]) | first | default('UNKNOWN') }}
 
-    - name: Parse pan_task VIRT
+    - name: Get configd line
       set_fact:
-        pan_task_virt: >-
+        configd_line: >-
           {{ api_response.content
-             | regex_search('([\d.]+g)\s+[\d.]+g\s+[\d.]+g\s+[SRDZ].*pan_task', '\1')
-             | default([]) | first | default('NOT FOUND') }}
+             | regex_search('\n.*configd[^\n]*', '\0')
+             | default([]) | first | default('') | trim }}
+
+    - name: Get VIRT value from configd line
+      set_fact:
+        configd_virt: "{{ configd_line.split()[4] }}"
 
     - name: Debug parsed memory values
       debug:
