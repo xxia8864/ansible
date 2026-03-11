@@ -161,7 +161,7 @@
         - name: Locate the 'avail Mem' line in the top header
           set_fact:
             _avail_mem_line: >-
-              {{ _output_lines | select('search', 'avail Mem') | list | first | default('') }}
+              {{ _output_lines | select('search', 'avail Mem') | list | last | default('') }}
 
         - name: Extract avail Mem numeric value (MiB) via whitespace splitting
           set_fact:
