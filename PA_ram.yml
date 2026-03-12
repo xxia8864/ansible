@@ -190,7 +190,7 @@
     # can triage without having to log into the firewall separately.
     # =========================================================================
     - name: Send alert email when a threshold is breached or API call failed
-      community.general.mail:
+      mail:
         host: "{{ alert_smtp_host }}"
         from: "{{ alert_email_from }}"
         to: "{{ alert_email_to }}"
@@ -214,7 +214,7 @@
           Mem Alert      : {{ mem_alert }}
           configd Alert  : {{ configd_alert }}
 
-          ============================================================
+          ============================================================  
           FULL 'show system resources' OUTPUT:
           ============================================================
           {{ api_response.content | default(system_resources_output) }}
