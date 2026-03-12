@@ -41,6 +41,7 @@
 #      ip_address: "{{ inventory_hostname }}"
 #      api_key: "{{ panos_api_key }}"
 #    register: ha_result
+  - import_tasks: tasks/t_time_stamp.yml
   - name: Check HA state via XML API
     uri:
       url: "https://{{ inventory_hostname }}/api/"
@@ -158,6 +159,13 @@
         msg:
           - "avail_mem_value={{ avail_mem_value }}"
           - "configd_virt={{ configd_virt }}"
+
+    - name: Append RAM metrics to CSV file
+      shell: |
+        mkdir -p /tmp/tmpfiles
+        echo "{{ timestamp_day }},{{ timestamp_sec }},{{ avail_mem_value }},{{ configd_virt }}" >> /tmp/tmpfiles/ram.csv
+      args:
+        executable: /bin/bash
 
     - name: Evaluate available memory threshold
       set_fact:
