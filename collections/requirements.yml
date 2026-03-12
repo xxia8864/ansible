@@ -1,4 +1,4 @@
-collections:
+#collections:
 #  - name: ansible.netcommon
 #  - name: paloaltonetworks.panos
 #  - name: community.general
