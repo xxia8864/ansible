@@ -134,7 +134,7 @@
 
     - name: Define RAM output filename
       set_fact:
-        filename: "{{ inventory_hostname }}-RAM-{{ timestamp_sec }}"
+        filename: "{{ inventory_hostname }}-RAM-{{ timestamp_sec }}.txt"
 
     - name: Write raw API output to file
       copy:
