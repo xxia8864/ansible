@@ -25,8 +25,8 @@
 
   vars:
     # ---- Alert thresholds (edit here to tune sensitivity) ----
-    avail_mem_threshold_mib: 5000   # MiB – alert if available memory is BELOW this
-    configd_threshold_gb: 5000000      # GB  – alert if configd RES EXCEEDS this
+    avail_mem_threshold_mib: 8000   # MiB – alert if available memory is BELOW this
+    configd_threshold_gb: 5000000      # KB  – alert if configd RES EXCEEDS this
 
   pre_tasks:
 
@@ -131,9 +131,9 @@
     # =========================================================================
     # Parsing and threshold evaluation – skipped entirely if the API call failed
     # =========================================================================
-    - name: Debug raw output
-      debug:
-        msg: "{{api_response.content}}"
+#    - name: Debug raw output
+#      debug:
+#        msg: "{{api_response.content}}"
 
     - name: Parse available memory (MiB)
       set_fact:
