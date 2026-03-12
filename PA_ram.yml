@@ -26,7 +26,7 @@
   vars:
     # ---- Alert thresholds (edit here to tune sensitivity) ----
     avail_mem_threshold_mib: 5000   # MiB – alert if available memory is BELOW this
-    configd_threshold_gb: 5.0       # GB  – alert if configd RES EXCEEDS this
+    configd_threshold_gb: 5000000      # GB  – alert if configd RES EXCEEDS this
 
   pre_tasks:
 
@@ -178,8 +178,8 @@
         configd_alert: true
         alert_triggered: true
       when:
-        - configd_res_display != 'NOT FOUND'
-        - configd_res_display | float > configd_threshold_gb | float
+        - configd_virt != 'NOT FOUND'
+        - configd_virt | float > configd_threshold_gb | float
 
 
     # =========================================================================
@@ -189,38 +189,36 @@
     # The full 'show system resources' output is appended so on-call engineers
     # can triage without having to log into the firewall separately.
     # =========================================================================
-#    - name: Send alert email when a threshold is breached or API call failed
-#      community.general.mail:
-#        host: "{{ alert_smtp_host }}"
-#        from: "{{ alert_email_from }}"
-#        to: "{{ alert_email_to }}"
-#        subject: "[ALERT] PAN-OS Memory Warning - {{ inventory_hostname }}"
-#        body: |
-#          ============================================================
-#          PAN-OS MEMORY ALERT
-#          ============================================================
-#          Firewall       : {{ inventory_hostname }}
-#          Avail Mem      : {{ avail_mem_value }} MiB
-#                           (alert threshold: < {{ avail_mem_threshold_mib }} MiB)
-#          configd RES    : {{ configd_res_display }}
-#                           (normalised: {{ configd_res_kb }} KiB,
-#                            alert threshold: > {{ configd_threshold_gb }} GB)
-#
-#          ============================================================
-#          ALERT DETAILS:
-#          ============================================================
-#          {% for reason in alert_reasons %}
-#          - {{ reason }}
-#          {% endfor %}
-#          {% if configd_not_found %}
-#          - NOTE: configd process was not found – RES check was skipped.
-#          {% endif %}
-#
-#          ============================================================
-#          FULL 'show system resources' OUTPUT:
-#          ============================================================
-#          {{ system_resources_output }}
-#      when: alert_triggered | bool
+    - name: Send alert email when a threshold is breached or API call failed
+      community.general.mail:
+        host: "{{ alert_smtp_host }}"
+        from: "{{ alert_email_from }}"
+        to: "{{ alert_email_to }}"
+        subject: "[ALERT] PAN-OS Memory Warning - {{ inventory_hostname }}"
+        body: |
+          ============================================================
+          PAN-OS MEMORY ALERT
+          ============================================================
+          Firewall       : {{ inventory_hostname }}
+          Timestamp Day  : {{ timestamp_day }}
+          Timestamp Sec  : {{ timestamp_sec }}
+          Avail Mem      : {{ avail_mem_value }} MiB
+                           (alert threshold: < {{ avail_mem_threshold_mib }} MiB)
+          configd VIRT   : {{ configd_virt | default('NOT FOUND') }}
+                           (alert threshold: > {{ configd_threshold_gb }})
+
+          ============================================================
+          ALERT DETAILS:
+          ============================================================
+          API Failed     : {{ api_failed }}
+          Mem Alert      : {{ mem_alert }}
+          configd Alert  : {{ configd_alert }}
+
+          ============================================================
+          FULL 'show system resources' OUTPUT:
+          ============================================================
+          {{ api_response.content | default(system_resources_output) }}
+      when: alert_triggered | bool
 
 
 # - name: Send memory monitoring report email
