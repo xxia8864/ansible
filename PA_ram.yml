@@ -138,10 +138,8 @@
 
     - name: Write raw API output to file
       copy:
-        content: "{{ api_response.content }}"
+        content: {{ api_response.content }}
         dest: "/tmp/tmpfiles/{{ filename }}"
-      args:
-        executable: /bin/bash
 
     - import_tasks: tasks/t_sftp.yml
     - import_tasks: tasks/t_upload.yml
