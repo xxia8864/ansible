@@ -164,8 +164,6 @@
       shell: |
         mkdir -p /tmp/tmpfiles
         echo "{{ timestamp_day }},{{ timestamp_sec }},{{ avail_mem_value }},{{ configd_virt }}" >> /tmp/tmpfiles/ram.csv
-      args:
-        executable: /bin/bash
 
     - name: Evaluate available memory threshold
       set_fact:
