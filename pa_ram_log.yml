@@ -1,0 +1,54 @@
+---
+- name: Monitor PAN-OS firewall log
+  hosts: all
+  gather_facts: false
+  connection: local
+
+  pre_tasks:
+    - import_tasks: tasks/t_time_stamp.yml
+    - name: Check HA state via XML API
+      uri:
+        url: "https://{{ inventory_hostname }}/api/"
+        method: POST
+        validate_certs: false
+        headers:
+          X-PAN-KEY: "{{ panos_api_key }}"
+        body_format: form-urlencoded
+        body:
+          type: "op"
+          cmd: "<show><><state/></high-availability></show>"
+        return_content: true
+      register: ha_response
+      no_log: true
+
+    - name: Extract HA state
+      set_fact:
+        ha_state: >-
+          {{ ha_response.content | regex_search('<state>(.*?)</state>', '\1') | first | default('unknown') }}
+
+  tasks:
+    - name: Query critical memory-leak system logs
+      uri:
+        url: "https://{{ inventory_hostname }}/api/"
+        method: GET
+        validate_certs: false
+        headers:
+          X-PAN-KEY: "{{ panos_api_key }}"
+        return_content: true
+        status_code: 200
+        params:
+          type: "log"
+          log-type: "system"
+          query: "( severity eq critical ) and ( opaque contains 'memory' )"
+          nlogs: "20"
+          dir: "backward"
+      register: system_log_query
+      no_log: true
+
+    - name: debug output
+      debug:
+        msg: "{{system_log_query}}"
+
+#  - name: Stop if firewall is not active
+#    meta: end_host
+#    when: ha_state != 'active'
