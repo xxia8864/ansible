@@ -27,7 +27,7 @@
     # ---- Alert thresholds (edit here to tune sensitivity) ----
     avail_mem_threshold_mib: 5000   # MiB – alert if available memory is BELOW this
     configd_threshold_gb: 5000000   # KB  – alert if configd Virt EXCEEDS this
-    configd_threshold_res: 4.5      # GB  – alert if configd RES EXCEEDS this
+    configd_threshold_res: 1      # GB  – alert if configd RES EXCEEDS this
   pre_tasks:
 
     # -------------------------------------------------------------------------
@@ -199,7 +199,7 @@
         alert_triggered: true
       when:
         - configd_virt != 0
-        - configd_virt > configd_threshold_gb
+        - configd_virt | float > configd_threshold_gb | float
 
     - name: Evaluate configd_RES threshold
       set_fact:
@@ -207,7 +207,7 @@
         alert_triggered: true
       when:
         - configd_res_value != 0
-        - configd_res_value  > configd_threshold_res
+        - configd_res_value | float > configd_threshold_res | float
 
     # =========================================================================
     # Alert email
