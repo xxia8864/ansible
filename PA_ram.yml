@@ -75,6 +75,7 @@
         configd_alert: false
         configd_not_found: false
         api_failed: false
+        configd_virt: 0
         configd_res_raw: "N/A"
         configd_res_value: 0
         configd_res_alert: false
@@ -197,16 +198,16 @@
         configd_alert: true
         alert_triggered: true
       when:
-        - configd_virt != 'N/A'
-        - configd_virt | float > configd_threshold_gb | float
+        - configd_virt != 0
+        - configd_virt > configd_threshold_gb
 
     - name: Evaluate configd_RES threshold
       set_fact:
         configd_res_alert: true
         alert_triggered: true
       when:
-        - configd_res_value != 'N/A'
-        - configd_res_value | float > configd_threshold_res | float
+        - configd_res_value != 0
+        - configd_res_value  > configd_threshold_res
 
     # =========================================================================
     # Alert email
