@@ -5,7 +5,6 @@
   connection: local
 
   pre_tasks:
-    - import_tasks: tasks/t_time_stamp.yml
     - name: Check HA state via XML API
       uri:
         url: "https://{{ inventory_hostname }}/api/"
@@ -16,10 +15,10 @@
         body_format: form-urlencoded
         body:
           type: "op"
-          cmd: "<show><><state/></high-availability></show>"
+          cmd: "<show><high-availability><state/></high-availability></show>"
         return_content: true
       register: ha_response
-      no_log: false
+      no_log: true
 
     - name: Extract HA state
       set_fact:
