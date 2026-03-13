@@ -27,7 +27,7 @@
     # ---- Alert thresholds (edit here to tune sensitivity) ----
     avail_mem_threshold_mib: 5000   # MiB – alert if available memory is BELOW this
     configd_threshold_gb: 5000000   # KB  – alert if configd Virt EXCEEDS this
-    configd_threshold_res: 4      # GB  – alert if configd RES EXCEEDS this
+    configd_threshold_res: 1      # GB  – alert if configd RES EXCEEDS this
   pre_tasks:
 
     # -------------------------------------------------------------------------
@@ -216,12 +216,12 @@
     # The full 'show system resources' output is appended so on-call engineers
     # can triage without having to log into the firewall separately.
     # =========================================================================
-    - name: Send alert email when a threshold is breached or API call failed - {{ ha_state }}
+    - name: Send alert email when a threshold is breached or API call failed
       mail:
         host: "{{ alert_smtp_host }}"
         from: "{{ alert_email_from }}"
         to: "{{ alert_email_to }}"
-        subject: "PAN-OS Memory Warning - {{ ansible_network_hostname }}"
+        subject: "[test ignore]PAN-OS Memory Alert - {{ ansible_network_hostname }}"
         body: |
           ============================================================
           PAN-OS MEMORY ALERT
@@ -236,6 +236,8 @@
                            (alert threshold: > {{ configd_threshold_gb }})
           configd RES    : {{ configd_res_raw | default('N/A') }}
                            (alert threshold: > {{ configd_threshold_res }})
+          ============================================================
+          Please reboot firewall or run "debug software restart process configd" to clear memory.
 
           ============================================================
           ALERT DETAILS:
