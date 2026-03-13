@@ -5,6 +5,7 @@
   connection: local
 
   pre_tasks:
+    - import_tasks: tasks/t_time_stamp.yml
     - name: Check HA state via XML API
       uri:
         url: "https://{{ inventory_hostname }}/api/"
