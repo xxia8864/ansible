@@ -75,9 +75,7 @@
         configd_alert: false
         configd_not_found: false
         api_failed: false
-        avail_mem_value: "N/A"
         configd_res_raw: "N/A"
-        configd_virt: "N/A"
         configd_res_value: 0
         configd_res_alert: false
         alert_reasons: []
@@ -200,7 +198,7 @@
         alert_triggered: true
       when:
         - configd_virt != 'N/A'
-        - configd_virt > configd_threshold_gb | float
+        - configd_virt | float > configd_threshold_gb | float
 
     - name: Evaluate configd_RES threshold
       set_fact:
