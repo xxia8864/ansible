@@ -206,7 +206,7 @@
         alert_triggered: true
       when:
         - configd_res_value != 'N/A'
-        - configd_res_value > configd_threshold_res | float
+        - configd_res_value | float > configd_threshold_res | float
 
     # =========================================================================
     # Alert email
