@@ -46,7 +46,7 @@
 
     - name: debug output
       debug:
-        msg: "{{log_response}}"
+        msg: "{{log_response.content}}"
 
 #  - name: Stop if firewall is not active
 #    meta: end_host
