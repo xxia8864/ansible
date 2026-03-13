@@ -77,6 +77,7 @@
         api_failed: false
         avail_mem_value: "N/A"
         configd_res_raw: "N/A"
+        configd_virt: 0
         configd_res_value: 0
         alert_reasons: []
         system_resources_output: "Output not collected"
@@ -191,15 +192,15 @@
         configd_alert: true
         alert_triggered: true
       when:
-        - configd_res_raw != 'N/A'
-        - configd_res_value > configd_threshold_res | float
+        - configd_virt != 'N/A'
+        - configd_virt > configd_threshold_gb | float
 
-    - name: Evaluate configd threshold
+    - name: Evaluate configd_RES threshold
       set_fact:
-        configd_alert: true
+        configd_res_alert: true
         alert_triggered: true
       when:
-        - configd_res_raw != 'N/A'
+        - configd_res_value != 'N/A'
         - configd_res_value > configd_threshold_res | float
 
     # =========================================================================
@@ -235,7 +236,8 @@
           ============================================================
           API Failed     : {{ api_failed }}
           Mem Alert      : {{ mem_alert }}
-          configd Alert  : {{ configd_alert }}
+          configd VIRT   : {{ configd_alert }}
+          configd RES    : {{ configd_res_alert }}
 
           ============================================================  
           FULL 'show system resources' OUTPUT:
