@@ -19,7 +19,7 @@
           cmd: "<show><><state/></high-availability></show>"
         return_content: true
       register: ha_response
-      no_log: true
+      no_log: false
 
     - name: Extract HA state
       set_fact:
@@ -43,7 +43,7 @@
           nlogs: "20"
           dir: "backward"
       register: system_log_query
-      no_log: true
+      no_log: false
 
     - name: debug output
       debug:
