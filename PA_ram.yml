@@ -26,8 +26,8 @@
   vars:
     # ---- Alert thresholds (edit here to tune sensitivity) ----
     avail_mem_threshold_mib: 5000   # MiB – alert if available memory is BELOW this
-    configd_threshold_gb: 5000000      # KB  – alert if configd RES EXCEEDS this
-
+    configd_threshold_gb: 5000000   # KB  – alert if configd Virt EXCEEDS this
+    configd_threshold_res: 4.5      # KB  – alert if configd RES EXCEEDS this
   pre_tasks:
 
     # -------------------------------------------------------------------------
@@ -36,11 +36,7 @@
     # If the HA query fails, fail the host immediately instead of silently
     # running the monitoring logic on the wrong peer.
     # -------------------------------------------------------------------------
-#  - name: Determine if firewall is ACTIVE in HA
-#    panos_active_in_ha:
-#      ip_address: "{{ inventory_hostname }}"
-#      api_key: "{{ panos_api_key }}"
-#    register: ha_result
+
   - import_tasks: tasks/t_time_stamp.yml
   - name: Check HA state via XML API
     uri:
@@ -81,7 +77,6 @@
         api_failed: false
         avail_mem_value: "N/A"
         configd_res_display: "N/A"
-        configd_res_kb: 0
         alert_reasons: []
         system_resources_output: "Output not collected"
 
@@ -164,11 +159,17 @@
         configd_virt: "{{ configd_line.split()[3] }}"
       when: configd_line != ''
 
+    - name: Get RES value from configd line
+      set_fact:
+        configd_RES: "{{ configd_line.split()[4] }}"
+      when: configd_line != ''
+
     - name: Debug parsed memory values
       debug:
         msg:
           - "avail_mem_value={{ avail_mem_value }}"
           - "configd_virt={{ configd_virt }}"
+          - "configd_RES={{ configd_RES }}"
 
     - name: Append RAM metrics to CSV file
       shell: |
@@ -211,6 +212,7 @@
           Firewall       : {{ inventory_hostname }}
           Timestamp Day  : {{ timestamp_day }}
           Timestamp Sec  : {{ timestamp_sec }}
+          Role:          : {{ ha_state  }}
           Avail Mem      : {{ avail_mem_value }} MiB
                            (alert threshold: < {{ avail_mem_threshold_mib }} MiB)
           configd VIRT   : {{ configd_virt | default('NOT FOUND') }}
