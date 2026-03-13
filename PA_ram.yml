@@ -131,7 +131,7 @@
 
     - name: Define RAM output filename
       set_fact:
-        filename: "{{ ansible_network_hostname }}-RAM-{{ timestamp_sec }}.txt"
+        filename: "{{ ansible_network_hostname }}-{{ha_state}}-RAM-{{ timestamp_sec }}.txt"
 
     - name: Write raw API output to file
       copy:
@@ -175,9 +175,15 @@
           - "configd_res_raw={{ configd_res_raw }}"
           - "configd_res_value={{ configd_res_value }}"
 
-    - name: Append RAM metrics to CSV file
+    - name: Append active RAM metrics to CSV file
       shell: |
         echo "{{ timestamp_day }},{{ timestamp_sec }},{{ avail_mem_value }},{{ configd_virt }},{{ configd_res_raw }}" >> /tmp/tmpfiles/ram.csv
+      when: ha_state == active
+
+    - name: Append passive RAM metrics to CSV file
+      shell: |
+        echo "{{ timestamp_day }},{{ timestamp_sec }},{{ avail_mem_value }},{{ configd_virt }},{{ configd_res_raw }}" >> /tmp/tmpfiles/ram_passive.csv
+      when: ha_state == passive
 
     - name: Evaluate available memory threshold
       set_fact:
@@ -210,12 +216,12 @@
     # The full 'show system resources' output is appended so on-call engineers
     # can triage without having to log into the firewall separately.
     # =========================================================================
-    - name: Send alert email when a threshold is breached or API call failed
+    - name: Send alert email when a threshold is breached or API call failed - {{ ha_state }}
       mail:
         host: "{{ alert_smtp_host }}"
         from: "{{ alert_email_from }}"
         to: "{{ alert_email_to }}"
-        subject: "[test] PAN-OS Memory Warning - {{ ansible_network_hostname }}"
+        subject: "PAN-OS Memory Warning - {{ ansible_network_hostname }}"
         body: |
           ============================================================
           PAN-OS MEMORY ALERT
