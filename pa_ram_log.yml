@@ -27,23 +27,22 @@
           {{ ha_response.content | regex_search('<state>(.*?)</state>', '\1') | first | default('unknown') }}
 
   tasks:
-    - name: Query critical memory-leak system logs
+    - name: Query PAN-OS system log for memory critical events
       uri:
         url: "https://{{ inventory_hostname }}/api/"
-        method: GET
+        method: POST
         validate_certs: false
         headers:
           X-PAN-KEY: "{{ panos_api_key }}"
-        return_content: true
-        status_code: 200
-        params:
+        body_format: form-urlencoded
+        body:
           type: "log"
           log-type: "system"
-          query: "( severity eq critical ) and ( opaque contains 'memory' )"
-          nlogs: "20"
-          dir: "backward"
-      register: system_log_query
-      no_log: false
+          query: "(severity eq critical) and (description contains 'memory')"
+          nlogs: "10"
+        return_content: true
+      register: log_response
+      no_log: true
 
     - name: debug output
       debug:
