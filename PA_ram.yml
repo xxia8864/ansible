@@ -207,7 +207,7 @@
         configd_res_alert: true
         alert_triggered: true
       when:
-        - configd_res_value | float0 < 32
+        - configd_res_value | float < 32
         - configd_res_value | float > configd_threshold_res | float
 
     # =========================================================================
