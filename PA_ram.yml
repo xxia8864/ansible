@@ -207,6 +207,9 @@
         configd_res_alert: true
         alert_triggered: true
       when:
+        # PAN-OS returns RES inconsistently:
+        # values >= 1G look like "1.5g", while sub-1G values show as MB-like numbers.
+        # We regex-strip the unit and only treat values < 32 as GB-like values.
         - configd_res_value | float < 32
         - configd_res_value | float > configd_threshold_res | float
 
