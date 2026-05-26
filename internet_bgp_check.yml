@@ -9,7 +9,7 @@
   tasks:
     - name: Poll RIPEstat Looking Glass API
       ansible.builtin.uri:
-        url: "https://stat.ripe.net/data/looking-glass/data.json?resource={{ subnet }}&sourceapp=bgp-monitor"
+        url: "https://stat.ripe.net/data/looking-glass/data.json?resource={{ subnet }}"
         method: GET
         return_content: true
         status_code: 200
