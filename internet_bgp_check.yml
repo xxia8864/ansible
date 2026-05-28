@@ -63,7 +63,7 @@
         host: "{{ alert_smtp_host }}"
         from: "{{ alert_email_from }}"
         to: "{{ alert_email_to }}"
-        subject: "[Action Required] Internet BGP visibility issue detected"
+        subject: "[Action Required] {{ site }}Internet BGP visibility issue detected"
         body: |
           The following BGP visibility issues were detected from RIPEstat:
 
@@ -76,3 +76,7 @@
         - bgp_alerts is defined
         - bgp_alerts | length > 0
 
+isp1_name: CrownCastle
+isp2_name: Cogent
+isp1_cid: 439429-INET-CCF
+isp2_cid: 3-002247964
