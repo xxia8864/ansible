@@ -57,3 +57,22 @@
     - name: Show BGP alerts
       ansible.builtin.debug:
         var: bgp_alerts
+
+    - name: Send alert email if BGP alerts exist
+      mail:
+        host: "{{ alert_smtp_host }}"
+        from: "{{ alert_email_from }}"
+        to: "{{ alert_email_to }}"
+        subject: "[Action Required] Internet BGP visibility issue detected"
+        body: |
+          The following BGP visibility issues were detected from RIPEstat:
+
+          {% for alert in bgp_alerts %}
+          - {{ alert }}
+          {% endfor %}
+
+          Please verify upstream ISP advertisement and routing policy.
+      when:
+        - bgp_alerts is defined
+        - bgp_alerts | length > 0
+
