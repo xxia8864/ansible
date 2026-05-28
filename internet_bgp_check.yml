@@ -3,9 +3,6 @@
   hosts: localhost
   gather_facts: false
 
-  vars:
-    subnet: "203.0.113.0/24"
-
   tasks:
     - name: Poll RIPEstat Looking Glass API
       ansible.builtin.uri:
@@ -19,6 +16,37 @@
     - name: Store RIPEstat JSON output
       ansible.builtin.set_fact:
         api_output: "{{ ripe_response.json }}"
+
+    - name: Extract all AS paths
+      ansible.builtin.set_fact:
+        all_as_paths: >-
+          {{
+            api_output.data.rrcs
+            | map(attribute='entries')
+            | flatten
+            | map(attribute='as_path')
+            | flatten
+            | map('string')
+            | list
+          }}
+
+    - name: Debug all AS paths
+      ansible.builtin.debug:
+        var: all_as_paths
+
+    - name: Check ISP1 ASN visibility
+      ansible.builtin.set_fact:
+        bgp_alerts: "{{ bgp_alerts | default([]) + [ subnet ~ ' missing from ' ~ isp1_as ] }}"
+      when: isp1_as | string not in all_as_paths
+
+    - name: Check ISP2 ASN visibility
+      ansible.builtin.set_fact:
+        bgp_alerts: "{{ bgp_alerts | default([]) + [ subnet ~ ' missing from ' ~ isp2_as ] }}"
+      when: isp2_as | string not in all_as_paths
+
+    - name: Show BGP alerts
+      ansible.builtin.debug:
+        var: bgp_alerts
 
     - name: Show API output for review
       ansible.builtin.debug:
