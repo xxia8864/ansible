@@ -22,10 +22,11 @@
         all_as_paths: >-
           {{
             api_output.data.rrcs
-            | map(attribute='entries')
+            | default([])
+            | map(attribute='peers')
             | flatten
+            | selectattr('as_path', 'defined')
             | map(attribute='as_path')
-            | flatten
             | map('string')
             | list
           }}
