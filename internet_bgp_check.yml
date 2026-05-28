@@ -6,49 +6,54 @@
   tasks:
     - name: Poll RIPEstat Looking Glass API
       ansible.builtin.uri:
-        url: "https://stat.ripe.net/data/looking-glass/data.json?resource={{ subnet }}&sourceapp=bgp-monitor"
+        url: "https://stat.ripe.net/data/looking-glass/data.json?resource={{ item | urlencode }}&sourceapp=bgp-monitor"
         method: GET
         return_content: true
         status_code: 200
         timeout: 30
+      loop: "{{ subnet }}"
       register: ripe_response
 
     - name: Store RIPEstat JSON output
       ansible.builtin.set_fact:
-        api_output: "{{ ripe_response.json }}"
+        api_output: "{{ ripe_response.results | map(attribute='json') | list }}"
 
-    - name: Extract all AS paths
+    - name: Extract all AS paths per subnet
       ansible.builtin.set_fact:
-        all_as_paths: >-
+        subnet_as_paths: >-
           {{
-            api_output.data.rrcs
-            | default([])
-            | map(attribute='peers')
-            | flatten
-            | selectattr('as_path', 'defined')
-            | map(attribute='as_path')
-            | map('string')
-            | list
+            subnet_as_paths | default({})
+            | combine({
+                item.item: (
+                  item.json.data.rrcs
+                  | default([])
+                  | map(attribute='peers')
+                  | flatten
+                  | selectattr('as_path', 'defined')
+                  | map(attribute='as_path')
+                  | map('string')
+                  | list
+                )
+              })
           }}
+      loop: "{{ ripe_response.results }}"
 
-    - name: Debug all AS paths
+    - name: Debug all AS paths per subnet
       ansible.builtin.debug:
-        var: all_as_paths
+        var: subnet_as_paths
 
     - name: Check ISP1 ASN visibility
       ansible.builtin.set_fact:
-        bgp_alerts: "{{ bgp_alerts | default([]) + [ subnet ~ ' missing from ' ~ isp1_as ] }}"
-      when: isp1_as | string not in all_as_paths
+        bgp_alerts: "{{ bgp_alerts | default([]) + [ item ~ ' missing from ' ~ isp1_as ] }}"
+      when: isp1_as | string not in subnet_as_paths[item]
+      loop: "{{ subnet }}"
 
     - name: Check ISP2 ASN visibility
       ansible.builtin.set_fact:
-        bgp_alerts: "{{ bgp_alerts | default([]) + [ subnet ~ ' missing from ' ~ isp2_as ] }}"
-      when: isp2_as | string not in all_as_paths
+        bgp_alerts: "{{ bgp_alerts | default([]) + [ item ~ ' missing from ' ~ isp2_as ] }}"
+      when: isp2_as | string not in subnet_as_paths[item]
+      loop: "{{ subnet }}"
 
     - name: Show BGP alerts
       ansible.builtin.debug:
         var: bgp_alerts
-
-    - name: Show API output for review
-      ansible.builtin.debug:
-        var: api_output
