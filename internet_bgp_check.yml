@@ -44,13 +44,13 @@
 
     - name: Check ISP1 ASN visibility
       ansible.builtin.set_fact:
-        bgp_alerts: "{{ bgp_alerts | default([]) + [ item ~ ' missing from ' ~ isp1_as ] }}"
+        bgp_alerts: "{{ bgp_alerts | default([]) + [ item ~ ' is not visible through ' ~ isp1_name ~ ' circuit ' ~ isp1_cid ~ ' AS' ~ (isp1_as | string) ] }}"
       when: (subnet_as_paths[item] | select('search', '(^| )' ~ (isp1_as | string) ~ '( |$)') | list | length) == 0
       loop: "{{ subnet }}"
 
     - name: Check ISP2 ASN visibility
       ansible.builtin.set_fact:
-        bgp_alerts: "{{ bgp_alerts | default([]) + [ item ~ ' missing from ' ~ isp2_as ] }}"
+        bgp_alerts: "{{ bgp_alerts | default([]) + [ item ~ ' is not visible through ' ~ isp2_name ~ ' circuit ' ~ isp2_cid ~ ' AS' ~ (isp2_as | string) ] }}"
       when: (subnet_as_paths[item] | select('search', '(^| )' ~ (isp2_as | string) ~ '( |$)') | list | length) == 0
       loop: "{{ subnet }}"
 
@@ -65,18 +65,20 @@
         to: "{{ alert_email_to }}"
         subject: "[Action Required] {{ site }}Internet BGP visibility issue detected"
         body: |
-          The following BGP visibility issues were detected from RIPEstat:
+          The following Internet BGP visibility issues were detected from RIPEstat.
 
+          Site: {{ site }}
+
+          Affected prefixes / ISP circuits:
           {% for alert in bgp_alerts %}
           - {{ alert }}
           {% endfor %}
 
-          Please verify upstream ISP advertisement and routing policy.
+          Expected upstream visibility:
+          - {{ isp1_name }} / Circuit ID: {{ isp1_cid }} / ASN: {{ isp1_as }}
+          - {{ isp2_name }} / Circuit ID: {{ isp2_cid }} / ASN: {{ isp2_as }}
+
+          Please open a ticket with the affected ISP circuit and ask the provider to verify BGP advertisement, route policy, and upstream propagation for the listed prefix.
       when:
         - bgp_alerts is defined
         - bgp_alerts | length > 0
-
-isp1_name: CrownCastle
-isp2_name: Cogent
-isp1_cid: 439429-INET-CCF
-isp2_cid: 3-002247964
