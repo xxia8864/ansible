@@ -1,0 +1,63 @@
+---
+- name: Clear temporary BGP check variables
+  ansible.builtin.set_fact:
+    api_output: []
+    subnet_as_paths: {}
+    bgp_alerts: []
+
+- name: Poll RIPEstat Looking Glass API
+  ansible.builtin.uri:
+    url: "https://stat.ripe.net/data/looking-glass/data.json?resource={{ item | urlencode }}&sourceapp=bgp-monitor"
+    method: GET
+    return_content: true
+    status_code: 200
+    timeout: 30
+  loop: "{{ subnet }}"
+  register: ripe_response
+  until: ripe_response.status == 200
+  retries: 2
+  delay: 600
+
+- name: Store RIPEstat JSON output
+  ansible.builtin.set_fact:
+    api_output: "{{ ripe_response.results | map(attribute='json') | list }}"
+
+- name: Extract all AS paths per subnet
+  ansible.builtin.set_fact:
+    subnet_as_paths: >-
+      {{
+        subnet_as_paths | default({})
+        | combine({
+            item.item: (
+              item.json.data.rrcs
+              | default([])
+              | map(attribute='peers')
+              | flatten
+              | selectattr('as_path', 'defined')
+              | map(attribute='as_path')
+              | map('string')
+              | list
+            )
+          })
+      }}
+  loop: "{{ ripe_response.results }}"
+
+- name: Debug all AS paths per subnet
+  ansible.builtin.debug:
+    var: subnet_as_paths
+
+- name: Check ISP1 ASN visibility
+  ansible.builtin.set_fact:
+    bgp_alerts: "{{ bgp_alerts | default([]) + [ item ~ ' is not visible through ' ~ (isp1_name | string) ~ ' circuit ' ~ (isp1_cid | string) ~ ' AS' ~ (isp1_as | string) ] }}"
+  when: (subnet_as_paths[item] | default([]) | select('search', '(^| )' ~ (isp1_as | string) ~ '( |$)') | list | length) == 0
+  loop: "{{ subnet }}"
+
+- name: Check ISP2 ASN visibility
+  ansible.builtin.set_fact:
+    bgp_alerts: "{{ bgp_alerts | default([]) + [ item ~ ' is not visible through ' ~ (isp2_name | string) ~ ' circuit ' ~ (isp2_cid | string) ~ ' AS' ~ (isp2_as | string) ] }}"
+  when: (subnet_as_paths[item] | default([]) | select('search', '(^| )' ~ (isp2_as | string) ~ '( |$)') | list | length) == 0
+  loop: "{{ subnet }}"
+
+- name: Show BGP alerts
+  ansible.builtin.debug:
+    var: bgp_alerts

@@ -4,68 +4,32 @@
   gather_facts: false
 
   tasks:
-    - name: Poll RIPEstat Looking Glass API
-      ansible.builtin.uri:
-        url: "https://stat.ripe.net/data/looking-glass/data.json?resource={{ item | urlencode }}&sourceapp=bgp-monitor"
-        method: GET
-        return_content: true
-        status_code: 200
-        timeout: 30
-      loop: "{{ subnet }}"
-      register: ripe_response
+    - name: Run first-pass BGP visibility check
+      ansible.builtin.import_tasks: t_bgp_check.yml
 
-    - name: Store RIPEstat JSON output
+    - name: Save first-pass BGP alerts
       ansible.builtin.set_fact:
-        api_output: "{{ ripe_response.results | map(attribute='json') | list }}"
+        bgp_alerts_first_pass: "{{ bgp_alerts | default([]) }}"
 
-    - name: Extract all AS paths per subnet
-      ansible.builtin.set_fact:
-        subnet_as_paths: >-
-          {{
-            subnet_as_paths | default({})
-            | combine({
-                item.item: (
-                  item.json.data.rrcs
-                  | default([])
-                  | map(attribute='peers')
-                  | flatten
-                  | selectattr('as_path', 'defined')
-                  | map(attribute='as_path')
-                  | map('string')
-                  | list
-                )
-              })
-          }}
-      loop: "{{ ripe_response.results }}"
+    - name: Wait 10 minutes before second-pass BGP visibility check
+      ansible.builtin.pause:
+        seconds: 600
+      when:
+        - bgp_alerts_first_pass | length > 0
 
-    - name: Debug all AS paths per subnet
-      ansible.builtin.debug:
-        var: subnet_as_paths
+    - name: Run second-pass BGP visibility check
+      ansible.builtin.import_tasks: t_bgp_check.yml
+      when:
+        - bgp_alerts_first_pass | length > 0
 
-    - name: Check ISP1 ASN visibility
-      ansible.builtin.set_fact:
-        bgp_alerts: "{{ bgp_alerts | default([]) + [ item ~ ' is not visible through ' ~ isp1_name ~ ' circuit ' ~ isp1_cid ~ ' AS' ~ (isp1_as | string) ] }}"
-      when: (subnet_as_paths[item] | select('search', '(^| )' ~ (isp1_as | string) ~ '( |$)') | list | length) == 0
-      loop: "{{ subnet }}"
-
-    - name: Check ISP2 ASN visibility
-      ansible.builtin.set_fact:
-        bgp_alerts: "{{ bgp_alerts | default([]) + [ item ~ ' is not visible through ' ~ isp2_name ~ ' circuit ' ~ isp2_cid ~ ' AS' ~ (isp2_as | string) ] }}"
-      when: (subnet_as_paths[item] | select('search', '(^| )' ~ (isp2_as | string) ~ '( |$)') | list | length) == 0
-      loop: "{{ subnet }}"
-
-    - name: Show BGP alerts
-      ansible.builtin.debug:
-        var: bgp_alerts
-
-    - name: Send alert email if BGP alerts exist
+    - name: Send alert email if BGP alerts still exist
       mail:
         host: "{{ alert_smtp_host }}"
         from: "{{ alert_email_from }}"
         to: "{{ alert_email_to }}"
-        subject: "[Action Required] {{ site }}Internet BGP visibility issue detected"
+        subject: "[Action Required] {{ site }} Internet BGP visibility issue detected"
         body: |
-          The following Internet BGP visibility issues were detected from RIPEstat.
+          The following Internet BGP visibility issues were detected from RIPEstat after two checks 10 minutes apart.
 
           Site: {{ site }}
 
@@ -80,5 +44,7 @@
 
           Please open a ticket with the affected ISP circuit and ask the provider to verify BGP advertisement, route policy, and upstream propagation for the listed prefix.
       when:
+        - bgp_alerts_first_pass is defined
+        - bgp_alerts_first_pass | length > 0
         - bgp_alerts is defined
         - bgp_alerts | length > 0
