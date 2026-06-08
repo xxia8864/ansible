@@ -5,7 +5,7 @@
 
   tasks:
     - name: Run first-pass BGP visibility check
-      ansible.builtin.import_tasks: t_bgp_check.yml
+      ansible.builtin.import_tasks: tasks/t_bgp_check.yml
 
     - name: Save first-pass BGP alerts
       ansible.builtin.set_fact:
@@ -18,7 +18,7 @@
         - bgp_alerts_first_pass | length > 0
 
     - name: Run second-pass BGP visibility check
-      ansible.builtin.import_tasks: t_bgp_check.yml
+      ansible.builtin.import_tasks: tasks/t_bgp_check.yml
       when:
         - bgp_alerts_first_pass | length > 0
 
