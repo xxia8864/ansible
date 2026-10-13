@@ -1,0 +1,15 @@
+---
+# This is just test to see if ansible can run on firewall. 
+
+- hosts: "{{ target | default('ha_pair') }}"
+  connection: local
+  gather_facts: true
+  tasks:
+    - name: Check the HA pair addresses
+      assert:
+        that:
+          - primary_ip_address != secondary_ip_address
+        fail_msg: >-
+          primary_ip_address and secondary_ip_address are both {{ primary_ip_address }} for {{ inventory_hostname }}.
+          Fix the inventory so they point to the two different firewalls of the HA pair.
+        quiet: true
