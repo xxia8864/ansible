@@ -13,3 +13,28 @@
           primary_ip_address and secondary_ip_address are both {{ primary_ip_address }} for {{ inventory_hostname }}.
           Fix the inventory so they point to the two different firewalls of the HA pair.
         quiet: true
+        
+    - name: Determine which firewall is active in HA
+      paloaltonetworks.panos.panos_active_in_ha:
+        ip_address: "{{ item }}"
+        username: "{{ username | default(omit) }}"
+        password: "{{ password | default(omit) }}"
+      loop:
+        - "{{ inventory_ip_address }}"
+        - "{{ primary_ip_address }}"
+        - "{{ secondary_ip_address }}"
+      register: ha_status
+      retries: 3
+      delay: 10
+      until: ha_status is not failed
+
+    - name: Check that one firewall is active and the other passive
+      assert:
+        that:
+          - ha_status.results | selectattr('response.active', 'equalto', true) | list | length > 0
+          - ha_status.results | selectattr('response.active', 'equalto', false) | list | length > 0
+        fail_msg: >-
+          Expected one active and one passive firewall.
+          Active: {{ ha_status.results | selectattr('response.active', 'equalto', true) | map(attribute='item') | unique | join(', ') or 'none' }}.
+          Passive: {{ ha_status.results | selectattr('response.active', 'equalto', false) | map(attribute='item') | unique | join(', ') or 'none' }}.
+        quiet: true
