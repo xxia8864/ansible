@@ -33,13 +33,6 @@
       delegate_to: localhost
       run_once: true
 
-    - name: create tmp folder
-      file:
-        path: /tmp/tmpfiles
-        state: directory
-      delegate_to: localhost
-      run_once: true
-
     - name: create output file locally
       copy:
         content: |
