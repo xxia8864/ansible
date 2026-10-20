@@ -13,19 +13,25 @@
         filename: "{{ inventory_hostname }}_show_{{ timestamp_sec }}.txt"
 
   tasks:
-    - name: Determine which firewall is active in HA
-      paloaltonetworks.panos.panos_active_in_ha:
-        ip_address: "{{ item }}"
-        username: "{{ username | default(omit) }}"
-        password: "{{ password | default(omit) }}"
+    - name: Get HA state of both firewalls via ssh
+      shell: |
+        (sleep 5
+        echo "set cli pager off"
+        echo "show high-availability state"
+        sleep 2
+        echo "exit") | sshpass -e ssh -tt -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null {{ username }}@{{ item }}
+      environment:
+        SSHPASS: "{{ password }}"
       loop:
         - "{{ primary_ip_address }}"
         - "{{ secondary_ip_address }}"
       register: ha_status
 
+# first "State:" after "Local Information:" is this firewall's own state
     - name: Pick the active firewall
       set_fact:
-        active_fw: "{{ ha_status.results | selectattr('response.active') | map(attribute='item') | first }}"
+        active_fw: >-
+          {{ ha_status.results | selectattr('stdout', 'search', 'Local Information:[\s\S]*?State: active') | map(attribute='item') | first }}
 
     - name: print active firewall
       debug:
