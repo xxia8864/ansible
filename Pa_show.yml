@@ -1,53 +1,98 @@
 ---
 
-- name: run cli command on active PAN-OS firewall
+- name: run cli command on both PAN-OS firewalls of each HA pair
   hosts: "{{ target | default('ha_pair') }}"
   connection: local
   gather_facts: false
 
+  pre_tasks:
+# name: Generate timestamp once
+    - import_tasks: tasks/t_time_stamp.yml
+
+    - name: set file name
+      set_fact:
+        filename: "pa_show_output_{{ timestamp_sec }}.txt"
+      delegate_to: localhost
+      run_once: true
+
+    - name: create tmp folder
+      file:
+        path: /tmp/tmpfiles
+        state: directory
+      delegate_to: localhost
+      run_once: true
+
+    - name: create output file locally
+      copy:
+        content: |
+          =================================================
+          PAN-OS Command Output Report
+          Generated: {{ timestamp_day }} - {{ timestamp_sec }}
+          Total HA pairs: {{ ansible_play_hosts | length }}
+          =================================================
+        dest: "/tmp/tmpfiles/{{ filename }}"
+      run_once: true
+      delegate_to: localhost
+
   tasks:
-    - name: Determine which firewall is active in HA
-      paloaltonetworks.panos.panos_active_in_ha:
-        ip_address: "{{ item }}"
-        username: "{{ username | default(omit) }}"
-        password: "{{ password | default(omit) }}"
+# PAN-OS drops input sent before the CLI is ready, so wait before sending commands
+    - name: run commands on both firewalls via ssh
+      shell: |
+        (sleep 5
+        echo "set cli pager off"
+        {% for cmd in cli_cmd %}
+        echo {{ cmd | quote }}
+        sleep 2
+        {% endfor %}
+        echo "exit") | sshpass -e ssh -tt -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null {{ username }}@{{ item }}
+      environment:
+        SSHPASS: "{{ password }}"
       loop:
         - "{{ primary_ip_address }}"
         - "{{ secondary_ip_address }}"
-      register: ha_status
-
-    - name: Pick the active firewall
-      set_fact:
-        active_fw: "{{ ha_status.results | selectattr('response.active') | map(attribute='item') | first }}"
-
-    - name: print active firewall
-      debug:
-        msg: "Active firewall: {{ active_fw }}"
-
-    - name: run commands on the active firewall
-      paloaltonetworks.panos.panos_op:
-        provider:
-          ip_address: "{{ active_fw }}"
-          username: "{{ username | default(omit) }}"
-          password: "{{ password | default(omit) }}"
-        cmd: "{{ item }}"
-      loop: "{{ cli_cmd }}"
       register: cli_outputs
+      delegate_to: localhost
 
-    - name: Send output email
-      mail:
-        host: "{{ alert_smtp_host }}"
-        from: "{{ alert_email_from }}"
-        to: "{{ alert_email_to }}"
-        subject: "PAN-OS show output - {{ inventory_hostname }} ({{ active_fw }})"
-        body: |
+    - name: create host temporary output file
+      copy:
+        content: |
+
           HA pair: {{ inventory_hostname }}
-          Active firewall: {{ active_fw }}
           {% for result in cli_outputs.results %}
 
           ----------------------------------------
-          Command {{ loop.index }}: {{ result.item }}
+          Firewall: {{ result.item }}
           ----------------------------------------
-          {{ result.stdout_xml }}
+          {{ result.stdout }}
           {% endfor %}
+          =================================================
+        dest: "/tmp/tmpfiles/{{ filename }}-{{ inventory_hostname }}.txt"
+      delegate_to: localhost
+
+    - name: merge host temporary files into final report
+      shell: |
+        cat /tmp/tmpfiles/{{ filename }}-* >> /tmp/tmpfiles/{{ filename }}
+      delegate_to: localhost
+      run_once: true
+
+# add SFTP server to inventory
+    - import_tasks: tasks/t_sftp.yml
+      delegate_to: localhost
+      run_once: true
+
+# upload report file to SFTP server
+    - import_tasks: tasks/t_upload.yml
+      delegate_to: sftp_target
+      run_once: true
+
+  post_tasks:
+# delete tmp files
+    - import_tasks: tasks/t_delete_file.yml
+      delegate_to: localhost
+      run_once: true
+
+    - import_tasks: tasks/t_delete_file.yml
+      vars:
+        files_to_delete:
+          - "{{ filename }}-{{ inventory_hostname }}.txt"
       delegate_to: localhost
