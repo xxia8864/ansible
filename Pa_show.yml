@@ -14,7 +14,7 @@
         filename: "{{ inventory_hostname }}_show_{{ timestamp_sec }}.txt"
 
     - name: debug where localhost is
-      shell: hostname; whoami; ls -ld /tmp/tmpfiles
+      shell: hostname; whoami; pwd
       delegate_to: localhost
 
   tasks:
