@@ -1,12 +1,11 @@
 ---
-# Run show commands on both PAN-OS firewalls of each HA pair over SSH.
+# Run show commands on PAN-OS firewalls over SSH.
+# Each firewall is a normal inventory host, same as show.yml.
 #
-# PAN-OS has no network_cli plugin and does not accept "ssh host <cmd>",
-# so we drive an interactive SSH session with the expect module:
+# PAN-OS has no network_cli plugin, so drive the SSH session with expect:
 # wait for the CLI prompt, send one command, wait for the prompt again, ...
 #
-# Inventory host vars (one host per HA pair):
-#   primary_ip_address, secondary_ip_address, username, password
+# Credentials: ansible_user / ansible_password (AWX machine credential)
 # Extra vars:
 #   cli_cmd:
 #     - show system info
@@ -39,44 +38,36 @@
           =================================================
           PAN-OS Command Output Report
           Generated: {{ timestamp_day }} - {{ timestamp_sec }}
-          Total HA pairs: {{ ansible_play_hosts | length }}
+          Total Hosts: {{ ansible_play_hosts | length }}
           =================================================
         dest: "/tmp/tmpfiles/{{ filename }}"
       run_once: true
       delegate_to: localhost
 
   tasks:
-    - name: run commands on PAN-OS firewalls via ssh
+    - name: run commands on PAN-OS firewall via ssh
       expect:
         command: >-
           ssh -o StrictHostKeyChecking=no
           -o UserKnownHostsFile=/dev/null
           -o PubkeyAuthentication=no
-          {{ username }}@{{ item }}
+          {{ ansible_user }}@{{ ansible_host | default(inventory_hostname) }}
         responses:
-          '(?i)password:': "{{ password }}"
+          '(?i)password:': "{{ ansible_password }}"
           # each time the prompt shows up, send the next line
           '{{ panos_prompt }}': "{{ ['set cli pager off'] + cli_cmd + ['exit'] }}"
         timeout: "{{ panos_cmd_timeout }}"
-      loop:
-        - "{{ primary_ip_address }}"
-        - "{{ secondary_ip_address }}"
       register: cli_outputs
-      no_log: true
+      no_log: false
       delegate_to: localhost
 
     - name: create host temporary output file
       copy:
         content: |
 
-          HA pair: {{ inventory_hostname }}
-          {% for result in cli_outputs.results %}
-
+          IP: {{ inventory_hostname }}
           ----------------------------------------
-          Firewall: {{ result.item }}
-          ----------------------------------------
-          {{ result.stdout | replace('\r', '') }}
-          {% endfor %}
+          {{ cli_outputs.stdout | replace('\r', '') }}
           =================================================
         dest: "/tmp/tmpfiles/{{ filename }}-{{ inventory_hostname }}.txt"
       delegate_to: localhost
