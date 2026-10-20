@@ -16,6 +16,12 @@
         - "{{ secondary_ip_address }}"
       register: ha_status
 
+    - name: Debug per-firewall active state
+      debug:
+        msg: "ip={{ item.item }} active={{ item.response.active }} reason={{ item.response.reason }}"
+      loop: "{{ ha_status.results }}"
+
+
     - name: Pick the active firewall
       set_fact:
         active_fw: "{{ ha_status.results | selectattr('response.active') | map(attribute='item') | first }}"
