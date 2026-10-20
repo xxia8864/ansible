@@ -21,7 +21,7 @@
         host: "{{ alert_smtp_host }}"
         from: "{{ alert_email_from }}"
         to: "{{ alert_email_to }}"
-        subject: "PAN-OS show output - {{ inventory_hostname }} ({{ active_fw }})"
+        subject: "PAN-OS show output - {{ inventory_hostname }} )"
         body: |
           HA pair: {{ inventory_hostname }}
           Active firewall: {{ active_fw }}
