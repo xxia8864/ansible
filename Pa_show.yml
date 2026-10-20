@@ -22,6 +22,7 @@
     panos_prompt: '\S+@\S+> '
     panos_cmd_timeout: 120
 
+
   pre_tasks:
 # name: Generate timestamp once
     - import_tasks: tasks/t_time_stamp.yml
