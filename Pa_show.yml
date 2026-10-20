@@ -13,7 +13,7 @@
 #     - show high-availability state
 
 - name: run cli command on PAN-OS firewalls (SSH)
-  hosts: "{{ target  }}"
+  hosts: all
   gather_facts: no
   connection: local
 
