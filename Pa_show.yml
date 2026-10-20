@@ -1,103 +1,41 @@
 ---
-# Run show commands on PAN-OS firewalls over SSH.
-# Each firewall is a normal inventory host, same as show.yml.
-#
-# PAN-OS has no network_cli plugin, so drive the SSH session with expect:
-# wait for the CLI prompt, send one command, wait for the prompt again, ...
-#
-# Credentials: ansible_user / ansible_password (AWX machine credential)
-# Extra vars:
-#   cli_cmd:
-#     - show system info
-#     - show high-availability state
 
-- name: run cli command on PAN-OS firewalls (SSH)
-  hosts: all
-  gather_facts: no
+- name: run cli command on active PAN-OS firewall
+  hosts: "{{ target | default('ha_pair') }}"
   connection: local
-
-  vars:
-    # PAN-OS prompt, e.g. "admin@fw01(active)> "
-    panos_prompt: '\S+@\S+> '
-    panos_cmd_timeout: 120
-
-
-  pre_tasks:
-# name: Generate timestamp once
-    - import_tasks: tasks/t_time_stamp.yml
-
-    - name: set file name
-      set_fact:
-        filename: "pa_show_output_{{ timestamp_sec }}.txt"
-      delegate_to: localhost
-      run_once: true
-
-    - name: create output file locally
-      copy:
-        content: |
-          =================================================
-          PAN-OS Command Output Report
-          Generated: {{ timestamp_day }} - {{ timestamp_sec }}
-          Total Hosts: {{ ansible_play_hosts | length }}
-          =================================================
-        dest: "/tmp/tmpfiles/{{ filename }}"
-      run_once: true
-      delegate_to: localhost
+  gather_facts: false
 
   tasks:
-    - name: run commands on PAN-OS firewall via ssh
-      expect:
-        command: >-
-          ssh -o StrictHostKeyChecking=no
-          -o UserKnownHostsFile=/dev/null
-          -o PubkeyAuthentication=no
-          {{ ansible_user }}@{{ ansible_host | default(inventory_hostname) }}
-        responses:
-          '(?i)password:': "{{ ansible_password }}"
-          # each time the prompt shows up, send the next line
-          '{{ panos_prompt }}': "{{ ['set cli pager off'] + cli_cmd + ['exit'] }}"
-        timeout: "{{ panos_cmd_timeout }}"
+    - name: run commands on the active firewall
+      paloaltonetworks.panos.panos_op:
+        provider:
+          ip_address: "{{ active_fw }}"
+          username: "{{ username | default(omit) }}"
+          password: "{{ password | default(omit) }}"
+        cmd: "{{ item }}"
+      loop: "{{ cli_cmd }}"
       register: cli_outputs
-      no_log: false
-      delegate_to: localhost
 
-    - name: create host temporary output file
-      copy:
-        content: |
+    - name: Send output email
+      mail:
+        host: "{{ alert_smtp_host }}"
+        from: "{{ alert_email_from }}"
+        to: "{{ alert_email_to }}"
+        subject: "PAN-OS show output - {{ inventory_hostname }} ({{ active_fw }})"
+        body: |
+          HA pair: {{ inventory_hostname }}
+          Active firewall: {{ active_fw }}
+          {% for result in cli_outputs.results %}
 
-          IP: {{ inventory_hostname }}
           ----------------------------------------
-          {{ cli_outputs.stdout | replace('\r', '') }}
-          =================================================
-        dest: "/tmp/tmpfiles/{{ filename }}-{{ inventory_hostname }}.txt"
+          Command {{ loop.index }}: {{ result.item }}
+          ----------------------------------------
+          {# stdout is the XML response converted to JSON; render it as YAML #}
+          {% set data = (result.stdout | from_json).response.result | default('', true) %}
+          {% if data is string %}
+          {{ data | trim }}
+          {% else %}
+          {{ data | to_nice_yaml(indent=2, width=200) }}
+          {% endif %}
+          {% endfor %}
       delegate_to: localhost
-
-    - name: merge host temporary files into final report
-      shell: |
-        cat /tmp/tmpfiles/{{ filename }}-* >> /tmp/tmpfiles/{{ filename }}
-      delegate_to: localhost
-      run_once: true
-
-# add SFTP server to inventory
-    - import_tasks: tasks/t_sftp.yml
-      delegate_to: localhost
-      run_once: true
-
-# upload report file to SFTP server
-    - import_tasks: tasks/t_upload.yml
-      delegate_to: sftp_target
-      run_once: true
-
-  post_tasks:
-# delete tmp files
-    - import_tasks: tasks/t_delete_file.yml
-      delegate_to: localhost
-      run_once: true
-      no_log: false
-
-    - import_tasks: tasks/t_delete_file.yml
-      vars:
-        files_to_delete:
-          - "{{ filename }}-{{ inventory_hostname }}.txt"
-      delegate_to: localhost
-      no_log: false
