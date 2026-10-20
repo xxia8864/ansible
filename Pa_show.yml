@@ -31,6 +31,8 @@
       loop_control:
         label: "{{ item.0 }}: {{ item.1 }}"
       register: cli_outputs
+      # a failed command is recorded in the report, the loop moves on
+      ignore_errors: true
 
     - name: set report file name
       set_fact:
@@ -50,12 +52,16 @@
           ----------------------------------------
           Command {{ loop.index }}: {{ result.item.1 }}
           ----------------------------------------
+          {% if result is failed %}
+          FAILED: {{ result.msg | default('unknown error') }}
+          {% else %}
           {# stdout is the XML response converted to JSON; render it as YAML #}
           {% set data = (result.stdout | from_json).response.result | default('', true) %}
           {% if data is string %}
           {{ data | trim }}
           {% else %}
           {{ data | to_nice_yaml(indent=2, width=200) }}
+          {% endif %}
           {% endif %}
           {% endfor %}
           {% endfor %}
@@ -68,7 +74,14 @@
         from: "{{ alert_email_from }}"
         to: "{{ alert_email_to }}"
         subject: "PAN-OS show output - {{ inventory_hostname }}"
-        body: "PAN-OS show output for {{ inventory_hostname }} is attached: {{ filename }}"
+        body: |
+          PAN-OS show output for {{ inventory_hostname }} is attached: {{ filename }}
+          {% set failed = cli_outputs.results | select('failed') | list %}
+
+          Failed commands: {{ failed | length }}
+          {% for result in failed %}
+          - {{ result.item.0 }}: {{ result.item.1 }} -> {{ result.msg | default('unknown error') }}
+          {% endfor %}
         attach:
           - "/tmp/{{ filename }}"
       delegate_to: localhost
