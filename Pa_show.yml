@@ -48,9 +48,6 @@
         echo "exit") | sshpass -e ssh -tt -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null {{ username }}@{{ item }}
       environment:
         SSHPASS: "{{ password }}"
-      loop:
-        - "{{ primary_ip_address }}"
-        - "{{ secondary_ip_address }}"
       register: cli_outputs
       delegate_to: localhost
 
