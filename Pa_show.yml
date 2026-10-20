@@ -18,14 +18,7 @@
       - "{{ secondary_ip_address }}"
 
   tasks:
-    - name: Check the HA pair addresses
-      assert:
-        that:
-          - primary_ip_address != secondary_ip_address
-        fail_msg: >-
-          primary_ip_address and secondary_ip_address are both {{ primary_ip_address }} for {{ inventory_hostname }}.
-          Fix the inventory so they point to the two different firewalls of the HA pair.
-        quiet: true
+    - import_tasks: tasks/t_time_stamp.yml
 
     - name: run commands on both firewalls
       paloaltonetworks.panos.panos_op:
@@ -39,13 +32,13 @@
         label: "{{ item.0 }}: {{ item.1 }}"
       register: cli_outputs
 
-    - name: Send output email
-      mail:
-        host: "{{ alert_smtp_host }}"
-        from: "{{ alert_email_from }}"
-        to: "{{ alert_email_to }}"
-        subject: "PAN-OS show output - {{ inventory_hostname }}"
-        body: |
+    - name: set report file name
+      set_fact:
+        filename: "{{ inventory_hostname }}_{{ timestamp_sec }}.txt"
+
+    - name: write output to report file
+      copy:
+        content: |
           HA pair: {{ inventory_hostname }}
           {% for fw in fw_list %}
 
@@ -66,4 +59,21 @@
           {% endif %}
           {% endfor %}
           {% endfor %}
+        dest: "/tmp/{{ filename }}"
+      delegate_to: localhost
+
+    - name: Send output email
+      mail:
+        host: "{{ alert_smtp_host }}"
+        from: "{{ alert_email_from }}"
+        to: "{{ alert_email_to }}"
+        subject: "PAN-OS show output - {{ inventory_hostname }}"
+        body: "PAN-OS show output for {{ inventory_hostname }} is attached: {{ filename }}"
+        attach:
+          - "/tmp/{{ filename }}"
+      delegate_to: localhost
+
+  post_tasks:
+# delete tmp file
+    - import_tasks: tasks/t_delete_file.yml
       delegate_to: localhost
