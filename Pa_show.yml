@@ -5,23 +5,6 @@
   connection: local
   gather_facts: false
 
-  pre_tasks:
-# name: Generate timestamp once
-    - import_tasks: tasks/t_time_stamp.yml
-
-    - name: set file name
-      set_fact:
-        filename: "{{ inventory_hostname }}_show_{{ timestamp_sec }}.txt"
-
-    - name: debug where localhost is
-      shell: hostname; whoami; pwd
-      delegate_to: localhost
-      register: where_out
-
-    - name: print where localhost is
-      debug:
-        var: where_out.stdout_lines
-
   tasks:
     - name: Determine which firewall is active in HA
       paloaltonetworks.panos.panos_active_in_ha:
@@ -51,32 +34,20 @@
       loop: "{{ cli_cmd }}"
       register: cli_outputs
 
-    - name: create tmp folder
-      file:
-        path: /tmp/tmpfiles
-        state: directory
-      delegate_to: localhost
-
-    - name: write output file
-      copy:
-        content: |
+    - name: Send output email
+      mail:
+        host: "{{ alert_smtp_host }}"
+        from: "{{ alert_email_from }}"
+        to: "{{ alert_email_to }}"
+        subject: "PAN-OS show output - {{ inventory_hostname }} ({{ active_fw }})"
+        body: |
+          HA pair: {{ inventory_hostname }}
+          Active firewall: {{ active_fw }}
           {% for result in cli_outputs.results %}
+
           ----------------------------------------
           Command {{ loop.index }}: {{ result.item }}
           ----------------------------------------
           {{ result.stdout_xml }}
-
           {% endfor %}
-        dest: "/tmp/tmpfiles/{{ filename }}"
-      delegate_to: localhost
-
-# add SFTP server to inventory
-    - import_tasks: tasks/t_sftp.yml
-
-# upload output file to SFTP server
-    - import_tasks: tasks/t_upload.yml
-
-  post_tasks:
-# delete tmp file
-    - import_tasks: tasks/t_delete_file.yml
       delegate_to: localhost
