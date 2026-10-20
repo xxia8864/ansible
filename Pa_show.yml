@@ -1,19 +1,42 @@
 ---
+# Run show commands on both firewalls of a PAN-OS HA pair and email the output.
+# Inventory host vars (same as test_fw_inventory.yml):
+#   primary_ip_address / secondary_ip_address
+# Extra vars:
+#   cli_cmd:
+#     - show system info
+#     - show high-availability state
 
-- name: run cli command on active PAN-OS firewall
+- name: run cli command on both PAN-OS HA firewalls
   hosts: "{{ target | default('ha_pair') }}"
   connection: local
   gather_facts: false
 
+  vars:
+    fw_list:
+      - "{{ primary_ip_address }}"
+      - "{{ secondary_ip_address }}"
+
   tasks:
-    - name: run commands on the active firewall
+    - name: Check the HA pair addresses
+      assert:
+        that:
+          - primary_ip_address != secondary_ip_address
+        fail_msg: >-
+          primary_ip_address and secondary_ip_address are both {{ primary_ip_address }} for {{ inventory_hostname }}.
+          Fix the inventory so they point to the two different firewalls of the HA pair.
+        quiet: true
+
+    - name: run commands on both firewalls
       paloaltonetworks.panos.panos_op:
         provider:
-          ip_address: "{{ active_fw }}"
+          ip_address: "{{ item.0 }}"
           username: "{{ username | default(omit) }}"
           password: "{{ password | default(omit) }}"
-        cmd: "{{ item }}"
-      loop: "{{ cli_cmd }}"
+        cmd: "{{ item.1 }}"
+      loop: "{{ fw_list | product(cli_cmd) | list }}"
+      loop_control:
+        label: "{{ item.0 }}: {{ item.1 }}"
       register: cli_outputs
 
     - name: Send output email
@@ -21,13 +44,18 @@
         host: "{{ alert_smtp_host }}"
         from: "{{ alert_email_from }}"
         to: "{{ alert_email_to }}"
-        subject: "PAN-OS show output - {{ inventory_hostname }} )"
+        subject: "PAN-OS show output - {{ inventory_hostname }}"
         body: |
           HA pair: {{ inventory_hostname }}
-          {% for result in cli_outputs.results %}
+          {% for fw in fw_list %}
+
+          ========================================
+          Firewall: {{ fw }}
+          ========================================
+          {% for result in cli_outputs.results | selectattr('item.0', 'equalto', fw) %}
 
           ----------------------------------------
-          Command {{ loop.index }}: {{ result.item }}
+          Command {{ loop.index }}: {{ result.item.1 }}
           ----------------------------------------
           {# stdout is the XML response converted to JSON; render it as YAML #}
           {% set data = (result.stdout | from_json).response.result | default('', true) %}
@@ -36,5 +64,6 @@
           {% else %}
           {{ data | to_nice_yaml(indent=2, width=200) }}
           {% endif %}
+          {% endfor %}
           {% endfor %}
       delegate_to: localhost
