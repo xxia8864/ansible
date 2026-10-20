@@ -1,9 +1,5 @@
 ---
 
-- name: debug where localhost is
-  shell: hostname; whoami; ls -ld /tmp/tmpfiles
-  delegate_to: localhost
-
 - name: run cli command on active PAN-OS firewall
   hosts: "{{ target | default('ha_pair') }}"
   connection: local
@@ -16,6 +12,10 @@
     - name: set file name
       set_fact:
         filename: "{{ inventory_hostname }}_show_{{ timestamp_sec }}.txt"
+
+    - name: debug where localhost is
+      shell: hostname; whoami; ls -ld /tmp/tmpfiles
+      delegate_to: localhost
 
   tasks:
     - name: Determine which firewall is active in HA
