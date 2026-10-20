@@ -41,6 +41,12 @@
       loop: "{{ cli_cmd }}"
       register: cli_outputs
 
+    - name: create tmp folder
+      file:
+        path: /tmp/tmpfiles
+        state: directory
+      delegate_to: localhost
+
     - name: write output file
       copy:
         content: |
