@@ -16,6 +16,11 @@
     - name: debug where localhost is
       shell: hostname; whoami; pwd
       delegate_to: localhost
+      register: where_out
+
+    - name: print where localhost is
+      debug:
+        var: where_out.stdout_lines
 
   tasks:
     - name: Determine which firewall is active in HA
