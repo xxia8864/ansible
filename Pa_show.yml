@@ -52,6 +52,7 @@
 
           {% endfor %}
         dest: "/tmp/tmpfiles/{{ filename }}"
+      delegate_to: localhost
 
 # add SFTP server to inventory
     - import_tasks: tasks/t_sftp.yml
@@ -62,3 +63,4 @@
   post_tasks:
 # delete tmp file
     - import_tasks: tasks/t_delete_file.yml
+      delegate_to: localhost
