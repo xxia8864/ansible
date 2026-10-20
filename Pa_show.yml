@@ -24,7 +24,6 @@
         subject: "PAN-OS show output - {{ inventory_hostname }} )"
         body: |
           HA pair: {{ inventory_hostname }}
-          Active firewall: {{ active_fw }}
           {% for result in cli_outputs.results %}
 
           ----------------------------------------
