@@ -1,0 +1,60 @@
+---
+- name: run cli command on active PAN-OS firewall
+  hosts: "{{ target | default('ha_pair') }}"
+  connection: local
+  gather_facts: false
+
+  pre_tasks:
+# name: Generate timestamp once
+    - import_tasks: tasks/t_time_stamp.yml
+
+    - name: set file name
+      set_fact:
+        filename: "{{ inventory_hostname }}_show_{{ timestamp_sec }}.txt"
+
+  tasks:
+    - name: Determine which firewall is active in HA
+      paloaltonetworks.panos.panos_active_in_ha:
+        ip_address: "{{ item }}"
+        username: "{{ username | default(omit) }}"
+        password: "{{ password | default(omit) }}"
+      loop:
+        - "{{ primary_ip_address }}"
+        - "{{ secondary_ip_address }}"
+      register: ha_status
+
+    - name: Pick the active firewall
+      set_fact:
+        active_fw: "{{ ha_status.results | selectattr('response.active') | map(attribute='item') | first }}"
+
+    - name: run commands on the active firewall
+      paloaltonetworks.panos.panos_op:
+        provider:
+          ip_address: "{{ active_fw }}"
+          username: "{{ username | default(omit) }}"
+          password: "{{ password | default(omit) }}"
+        cmd: "{{ item }}"
+      loop: "{{ cli_cmd }}"
+      register: cli_outputs
+
+    - name: write output file
+      copy:
+        content: |
+          {% for result in cli_outputs.results %}
+          ----------------------------------------
+          Command {{ loop.index }}: {{ result.item }}
+          ----------------------------------------
+          {{ result.stdout_xml }}
+
+          {% endfor %}
+        dest: "/tmp/tmpfiles/{{ filename }}"
+
+# add SFTP server to inventory
+    - import_tasks: tasks/t_sftp.yml
+
+# upload output file to SFTP server
+    - import_tasks: tasks/t_upload.yml
+
+  post_tasks:
+# delete tmp file
+    - import_tasks: tasks/t_delete_file.yml
