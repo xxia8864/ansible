@@ -1,5 +1,6 @@
 ---
 
+
 - name: run cli command on both PAN-OS firewalls of each HA pair
   hosts: "{{ target | default('ha_pair') }}"
   connection: local
