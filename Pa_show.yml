@@ -39,11 +39,11 @@
 # PAN-OS drops input sent before the CLI is ready, so wait before sending commands
     - name: run commands on both firewalls via ssh
       shell: |
-        (sleep 5
+        (sleep 15
         echo "set cli pager off"
         {% for cmd in cli_cmd %}
         echo {{ cmd | quote }}
-        sleep 2
+        sleep 5
         {% endfor %}
         echo "exit") | sshpass -e ssh -tt -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null {{ username }}@{{ item }}
       environment:
