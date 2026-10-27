@@ -1,0 +1,386 @@
+---
+# PA_dp_cpu.yml
+# ============================================================
+# Monitor PAN-OS firewall DATA PLANE CPU (show running resource-monitor, per minute)
+# via the PAN-OS XML API (HTTPS, connection: local).
+#
+# Schedule this in AWX every 5 minutes. window_minutes must equal the schedule interval, so that
+# consecutive runs cover every minute exactly once (no gaps, no overlap).
+#
+# An alert email is sent when ANY of the following occurs:
+#   - The all-core average CPU is >= sustained_threshold for sustained_minutes consecutive minutes
+#   - Any single DP core averages >= hot_core_threshold for a full minute
+#   - The PAN-OS XML API call fails, or its output cannot be parsed
+# When an alert fires, extra evidence (ingress backlogs, session info, drop counters) is collected
+# and added to the email and to a second file on the SFTP server.
+#
+# Files (same flow as PA_ram.yml):
+#   /tmp/tmpfiles/dp_cpu.csv          one row per run, active/standalone unit
+#   /tmp/tmpfiles/dp_cpu_passive.csv  one row per run, passive unit
+#     columns: day,time,host,dp_cores,minute_avgs(| separated),window_avg,window_peak_avg,
+#              peak_core_avg,peak_core_max
+#   SFTP <sftp_path>/<YYYYMMDD>/<host>-<role>-DPCPU-<HHMMSS>.xml         raw API output, every run
+#   SFTP <sftp_path>/<YYYYMMDD>/<host>-<role>-DPCPU-ALERT-<HHMMSS>.txt   diagnostics, alert runs only
+#
+# Required AWX credential / extra-vars (never hardcoded here):
+#   panos_api_key    - PAN-OS XML API key
+#   alert_email_to   - Alert recipient address
+#   alert_email_from - Alert sender address
+#   alert_smtp_host  - SMTP relay hostname
+#   sftp_host, sftp_username, sftp_password, sftp_path - used by tasks/t_sftp.yml and tasks/t_upload.yml
+# ============================================================
+
+- name: Monitor PAN-OS firewall data plane CPU
+  hosts: all
+  gather_facts: false
+  connection: local
+
+  vars:
+    # ---- Alert thresholds (edit here to tune sensitivity) ----
+    window_minutes: 5            # per-minute samples to pull (= AWX schedule interval in minutes)
+    sustained_minutes: 3         # alert if the all-core average stays at/above the threshold this many minutes in a row
+    sustained_threshold: 80      # %  – all-core average
+    hot_core_threshold: 90       # %  – any single core's per-minute average
+  pre_tasks:
+
+  - import_tasks: tasks/t_time_stamp.yml
+  - name: Check HA state via XML API
+    uri:
+      url: "https://{{ inventory_hostname }}/api/"
+      method: POST
+      validate_certs: false
+      headers:
+        X-PAN-KEY: "{{ panos_api_key }}"
+      body_format: form-urlencoded
+      body:
+        type: "op"
+        cmd: "<show><high-availability><state/></high-availability></show>"
+      return_content: true
+    register: ha_response
+    no_log: true
+
+  - name: Extract HA state
+    set_fact:
+      ha_state: >-
+        {{ ha_response.content | regex_search('<state>(.*?)</state>', '\1') | first | default('unknown') }}
+
+#  - name: Stop if firewall is not active
+#    meta: end_host
+#    when: ha_state != 'active'
+
+  tasks:
+
+    # -------------------------------------------------------------------------
+    # Initialise every fact that later tasks may reference conditionally.
+    # -------------------------------------------------------------------------
+    - name: Initialise alert facts with safe defaults
+      set_fact:
+        alert_triggered: false
+        api_failed: false
+        parse_failed: false
+        sustained_alert: false
+        hot_core_alert: false
+        dp_avg_text: "N/A"
+        dp_peak_core_avg: "N/A"
+        dp_peak_core_max: "N/A"
+        dp_cores: 0
+        alert_reasons: []
+        diag_output: "No diagnostics collected"
+        resource_monitor_output: "API call failed – no output available"
+
+    # -------------------------------------------------------------------------
+    # Query the PAN-OS XML API for 'show running resource-monitor minute last N'.
+    # Same handling as PA_ram.yml: key in the header, no_log, ignore_errors so an
+    # alert email can still be sent when the call fails.
+    # -------------------------------------------------------------------------
+    - name: Call PAN-OS XML API – show running resource-monitor (per minute)
+      uri:
+        url: "https://{{ inventory_hostname }}/api/"
+        method: POST
+        validate_certs: false
+        headers:
+          X-PAN-KEY: "{{ panos_api_key }}"
+        body_format: form-urlencoded
+        body:
+          type: "op"
+          cmd: "<show><running><resource-monitor><minute><last>{{ window_minutes }}</last></minute></resource-monitor></running></show>"
+        return_content: true
+        status_code: [200]
+      register: api_response
+      ignore_errors: true
+      no_log: true
+
+    # PAN-OS can also answer HTTP 200 with status="error", so check the body too.
+    - name: Record API failure and arm alert
+      set_fact:
+        api_failed: true
+        alert_triggered: true
+        alert_reasons: >-
+          {{ alert_reasons + ['PAN-OS XML API call failed: ' ~
+             (api_response.msg | default(api_response.status | string | default('unknown error')))] }}
+      when: >
+        api_response.failed or
+        (api_response.status | default(0) | int) != 200 or
+        (api_response.content | default('')) is not search('status=.success')
+
+    # =========================================================================
+    # Parsing and rule evaluation – skipped entirely if the API call failed
+    # =========================================================================
+    - name: Parse data plane CPU and evaluate rules
+      when: not api_failed
+      block:
+
+        - name: Keep raw API output
+          set_fact:
+            resource_monitor_output: "{{ api_response.content }}"
+
+        # <cpu-load-average><entry><coreid>1</coreid><value>64,65,...</value></entry>...
+        # Cores with no data (the '*' columns in the CLI) have no numeric value and are not matched.
+        - name: Extract per-core series
+          set_fact:
+            avg_series: >-
+              {{ (api_response.content | regex_search('(?s)<cpu-load-average>.*?</cpu-load-average>') | default('', true))
+                 | regex_findall('<coreid>([0-9]+)</coreid>\s*<value>([0-9,]+)</value>')
+                 | map(attribute=1) | map('split', ',') | list }}
+            max_series: >-
+              {{ (api_response.content | regex_search('(?s)<(cpu-load-max[a-z-]*)>.*?</\1>') | default('', true))
+                 | regex_findall('<coreid>([0-9]+)</coreid>\s*<value>([0-9,]+)</value>')
+                 | map(attribute=1) | map('split', ',') | list }}
+
+        - name: Check the response was parsed
+          assert:
+            that:
+              - avg_series | length > 0
+              - avg_series[0] | length > 0
+              - avg_series[0] | length <= window_minutes
+            fail_msg: "Could not parse cpu-load-average, or more than {{ window_minutes }} samples came back"
+            quiet: true
+
+        # All-core average for each minute, plus the hottest single core in the window.
+        # The order of minutes inside <value> is not relied on: both rules are order-independent.
+        - name: Compute DP CPU statistics
+          set_fact:
+            dp_raw: >-
+              {%- set ns = namespace(avg=[], hot=0, pmax=-1) -%}
+              {%- for i in range(window_minutes) -%}
+              {%- set col = [] -%}
+              {%- for s in avg_series -%}{%- if s | length > i -%}{%- set _ = col.append(s[i] | int) -%}{%- endif -%}{%- endfor -%}
+              {%- if col -%}
+              {%- set ns.avg = ns.avg + [(col | sum / col | length) | round(1)] -%}
+              {%- set ns.hot = [ns.hot, col | max] | max -%}
+              {%- endif -%}
+              {%- endfor -%}
+              {%- for s in max_series -%}{%- for v in s -%}{%- set ns.pmax = [ns.pmax, v | int] | max -%}{%- endfor -%}{%- endfor -%}
+              {{ {'avg': ns.avg, 'peak_core_avg': ns.hot, 'peak_core_max': ns.pmax, 'cores': avg_series | length} | to_json }}
+
+        - name: Normalise statistics
+          set_fact:
+            dp: "{{ dp_raw if dp_raw is mapping else dp_raw | from_json }}"
+
+        - name: Store parsed values
+          set_fact:
+            dp_cores: "{{ dp.cores }}"
+            dp_avg_text: "{{ dp.avg | join('|') }}"
+            dp_peak_core_avg: "{{ dp.peak_core_avg }}"
+            dp_peak_core_max: "{{ dp.peak_core_max if dp.peak_core_max | int >= 0 else 'N/A' }}"
+
+        - name: Debug parsed DP CPU values
+          debug:
+            msg:
+              - "dp_cores={{ dp_cores }}"
+              - "per-minute all-core averages={{ dp_avg_text }}"
+              - "hottest core average={{ dp_peak_core_avg }}"
+              - "hottest single-second peak={{ dp_peak_core_max }}"
+
+        - name: Append active DP CPU metrics to CSV file
+          shell: |
+            echo "{{ timestamp_day }},{{ timestamp_sec }},{{ ansible_network_hostname }},{{ dp_cores }},{{ dp_avg_text }},{{ (dp.avg | sum / dp.avg | length) | round(1) }},{{ dp.avg | max }},{{ dp_peak_core_avg }},{{ dp_peak_core_max }}" >> /tmp/tmpfiles/dp_cpu.csv
+          when: ha_state != 'passive'
+
+        - name: Append passive DP CPU metrics to CSV file
+          shell: |
+            echo "{{ timestamp_day }},{{ timestamp_sec }},{{ ansible_network_hostname }},{{ dp_cores }},{{ dp_avg_text }},{{ (dp.avg | sum / dp.avg | length) | round(1) }},{{ dp.avg | max }},{{ dp_peak_core_avg }},{{ dp_peak_core_max }}" >> /tmp/tmpfiles/dp_cpu_passive.csv
+          when: ha_state == 'passive'
+
+        - name: Evaluate sustained all-core average threshold
+          set_fact:
+            sustained_alert: >-
+              {%- set a = dp.avg -%}
+              {%- set ns = namespace(hit=false) -%}
+              {%- for i in range(a | length - sustained_minutes + 1) -%}
+              {%- if a[i:i + sustained_minutes] | select('ge', sustained_threshold) | list | length == sustained_minutes -%}
+              {%- set ns.hit = true -%}
+              {%- endif -%}
+              {%- endfor -%}
+              {{ ns.hit }}
+
+        - name: Evaluate hot core threshold
+          set_fact:
+            hot_core_alert: "{{ dp.peak_core_avg | int >= hot_core_threshold | int }}"
+
+        - name: Arm alert when a rule is breached
+          set_fact:
+            alert_triggered: "{{ sustained_alert | bool or hot_core_alert | bool }}"
+            alert_reasons: >-
+              {{ alert_reasons
+                 + (['All-core average >= ' ~ sustained_threshold ~ '% for ' ~ sustained_minutes ~ ' consecutive minutes'] if sustained_alert | bool else [])
+                 + (['A core averaged >= ' ~ hot_core_threshold ~ '% for a full minute'] if hot_core_alert | bool else []) }}
+
+      rescue:
+        - name: Record parse failure and arm alert
+          set_fact:
+            parse_failed: true
+            alert_triggered: true
+            alert_reasons: "{{ alert_reasons + ['Could not parse resource-monitor output (raw file is on SFTP): ' ~ (ansible_failed_result.msg | default('unknown'))] }}"
+
+    # =========================================================================
+    # Extra evidence, collected only when an alert fired and the API is reachable.
+    # The delta counters are relative to the previous call, so the first call only
+    # sets the baseline; the third call then covers roughly the time spent in between.
+    # =========================================================================
+    - name: Collect diagnostics for the alert
+      when: alert_triggered | bool and not api_failed
+      block:
+
+        - name: Prime drop counter baseline
+          uri:
+            url: "https://{{ inventory_hostname }}/api/"
+            method: POST
+            validate_certs: false
+            headers:
+              X-PAN-KEY: "{{ panos_api_key }}"
+            body_format: form-urlencoded
+            body:
+              type: "op"
+              cmd: "<show><counter><global><filter><delta>yes</delta><severity>drop</severity></filter></global></counter></show>"
+          ignore_errors: true
+          no_log: true
+
+        - name: Collect ingress backlogs, session info and drop counters
+          uri:
+            url: "https://{{ inventory_hostname }}/api/"
+            method: POST
+            validate_certs: false
+            headers:
+              X-PAN-KEY: "{{ panos_api_key }}"
+            body_format: form-urlencoded
+            body:
+              type: "op"
+              cmd: "{{ item.cmd }}"
+            return_content: true
+          loop:
+            - name: "show running resource-monitor ingress-backlogs"
+              cmd: "<show><running><resource-monitor><ingress-backlogs/></resource-monitor></running></show>"
+            - name: "show session info"
+              cmd: "<show><session><info/></session></show>"
+            - name: "show counter global filter delta yes severity drop"
+              cmd: "<show><counter><global><filter><delta>yes</delta><severity>drop</severity></filter></global></counter></show>"
+          loop_control:
+            label: "{{ item.name }}"
+            pause: 10
+          register: diag
+          ignore_errors: true
+          no_log: true
+
+        - name: Assemble diagnostics text
+          set_fact:
+            diag_output: |
+              {% for r in diag.results if r.content is defined %}
+              ===== {{ r.item.name }} =====
+              {{ r.content }}
+
+              {% endfor %}
+
+    # -------------------------------------------------------------------------
+    # Output files. The raw API output is written on every run (it holds the failure
+    # text if the call failed), the alert file only when an alert fired.
+    # -------------------------------------------------------------------------
+    - name: Define output filenames
+      set_fact:
+        raw_filename: "{{ ansible_network_hostname }}-{{ ha_state }}-DPCPU-{{ timestamp_sec }}.xml"
+        alert_filename: "{{ ansible_network_hostname }}-{{ ha_state }}-DPCPU-ALERT-{{ timestamp_sec }}.txt"
+
+    - name: Define upload variables
+      set_fact:
+        filename: "{{ raw_filename }}"
+        files_to_delete: "{{ [raw_filename] + ([alert_filename] if alert_triggered | bool else []) }}"
+
+    - name: Write raw API output to file
+      copy:
+        content: "{{ resource_monitor_output }}"
+        dest: "/tmp/tmpfiles/{{ raw_filename }}"
+
+    - name: Write alert diagnostics to file
+      copy:
+        content: |
+          Firewall : {{ inventory_hostname }} ({{ ansible_network_hostname }})
+          Role     : {{ ha_state }}
+          Time     : {{ timestamp_day }} {{ timestamp_sec }}
+          Reasons  :
+          {% for r in alert_reasons %}
+            - {{ r }}
+          {% endfor %}
+
+          {{ diag_output }}
+        dest: "/tmp/tmpfiles/{{ alert_filename }}"
+      when: alert_triggered | bool
+
+    # =========================================================================
+    # Alert email
+    # Sent BEFORE the SFTP upload, so an SFTP outage cannot suppress the alert.
+    # All SMTP/address parameters come from AWX variables – nothing is hardcoded.
+    # =========================================================================
+    - name: Send alert email when a threshold is breached or API call failed
+      mail:
+        host: "{{ alert_smtp_host }}"
+        from: "{{ alert_email_from }}"
+        to: "{{ alert_email_to }}"
+        subject: "PAN-OS Data Plane CPU Alert - {{ ansible_network_hostname }}"
+        body: |
+          ============================================================
+          PAN-OS DATA PLANE CPU ALERT
+          ============================================================
+          Firewall       : {{ inventory_hostname }}
+          Timestamp Day  : {{ timestamp_day }}
+          Timestamp Sec  : {{ timestamp_sec }}
+          Role:          : {{ ha_state }}
+          DP cores       : {{ dp_cores }}
+          Minute avgs    : {{ dp_avg_text }} (all-core average per minute, last {{ window_minutes }} min)
+                           (alert threshold: >= {{ sustained_threshold }} for {{ sustained_minutes }} consecutive minutes)
+          Hottest core   : {{ dp_peak_core_avg }} (highest single-core per-minute average)
+                           (alert threshold: >= {{ hot_core_threshold }})
+          Peak 1s load   : {{ dp_peak_core_max }} (highest single-second value on any core)
+          ============================================================
+
+          ============================================================
+          ALERT DETAILS:
+          ============================================================
+          API Failed     : {{ api_failed }}
+          Parse Failed   : {{ parse_failed }}
+          Sustained avg  : {{ sustained_alert }}
+          Hot core       : {{ hot_core_alert }}
+          {% for r in alert_reasons %}
+          - {{ r }}
+          {% endfor %}
+
+          ============================================================
+          DIAGNOSTICS (first 8000 characters):
+          ============================================================
+          {{ diag_output | truncate(8000, true, '... [truncated]') }}
+
+          Full files on SFTP: {{ sftp_path }}/{{ timestamp_day }}/{{ raw_filename }}
+                              {{ sftp_path }}/{{ timestamp_day }}/{{ alert_filename }}
+      when: alert_triggered | bool
+
+    - import_tasks: tasks/t_sftp.yml
+    - import_tasks: tasks/t_upload.yml
+
+    - name: Switch upload filename to the alert file
+      set_fact:
+        filename: "{{ alert_filename }}"
+      when: alert_triggered | bool
+
+    - import_tasks: tasks/t_upload.yml
+      when: alert_triggered | bool
+
+    - import_tasks: tasks/t_delete_file.yml
