@@ -28,7 +28,7 @@
 
   vars:
     # ---- Alert threshold (edit here to tune sensitivity) ----
-    cpu_group_threshold: 80   # %  – alert if ANY group is ABOVE this
+    cpu_group_threshold: 50   # %  – alert if ANY group is ABOVE this
   pre_tasks:
 
   - import_tasks: tasks/t_time_stamp.yml
