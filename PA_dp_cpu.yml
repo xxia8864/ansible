@@ -9,11 +9,11 @@
 #   - The PAN-OS XML API call fails, or the group values cannot be found in the output
 #
 # The whole API output is saved as a .txt file on every run and uploaded to SFTP
-# (<sftp_path>/<YYYYMMDD>/<host>-<role>-DPCPU-<HHMMSS>.txt).
+# (<sftp_path>/<YYYYMMDD>/<host>-DPCPU-<HHMMSS>.txt).
 #
 # When an alert fires (and the API is reachable), the diag_commands below are also run
 # and their output is saved and uploaded as a second file
-# (<host>-<role>-DPCPU-DIAG-<HHMMSS>.txt). A failed command is marked FAILED in that
+# (<host>-DPCPU-DIAG-<HHMMSS>.txt). A failed command is marked FAILED in that
 # file and the host is failed at the end of the run, after everything is uploaded.
 #
 # Note: the group values are a single per-second snapshot taken when the API is called.
@@ -62,29 +62,6 @@
   pre_tasks:
 
   - import_tasks: tasks/t_time_stamp.yml
-  - name: Check HA state via XML API
-    uri:
-      url: "https://{{ inventory_hostname }}/api/"
-      method: POST
-      validate_certs: false
-      headers:
-        X-PAN-KEY: "{{ panos_api_key }}"
-      body_format: form-urlencoded
-      body:
-        type: "op"
-        cmd: "<show><high-availability><state/></high-availability></show>"
-      return_content: true
-    register: ha_response
-    no_log: true
-
-  - name: Extract HA state
-    set_fact:
-      ha_state: >-
-        {{ ha_response.content | regex_search('<state>(.*?)</state>', '\1') | first | default('unknown') }}
-
-#  - name: Stop if firewall is not active
-#    meta: end_host
-#    when: ha_state != 'active'
 
   tasks:
 
@@ -227,7 +204,7 @@
     # =========================================================================
     - name: Define output filename
       set_fact:
-        filename: "{{ ansible_network_hostname }}-{{ ha_state }}-DPCPU-{{ timestamp_sec }}.txt"
+        filename: "{{ ansible_network_hostname }}-DPCPU-{{ timestamp_sec }}.txt"
 
     - name: Send alert email when a group is over the threshold or API call failed
       mail:
@@ -242,7 +219,6 @@
           Firewall       : {{ inventory_hostname }}
           Timestamp Day  : {{ timestamp_day }}
           Timestamp Sec  : {{ timestamp_sec }}
-          Role:          : {{ ha_state }}
           Threshold      : any group above {{ cpu_group_threshold }}%
           ============================================================
           ALERT DETAILS:
@@ -282,7 +258,6 @@
       copy:
         content: |
           Firewall : {{ inventory_hostname }}
-          Role     : {{ ha_state }}
           Time     : {{ timestamp_day }} {{ timestamp_sec }}
           Reason   :
           {% for r in alert_reasons %}
