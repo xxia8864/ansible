@@ -6,7 +6,9 @@
 #
 # An alert email is sent when ANY of the following occurs:
 #   - Any group in "CPU load sampling by group" EXCEEDS cpu_group_threshold (%)
-#   - The PAN-OS XML API call fails, or the group values cannot be found in the output
+#   - The group values cannot be found in the output
+# A failed PAN-OS XML API call does NOT send an email; the error is written to the
+# saved output file instead.
 #
 # The whole API output is saved as a .txt file on every run and uploaded to SFTP
 # (<sftp_path>/<YYYYMMDD>/<host>-DPCPU-<HHMMSS>.txt).
@@ -33,7 +35,7 @@
 
   vars:
     # ---- Alert threshold (edit here to tune sensitivity) ----
-    cpu_group_threshold: 40   # %  – alert if ANY group is ABOVE this
+    cpu_group_threshold: 80   # %  – alert if ANY group is ABOVE this
 
     # ---- Commands run when an alert fires (output saved to the DIAG file) ----
     # Run in this order via the XML API (same call as resource-monitor above).
@@ -83,8 +85,8 @@
 
     # -------------------------------------------------------------------------
     # Query the PAN-OS XML API for 'show running resource-monitor'.
-    # Same handling as PA_ram.yml: key in the header, no_log, ignore_errors so an
-    # alert email can still be sent when the call fails.
+    # Same handling as PA_ram.yml: key in the header, no_log, ignore_errors so the
+    # error can still be recorded in the saved output file when the call fails.
     # -------------------------------------------------------------------------
     - name: Call PAN-OS XML API – show running resource-monitor
       uri:
@@ -104,13 +106,14 @@
       no_log: true
 
     # PAN-OS can also answer HTTP 200 with status="error", so check the body too.
-    - name: Record API failure and arm alert
+    # No alert email for an API failure; the error goes into the saved output file.
+    - name: Record API failure
       set_fact:
         api_failed: true
-        alert_triggered: true
-        alert_reasons: >-
-          {{ alert_reasons + ['PAN-OS XML API call failed: ' ~
-             (api_response.msg | default(api_response.status | string | default('unknown error')))] }}
+        resource_monitor_output: >-
+          PAN-OS XML API call failed:
+          {{ api_response.msg | default(api_response.status | string | default('unknown error')) }}
+          {{ api_response.content | default('') }}
       when: >
         api_response.failed or
         (api_response.status | default(0) | int) != 200 or
@@ -229,7 +232,7 @@
       set_fact:
         filename: "{{ ansible_network_hostname }}-DPCPU-{{ timestamp_sec }}.txt"
 
-    - name: Send alert email when a group is over the threshold or API call failed
+    - name: Send alert email when a group is over the threshold
       mail:
         host: "{{ alert_smtp_host }}"
         from: "{{ alert_email_from }}"
@@ -246,7 +249,6 @@
           ============================================================
           ALERT DETAILS:
           ============================================================
-          API Failed     : {{ api_failed }}
           Parse Failed   : {{ parse_failed }}
           {% for r in alert_reasons %}
           - {{ r }}
