@@ -79,6 +79,7 @@
         resource_monitor_output: "API call failed – no output available"
         diag_ran: false
         diag_failed: []
+        diag_errors: {}
 
     # -------------------------------------------------------------------------
     # Query the PAN-OS XML API for 'show running resource-monitor'.
@@ -193,9 +194,27 @@
     - name: Record diagnostic results
       set_fact:
         diag_ran: true
-        diag_failed: "{{ diag_outputs.results | select('failed') | map(attribute='item.cli') | list }}"
         diag_filename: "{{ ansible_network_hostname }}-DPCPU-DIAG-{{ timestamp_sec }}.txt"
       when: diag_outputs is not skipped
+
+    # Error text: PAN-OS <msg> from the response body (status="error"), or the uri
+    # error (timeout, connection refused, HTTP code) when there is no usable body.
+    # diag_errors maps command number -> error, used for the DIAG file headings.
+    - name: Record failed diagnostic commands
+      set_fact:
+        diag_errors: "{{ diag_errors | combine({(idx + 1) | string: err}) }}"
+        diag_failed: "{{ diag_failed + ['Command ' ~ (idx + 1) ~ ': ' ~ item.item.cli ~ \" -- FAILED '\" ~ err ~ \"'\"] }}"
+      vars:
+        body: "{{ item.content | default('') | regex_replace('<!\\[CDATA\\[|\\]\\]>', '') }}"
+        err: >-
+          {{ (body | regex_search('(?s)<msg>.*</msg>') | default(body, true)
+              | regex_replace('<[^>]+>', ' ') | regex_replace('\\s+', ' ') | trim)
+             or (item.msg | default('unknown error')) }}
+      loop: "{{ diag_outputs.results | default([]) }}"
+      loop_control:
+        index_var: idx
+        label: "{{ item.item.cli }}"
+      when: item is failed
 
     # =========================================================================
     # Alert email
@@ -263,13 +282,17 @@
           {% for r in alert_reasons %}
             - {{ r }}
           {% endfor %}
+          Failed   : {{ diag_failed | length }} of {{ diag_outputs.results | length }} commands
+          {% for f in diag_failed %}
+            - {{ f }}
+          {% endfor %}
           {% for result in diag_outputs.results %}
 
           ============================================================
-          Command {{ loop.index }}: {{ result.item.cli }}{{ ' | match ' ~ result.item.match if result.item.match is defined else '' }}
+          Command {{ loop.index }}: {{ result.item.cli }}{{ ' | match ' ~ result.item.match if result.item.match is defined else '' }}{{ " -- FAILED '" ~ diag_errors[loop.index | string] ~ "'" if result is failed else '' }}
           ============================================================
           {% if result is failed %}
-          FAILED: {{ result.msg | default('') }} {{ result.content | default('no response') }}
+          {{ result.content | default('no response from firewall') | trim }}
           {% else %}
           {# raw XML response; CDATA markers removed so text output (debug commands) reads cleanly #}
           {% set text = result.content | regex_replace('<!\\[CDATA\\[|\\]\\]>', '') | trim %}
@@ -300,6 +323,6 @@
 
     - name: Fail if any diagnostic command failed
       fail:
-        msg: "Diagnostic command(s) failed (see {{ diag_filename }}): {{ diag_failed | join(', ') }}"
+        msg: "{{ ['Diagnostic command(s) failed (see ' ~ diag_filename ~ '):'] + diag_failed }}"
       when: diag_failed | length > 0
 
