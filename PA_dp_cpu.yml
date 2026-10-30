@@ -195,7 +195,11 @@
       set_fact:
         diag_ran: true
         diag_filename: "{{ ansible_network_hostname }}-DPCPU-DIAG-{{ timestamp_sec }}.txt"
-      when: diag_outputs is not skipped
+      # same condition as the diagnostic run; a loop with every item skipped is not
+      # always marked skipped itself, so 'diag_outputs is not skipped' is not reliable
+      when:
+        - alert_triggered | bool
+        - not api_failed
 
     # Error text: PAN-OS <msg> from the response body (status="error"), or the uri
     # error (timeout, connection refused, HTTP code) when there is no usable body.
@@ -317,9 +321,9 @@
       delegate_to: sftp_target
       when: diag_ran
 
-    - import_tasks: tasks/t_delete_file.yml
-      vars:
-        files_to_delete: "{{ [filename] + ([diag_filename] if diag_ran else []) }}"
+    #- import_tasks: tasks/t_delete_file.yml
+    #  vars:
+    #    files_to_delete: "{{ [filename] + ([diag_filename] if diag_ran else []) }}"
 
     - name: Fail if any diagnostic command failed
       fail:
