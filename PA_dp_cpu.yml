@@ -36,19 +36,29 @@
     cpu_group_threshold: 40   # %  – alert if ANY group is ABOVE this
 
     # ---- Commands run when an alert fires (output saved to the DIAG file) ----
-    # Run in this order via panos_op. Argument values are quoted so they are sent as
-    # values (e.g. <delta>yes</delta>), not keywords. The XML API has no "| match",
-    # so 'match' filters the output lines here instead.
+    # Run in this order via the XML API (same call as resource-monitor above).
+    # cli = the CLI command (label only), xml = what is sent to the API.
+    # The XML API has no "| match", so 'match' filters the output lines here instead.
     diag_commands:
-      - { cmd: 'debug dataplane pow performance all', match: 'pbp' }
-      - { cmd: 'debug dataplane pow performance all' }
-      - { cmd: 'show running resource-monitor ingress-backlogs' }
-      - { cmd: 'show counter global filter delta "yes"' }
-      - { cmd: 'show running resource-monitor second last "10"' }
-      - { cmd: 'show session packet-buffer-protection' }
-      - { cmd: 'show counter global filter delta "yes"' }
-      - { cmd: 'show session info' }
-      - { cmd: 'show session all filter count "yes"' }
+      - cli: 'debug dataplane pow performance all'
+        xml: '<debug><dataplane><pow><performance><all/></performance></pow></dataplane></debug>'
+        match: 'pbp'
+      - cli: 'debug dataplane pow performance all'
+        xml: '<debug><dataplane><pow><performance><all/></performance></pow></dataplane></debug>'
+      - cli: 'show running resource-monitor ingress-backlogs'
+        xml: '<show><running><resource-monitor><ingress-backlogs/></resource-monitor></running></show>'
+      - cli: 'show counter global filter delta yes'
+        xml: '<show><counter><global><filter><delta>yes</delta></filter></global></counter></show>'
+      - cli: 'show running resource-monitor second last 10'
+        xml: '<show><running><resource-monitor><second><last>10</last></second></resource-monitor></running></show>'
+      - cli: 'show session packet-buffer-protection'
+        xml: '<show><session><packet-buffer-protection/></session></show>'
+      - cli: 'show counter global filter delta yes'
+        xml: '<show><counter><global><filter><delta>yes</delta></filter></global></counter></show>'
+      - cli: 'show session info'
+        xml: '<show><session><info/></session></show>'
+      - cli: 'show session all filter count yes'
+        xml: '<show><session><all><filter><count>yes</count></filter></all></session></show>'
   pre_tasks:
 
   - import_tasks: tasks/t_time_stamp.yml
@@ -177,17 +187,28 @@
     # A failed command is skipped here but shows as FAILED in the DIAG file,
     # and the host is failed at the end of the play.
     # -------------------------------------------------------------------------
-    - name: Run diagnostic commands on alert
-      paloaltonetworks.panos.panos_op:
-        provider:
-          ip_address: "{{ inventory_hostname }}"
-          api_key: "{{ panos_api_key }}"
-        cmd: "{{ item.cmd }}"
+    # PAN-OS can answer HTTP 200 with status="error", so failed_when checks the body too.
+    - name: Run diagnostic commands on alert via XML API
+      uri:
+        url: "https://{{ inventory_hostname }}/api/"
+        method: POST
+        validate_certs: false
+        headers:
+          X-PAN-KEY: "{{ panos_api_key }}"
+        body_format: form-urlencoded
+        body:
+          type: "op"
+          cmd: "{{ item.xml }}"
+        return_content: true
       loop: "{{ diag_commands }}"
       loop_control:
-        label: "{{ item.cmd }}{{ ' | match ' ~ item.match if item.match is defined else '' }}"
+        label: "{{ item.cli }}{{ ' | match ' ~ item.match if item.match is defined else '' }}"
       register: diag_outputs
+      failed_when: >
+        (diag_outputs.status | default(0) | int) != 200 or
+        (diag_outputs.content | default('')) is not search('status=.success')
       ignore_errors: true
+      no_log: true
       when:
         - alert_triggered | bool
         - not api_failed
@@ -195,7 +216,7 @@
     - name: Record diagnostic results
       set_fact:
         diag_ran: true
-        diag_failed: "{{ diag_outputs.results | select('failed') | map(attribute='item.cmd') | list }}"
+        diag_failed: "{{ diag_outputs.results | select('failed') | map(attribute='item.cli') | list }}"
         diag_filename: "{{ ansible_network_hostname }}-{{ ha_state }}-DPCPU-DIAG-{{ timestamp_sec }}.txt"
       when: diag_outputs is not skipped
 
@@ -270,14 +291,13 @@
           {% for result in diag_outputs.results %}
 
           ============================================================
-          Command {{ loop.index }}: {{ result.item.cmd }}{{ ' | match ' ~ result.item.match if result.item.match is defined else '' }}
+          Command {{ loop.index }}: {{ result.item.cli }}{{ ' | match ' ~ result.item.match if result.item.match is defined else '' }}
           ============================================================
           {% if result is failed %}
-          FAILED: {{ result.msg | default('unknown error') }}
+          FAILED: {{ result.msg | default('') }} {{ result.content | default('no response') }}
           {% else %}
-          {# stdout is the XML response converted to JSON; render it as text/YAML #}
-          {% set data = (result.stdout | from_json).response.result | default('', true) %}
-          {% set text = (data | trim) if data is string else (data | to_nice_yaml(indent=2, width=200)) %}
+          {# raw XML response; CDATA markers removed so text output (debug commands) reads cleanly #}
+          {% set text = result.content | regex_replace('<!\\[CDATA\\[|\\]\\]>', '') | trim %}
           {% if result.item.match is defined %}
           {{ text.splitlines() | select('search', result.item.match) | join('\n') }}
           {% else %}
