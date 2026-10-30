@@ -217,7 +217,7 @@
       set_fact:
         diag_ran: true
         diag_failed: "{{ diag_outputs.results | select('failed') | map(attribute='item.cli') | list }}"
-        diag_filename: "{{ ansible_network_hostname }}-{{ ha_state }}-DPCPU-DIAG-{{ timestamp_sec }}.txt"
+        diag_filename: "{{ ansible_network_hostname }}-DPCPU-DIAG-{{ timestamp_sec }}.txt"
       when: diag_outputs is not skipped
 
     # =========================================================================
