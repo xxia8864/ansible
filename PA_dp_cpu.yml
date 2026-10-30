@@ -321,7 +321,7 @@
       delegate_to: sftp_target
       when: diag_ran
 
-    #- import_tasks: tasks/t_delete_file.yml
-    #  vars:
-    #    files_to_delete: "{{ [filename] + ([diag_filename] if diag_ran else []) }}"
+    - import_tasks: tasks/t_delete_file.yml
+      vars:
+        files_to_delete: "{{ [filename] + ([diag_filename] if diag_ran else []) }}"
 
