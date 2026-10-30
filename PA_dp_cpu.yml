@@ -13,8 +13,8 @@
 #
 # When an alert fires (and the API is reachable), the diag_commands below are also run
 # and their output is saved and uploaded as a second file
-# (<host>-DPCPU-DIAG-<HHMMSS>.txt). A failed command is marked FAILED in that
-# file and the host is failed at the end of the run, after everything is uploaded.
+# (<host>-DPCPU-DIAG-<HHMMSS>.txt). A failed command does not stop the run; it is
+# recorded as "-- FAILED '<error>'" in that file and in the alert email.
 #
 # Note: the group values are a single per-second snapshot taken when the API is called.
 #
@@ -162,8 +162,8 @@
     # -------------------------------------------------------------------------
     # Alert diagnostics: run diag_commands right away so the output is close to
     # the moment the alert fired. Skipped when the API itself is down.
-    # A failed command is skipped here but shows as FAILED in the DIAG file,
-    # and the host is failed at the end of the play.
+    # A failed command does not stop the run; it is recorded as FAILED with its
+    # error in the DIAG file and the alert email.
     # -------------------------------------------------------------------------
     # PAN-OS can answer HTTP 200 with status="error", so failed_when checks the body too.
     - name: Run diagnostic commands on alert via XML API
@@ -324,9 +324,4 @@
     #- import_tasks: tasks/t_delete_file.yml
     #  vars:
     #    files_to_delete: "{{ [filename] + ([diag_filename] if diag_ran else []) }}"
-
-    - name: Fail if any diagnostic command failed
-      fail:
-        msg: "{{ ['Diagnostic command(s) failed (see ' ~ diag_filename ~ '):'] + diag_failed }}"
-      when: diag_failed | length > 0
 
