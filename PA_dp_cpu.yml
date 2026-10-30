@@ -203,3 +203,13 @@
     - import_tasks: tasks/t_sftp.yml
     - import_tasks: tasks/t_upload.yml
     - import_tasks: tasks/t_delete_file.yml
+
+debug dataplane pow performance all | match pbp
+debug dataplane pow performance all
+show running resource-monitor ingress-backlogs
+show counter global filter delta yes
+show running resource-monitor second last 10
+show session packet-buffer-protection
+show counter global filter delta yes
+show session info
+show session all filter count yes
