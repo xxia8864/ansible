@@ -10,13 +10,34 @@
     url: "https://stat.ripe.net/data/looking-glass/data.json?resource={{ item | urlencode }}&sourceapp=bgp-monitor"
     method: GET
     return_content: true
-    status_code: 200
+    status_code: [200]
     timeout: 30
   loop: "{{ subnet }}"
   register: ripe_response
-  until: ripe_response.status == 200
+  until: ripe_response.status | default(0) | int == 200
   retries: 2
   delay: 600
+  failed_when: false
+
+- name: Print raw RIPEstat public API response
+  ansible.builtin.debug:
+    msg: "{{ item.content | default(item.msg | default('No response body')) }}"
+  loop: "{{ ripe_response.results | default([]) }}"
+  loop_control:
+    label: "{{ item.item | default('unknown prefix') }}"
+
+- name: Fail play when RIPEstat public API check fails
+  ansible.builtin.fail:
+    msg: >-
+      RIPEstat public API check failed for {{ item.item | default('unknown prefix') }}:
+      HTTP {{ item.status | default('unreachable') }}.
+      {{ item.msg | default('') }}
+      {{ item.json.messages | default('') }}
+  loop: "{{ ripe_response.results | default([]) }}"
+  when: >-
+    item.failed | default(false)
+    or (item.status | default(0) | int != 200)
+    or (item.json.status | default('') != 'ok')
 
 - name: Store RIPEstat JSON output
   ansible.builtin.set_fact:
